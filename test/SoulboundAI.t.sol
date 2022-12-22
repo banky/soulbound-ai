@@ -79,7 +79,7 @@ contract SoulboundAITest is Test {
 
         assertEq(soulboundAI.ownerOf(0), user);
 
-        soulboundAI.burn(0);
+        soulboundAI.burn();
         vm.stopPrank();
 
         vm.expectRevert("ERC721: invalid token ID");
@@ -95,8 +95,8 @@ contract SoulboundAITest is Test {
         soulboundAI.safeMint{value: 0.01 ether}(user);
 
         vm.startPrank(otherUser);
-        vm.expectRevert("Only the owner of the token can burn it.");
-        soulboundAI.burn(0);
+        vm.expectRevert("ERC721Enumerable: owner index out of bounds");
+        soulboundAI.burn();
 
         vm.stopPrank();
     }

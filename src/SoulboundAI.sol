@@ -2,12 +2,12 @@
 
 pragma solidity ^0.8.17;
 
-import "openzeppelin/token/ERC721/ERC721.sol";
+import "openzeppelin/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin/utils/Counters.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
 
-contract SoulboundAI is ERC721, Ownable {
+contract SoulboundAI is ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -25,7 +25,8 @@ contract SoulboundAI is ERC721, Ownable {
         _safeMint(to, tokenId);
     }
 
-    function burn(uint256 tokenId) external {
+    function burn() external {
+        uint256 tokenId = tokenOfOwnerByIndex(msg.sender, 0);
         require(
             ownerOf(tokenId) == msg.sender,
             "Only the owner of the token can burn it."
