@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "dependencies": {
     "@next/font": "13.1.0",
@@ -14,6 +15,7 @@
     "@types/node": "18.11.17",
     "@types/react": "18.0.26",
     "@types/react-dom": "18.0.9",
+    "bip39": "^3.0.4",
     "eslint": "8.30.0",
     "eslint-config-next": "13.1.0",
     "ethers": "^5.7.2",
@@ -24,7 +26,11 @@
     "wagmi": "^0.9.5"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
     "autoprefixer": "^10.4.13",
+    "jest": "^29.3.1",
+    "jest-environment-jsdom": "^29.3.1",
     "postcss": "^8.4.20",
     "tailwindcss": "^3.2.4"
   }
