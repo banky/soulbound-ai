@@ -1,0 +1,4 @@
+{
+  "solidity.formatter": "prettier",
+  "editor.formatOnSave": true
+}
