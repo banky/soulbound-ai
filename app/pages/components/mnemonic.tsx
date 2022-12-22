@@ -2,15 +2,7 @@ import { useAccount } from "wagmi";
 import { publicKeyToMnemonic } from "../helpers/public-key";
 
 export const Mnemonic = () => {
-  const { isConnected, address, status } = useAccount();
-
-  if (status === "connecting" || status === "reconnecting")
-    return (
-      <div className="text-center">
-        <p>Loading...</p>
-        <p></p>
-      </div>
-    );
+  const { isConnected, address } = useAccount();
 
   return (
     <div className="text-center">

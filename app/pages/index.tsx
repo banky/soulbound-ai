@@ -1,7 +1,5 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import dynamic from "next/dynamic";
-import { useAccount } from "wagmi";
-import { Mnemonic } from "./components/mnemonic";
 
 // This is needed to prevent hydration issues since the server doesn't know when an account is connected
 export const MnemonicNoSSR = dynamic(
@@ -12,10 +10,6 @@ export const MnemonicNoSSR = dynamic(
 );
 
 export default function Home() {
-  const { address, status } = useAccount();
-
-  console.log("address:", address, status);
-
   return (
     <>
       <header className="flex justify-between">
