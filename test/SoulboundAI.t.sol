@@ -113,4 +113,18 @@ contract SoulboundAITest is Test {
 
         vm.stopPrank();
     }
+
+    function testUpdateFee() public {
+        soulboundAI.updateFee(0.02 ether);
+        assertEq(soulboundAI.fee(), 0.02 ether);
+    }
+
+    function testUpdateFeeFailsNonOwner() public {
+        address nonOwner = address(0xaedEF9f3BF15dBDc3E55d186CD23e29C9D439C8d);
+        vm.startPrank(nonOwner);
+        vm.expectRevert("Ownable: caller is not the owner");
+        soulboundAI.updateFee(0.02 ether);
+
+        vm.stopPrank();
+    }
 }

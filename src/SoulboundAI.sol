@@ -12,7 +12,7 @@ contract SoulboundAI is ERC721, Ownable {
 
     Counters.Counter private _tokenIdCounter;
 
-    uint256 constant fee = 0.01 ether;
+    uint256 public fee = 0.01 ether;
 
     constructor() ERC721("SoulboundAI", "SBAI") {}
 
@@ -72,5 +72,9 @@ contract SoulboundAI is ERC721, Ownable {
         (bool sent, ) = recipient.call{value: address(this).balance}("");
 
         require(sent, "Failed to transfer ether");
+    }
+
+    function updateFee(uint256 _fee) external onlyOwner {
+        fee = _fee;
     }
 }
