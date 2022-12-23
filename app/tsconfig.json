@@ -16,7 +16,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "contracts/*": ["../out/*"]
+      "contracts/*": ["../contracts/artifacts/src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "hardhat.config.ts.bak"],

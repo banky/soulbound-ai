@@ -14,7 +14,7 @@ import {
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { Inconsolata } from "@next/font/google";
-import NoSSR from "react-no-ssr";
+import dynamic from "next/dynamic";
 
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 
@@ -23,7 +23,7 @@ const { chains, provider } = configureChains(
   [publicProvider()]
 );
 const { connectors } = getDefaultWallets({
-  appName: "My RainbowKit App",
+  appName: "Soulbound AI",
   chains,
 });
 const wagmiClient = createClient({
@@ -32,16 +32,21 @@ const wagmiClient = createClient({
   provider,
 });
 
-export default function App({ Component, pageProps }: AppProps) {
+const App = ({ Component, pageProps }: AppProps) => {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        <NoSSR>
-          <div className={inconsolata.className}>
-            <Component {...pageProps} />
-          </div>
-        </NoSSR>
+        <div className={inconsolata.className}>
+          <Component {...pageProps} />
+        </div>
       </RainbowKitProvider>
     </WagmiConfig>
   );
-}
+};
+
+/**
+ * SSR doesn't work well with wagmi
+ */
+export default dynamic(() => Promise.resolve(App), {
+  ssr: false,
+});
