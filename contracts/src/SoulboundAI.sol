@@ -2,11 +2,10 @@
 
 pragma solidity ^0.8.17;
 
-import "openzeppelin/token/ERC721/extensions/ERC721Enumerable.sol";
-import "openzeppelin/utils/Counters.sol";
-import "openzeppelin/access/Ownable.sol";
-import "openzeppelin/utils/Strings.sol";
-import "forge-std/console.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SoulboundAI is ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;

@@ -4,6 +4,7 @@ import {
   useContractWrite,
   useAccount,
   useContractRead,
+  useWaitForTransaction,
 } from "wagmi";
 import SoulboundAI from "contracts/SoulboundAI.sol/SoulboundAI.json";
 
@@ -33,24 +34,50 @@ export const MintButton = () => {
     enabled: mintEnabled,
   });
 
+  const {
+    data: mintResult,
+    isLoading,
+    isSuccess,
+    writeAsync: mint,
+  } = useContractWrite(mintConfig);
+
   const { config: burnConfig } = usePrepareContractWrite({
     address: contractAddress,
     abi: SoulboundAI.abi,
     functionName: "burn",
     enabled: !mintEnabled,
   });
-  const { write: burn } = useContractWrite(burnConfig);
+  const { data: burnResult, write: burn } = useContractWrite(burnConfig);
 
-  const {
-    data,
-    isLoading,
-    isSuccess,
-    write: mint,
-  } = useContractWrite(mintConfig);
+  const { isLoading: mintLoading, isSuccess: mintSuccess } =
+    useWaitForTransaction({
+      hash: mintResult?.hash,
+    });
+
+  const { isLoading: burnLoading, isSuccess: burnSuccess } =
+    useWaitForTransaction({
+      hash: mintResult?.hash,
+    });
+
+  const onClickMint = async () => {
+    await mint?.();
+    console.log("minted");
+  };
+
+  if (mintLoading || burnLoading) {
+    return (
+      <button
+        className="bg-white rounded-sm px-12 py-2 text-blue mx-auto block w-fit"
+        disabled
+      >
+        Loading
+      </button>
+    );
+  }
 
   return mintEnabled ? (
     <button
-      onClick={() => mint?.()}
+      onClick={() => onClickMint()}
       className="bg-white rounded-sm px-12 py-2 text-blue mx-auto block w-fit"
     >
       Mint
