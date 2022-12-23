@@ -5,6 +5,7 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    working-directory: ./contracts
 
     steps:
       - uses: actions/checkout@v3
