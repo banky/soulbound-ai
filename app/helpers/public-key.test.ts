@@ -1,4 +1,4 @@
-import { publicKeyToMnemonic } from "../pages/helpers/public-key";
+import { publicKeyToMnemonic } from "../helpers/public-key";
 
 describe("publicKeyToMnemonic", () => {
   it("returns the correct mnemonic for a given address", () => {
