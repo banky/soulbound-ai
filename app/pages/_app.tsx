@@ -14,6 +14,7 @@ import {
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { Inconsolata } from "@next/font/google";
+import NoSSR from "react-no-ssr";
 
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 
@@ -35,9 +36,11 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
-        <div className={inconsolata.className}>
-          <Component {...pageProps} />
-        </div>
+        <NoSSR>
+          <div className={inconsolata.className}>
+            <Component {...pageProps} />
+          </div>
+        </NoSSR>
       </RainbowKitProvider>
     </WagmiConfig>
   );
