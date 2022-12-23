@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run build:contracts && next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "build:contracts": "cd ../contracts && npm run build"
   },
   "dependencies": {
     "@next/font": "13.1.0",

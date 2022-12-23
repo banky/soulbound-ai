@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "build": "npx hardhat compile",
     "test": "npx hardhat test"
   },
   "author": "",
