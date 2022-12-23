@@ -6,6 +6,7 @@ import "openzeppelin/token/ERC721/extensions/ERC721Enumerable.sol";
 import "openzeppelin/utils/Counters.sol";
 import "openzeppelin/access/Ownable.sol";
 import "openzeppelin/utils/Strings.sol";
+import "forge-std/console.sol";
 
 contract SoulboundAI is ERC721Enumerable, Ownable {
     using Counters for Counters.Counter;
@@ -31,23 +32,22 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
             ownerOf(tokenId) == msg.sender,
             "Only the owner of the token can burn it."
         );
-        _burn(tokenId);
+
+        super._burn(tokenId);
     }
 
     function _beforeTokenTransfer(
         address from,
         address to,
-        uint256,
-        uint256
-    ) internal pure override {
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal override {
         require(
             from == address(0) || to == address(0),
             "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner."
         );
-    }
 
-    function _burn(uint256 tokenId) internal override(ERC721) {
-        super._burn(tokenId);
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
     function _baseURI() internal pure override returns (string memory) {

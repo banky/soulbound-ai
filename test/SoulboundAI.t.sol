@@ -127,4 +127,24 @@ contract SoulboundAITest is Test {
 
         vm.stopPrank();
     }
+
+    function testRepeatedMintBurn() public {
+        address user = address(0xaedEF9f3BF15dBDc3E55d186CD23e29C9D439C8d);
+        deal(user, 0.3 ether);
+        vm.startPrank(user);
+
+        soulboundAI.safeMint{value: 0.01 ether}(user);
+        assertEq(soulboundAI.balanceOf(user), 1);
+
+        soulboundAI.burn();
+        assertEq(soulboundAI.balanceOf(user), 0);
+
+        soulboundAI.safeMint{value: 0.01 ether}(user);
+        assertEq(soulboundAI.balanceOf(user), 1);
+
+        soulboundAI.burn();
+        assertEq(soulboundAI.balanceOf(user), 0);
+
+        vm.stopPrank();
+    }
 }
