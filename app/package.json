@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest",
-    "build:contracts": "cd ../contracts && npm run build"
+    "build:contracts": "cd ../contracts && npm install && npm run build"
   },
   "dependencies": {
     "@next/font": "13.1.0",
