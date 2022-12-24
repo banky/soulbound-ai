@@ -7,9 +7,10 @@ import {
   useWaitForTransaction,
 } from "wagmi";
 import SoulboundAI from "contracts/SoulboundAI.sol/SoulboundAI.json";
+import { SOULBOUND_AI_ADDRESS } from "constants/contract-addresses";
 
 export const MintButton = () => {
-  const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "";
+  const contractAddress = SOULBOUND_AI_ADDRESS;
   const { address } = useAccount();
   const {
     data: balance,

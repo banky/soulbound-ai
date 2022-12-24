@@ -1,1 +1,0 @@
-1. Scrolling text like it's typing for some description of what this app does. Uses your public key to generate a unique sentence which then is used to generate an AI image for your SBT

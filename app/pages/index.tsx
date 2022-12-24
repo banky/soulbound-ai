@@ -1,11 +1,12 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { SOULBOUND_AI_ADDRESS } from "constants/contract-addresses";
 import { useAccount } from "wagmi";
 import { MintButton } from "../components/mint-button";
 import { Mnemonic } from "../components/mnemonic";
 
 export default function Home() {
   const { address } = useAccount();
-  const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "";
+  const contractAddress = SOULBOUND_AI_ADDRESS;
 
   // console.log("isFetched", isFetched);
 
