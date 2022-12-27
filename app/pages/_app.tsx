@@ -32,7 +32,7 @@ const wagmiClient = createClient({
   provider,
 });
 
-const App = ({ Component, pageProps }: AppProps) => {
+export default function App({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider chains={chains}>
@@ -42,11 +42,11 @@ const App = ({ Component, pageProps }: AppProps) => {
       </RainbowKitProvider>
     </WagmiConfig>
   );
-};
+}
 
 /**
  * SSR doesn't work well with wagmi
  */
-export default dynamic(() => Promise.resolve(App), {
-  ssr: false,
-});
+// export default dynamic(() => Promise.resolve(App), {
+//   ssr: false,
+// });

@@ -1,41 +1,54 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { SOULBOUND_AI_ADDRESS } from "constants/contract-addresses";
+import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { MintButton } from "../components/mint-button";
 import { Mnemonic } from "../components/mnemonic";
+import { deleteCookie, getCookie, setCookie } from "cookies-next";
+import { GetServerSidePropsContext } from "next";
+import { addressHasSBT } from "helpers/contract-reads";
+import { publicKeyToMnemonic } from "helpers/public-key";
 
-export default function Home() {
+type HomeProps = {
+  hasSBT: boolean;
+  mnemonic: string;
+};
+
+export const getServerSideProps = async ({
+  req,
+  res,
+}: GetServerSidePropsContext): Promise<{ props: HomeProps }> => {
+  const address = getCookie("address", { req, res })?.toString();
+
+  if (address === undefined) {
+    return {
+      props: { hasSBT: false, mnemonic: "" },
+    };
+  }
+
+  const hasSBT = await addressHasSBT(address);
+  const mnemonic = publicKeyToMnemonic(address);
+
+  return {
+    props: { hasSBT, mnemonic },
+  };
+};
+
+export default function Home({ hasSBT, mnemonic }: HomeProps) {
   const { address } = useAccount();
   const contractAddress = SOULBOUND_AI_ADDRESS;
 
-  // console.log("isFetched", isFetched);
+  useEffect(() => {
+    setCookie("address", address, { sameSite: "strict" });
 
-  // const { config: mintConfig } = usePrepareContractWrite({
-  //   address: contractAddress,
-  //   abi: SoulboundAI.abi,
-  //   functionName: "safeMint",
-  //   args: [address],
-  //   overrides: {
-  //     value: ethers.utils.parseEther("0.01"),
-  //   },
-  // });
-  // const {
-  //   data,
-  //   isLoading,
-  //   isSuccess,
-  //   write: mint,
-  // } = useContractWrite(mintConfig);
-
-  // const { config: burnConfig } = usePrepareContractWrite({
-  //   address: contractAddress,
-  //   abi: SoulboundAI.abi,
-  //   functionName: "burn",
-  // });
-  // const { write: burn } = useContractWrite(burnConfig);
+    if (address === undefined) {
+      deleteCookie("address");
+    }
+  }, [address]);
 
   return (
     <>
-      <header className="flex justify-between">
+      <header className="flex justify-between items-center">
         <h1 className="text-3xl">soulbound ai</h1>
         <ConnectButton />
       </header>
@@ -45,10 +58,10 @@ export default function Home() {
           Mint a unique SoulBound NFT using AI
         </h2>
         <div className="mb-8">
-          <Mnemonic />
+          <Mnemonic mnemonic={mnemonic} />
         </div>
 
-        <MintButton />
+        <MintButton hasSBT={hasSBT} />
       </main>
     </>
   );
