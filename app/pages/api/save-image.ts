@@ -38,5 +38,7 @@ export default async function handler(
   const imageResponse = await fetch(imageUrl);
 
   // @ts-ignore pipe exists
-  imageResponse?.body?.pipe(writeStream);
+  await imageResponse?.body?.pipe(writeStream);
+
+  return res.status(200).end();
 }

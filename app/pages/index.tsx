@@ -1,5 +1,4 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { SOULBOUND_AI_ADDRESS } from "constants/contract-addresses";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { MintButton } from "../components/mint-button";
@@ -8,6 +7,8 @@ import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { GetServerSidePropsContext } from "next";
 import { addressHasSBT } from "helpers/contract-reads";
 import { publicKeyToMnemonic } from "helpers/public-key";
+import { generateImages } from "helpers/api-calls";
+import { SelectImage } from "components/select-image";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -36,7 +37,6 @@ export const getServerSideProps = async ({
 
 export default function Home({ hasSBT, mnemonic }: HomeProps) {
   const { address } = useAccount();
-  const contractAddress = SOULBOUND_AI_ADDRESS;
 
   useEffect(() => {
     setCookie("address", address, { sameSite: "strict" });
@@ -45,6 +45,20 @@ export default function Home({ hasSBT, mnemonic }: HomeProps) {
       deleteCookie("address");
     }
   }, [address]);
+
+  const [prompt, setPrompt] = useState<string | undefined>(undefined);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  const onMint = async () => {
+    if (address === undefined) {
+      return;
+    }
+
+    const { prompt, imageUrls } = await generateImages(address);
+    setPrompt(prompt);
+    setImageUrls(imageUrls);
+  };
 
   return (
     <>
@@ -61,7 +75,14 @@ export default function Home({ hasSBT, mnemonic }: HomeProps) {
           <Mnemonic mnemonic={mnemonic} />
         </div>
 
-        <MintButton hasSBT={hasSBT} />
+        <MintButton hasSBT={hasSBT} onMint={onMint} />
+
+        <SelectImage
+          prompt={prompt}
+          imageUrls={imageUrls}
+          selectedImageIndex={selectedImageIndex}
+          setSelectedImageIndex={setSelectedImageIndex}
+        />
       </main>
     </>
   );

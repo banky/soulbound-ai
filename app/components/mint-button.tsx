@@ -3,7 +3,6 @@ import {
   usePrepareContractWrite,
   useContractWrite,
   useAccount,
-  useWaitForTransaction,
   useContractRead,
 } from "wagmi";
 import SoulboundAI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
@@ -13,12 +12,18 @@ import { useState } from "react";
 
 type MintButtonProps = {
   hasSBT: boolean;
+  onMint: () => Promise<void>;
 };
 
-export const MintButton = ({ hasSBT: initialHasSBT }: MintButtonProps) => {
+export const MintButton = ({
+  hasSBT: initialHasSBT,
+  onMint,
+}: MintButtonProps) => {
   const contractAddress = SOULBOUND_AI_ADDRESS;
   const { address } = useAccount();
-  const [hasSBT, setHasSBT] = useState(initialHasSBT);
+
+  const initialState = initialHasSBT ? "burn" : "mint";
+  const [mintState, setMintState] = useState<"mint" | "burn">(initialState);
 
   const { config: mintConfig } = usePrepareContractWrite({
     address: contractAddress,
@@ -28,7 +33,7 @@ export const MintButton = ({ hasSBT: initialHasSBT }: MintButtonProps) => {
     overrides: {
       value: ethers.utils.parseEther("0.01"),
     },
-    enabled: !hasSBT,
+    enabled: mintState === "mint",
   });
   const { writeAsync: mint } = useContractWrite(mintConfig);
 
@@ -36,7 +41,7 @@ export const MintButton = ({ hasSBT: initialHasSBT }: MintButtonProps) => {
     address: contractAddress,
     abi: SoulboundAI.abi,
     functionName: "burn",
-    enabled: hasSBT,
+    enabled: mintState === "burn",
   });
   const { writeAsync: burn } = useContractWrite(burnConfig);
 
@@ -46,40 +51,45 @@ export const MintButton = ({ hasSBT: initialHasSBT }: MintButtonProps) => {
     functionName: "balanceOf",
     args: [address],
     onSuccess: (data: BigNumber) => {
-      setHasSBT(data.gt(0));
+      if (data.gt(0)) {
+        setMintState("burn");
+      } else {
+        setMintState("mint");
+      }
     },
   });
 
-  const [mintLoading, setMintLoading] = useState(false);
-  const [burnLoading, setBurnLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onClickMint = async () => {
-    setMintLoading(true);
+    setLoading(true);
 
     const sendTransactionResult = await mint?.();
     await sendTransactionResult?.wait();
     await refetchHasSBT();
 
-    setMintLoading(false);
+    await onMint();
+
+    setLoading(false);
   };
 
   const onClickBurn = async () => {
-    setBurnLoading(true);
+    setLoading(true);
 
     const sendTransactionResult = await burn?.();
     await sendTransactionResult?.wait();
     await refetchHasSBT();
 
-    setBurnLoading(false);
+    setLoading(false);
   };
 
-  if (mintLoading || burnLoading) {
+  if (loading) {
     return <Button disabled>Loading</Button>;
   }
 
-  return hasSBT ? (
-    <Button onClick={() => onClickBurn()}>Burn</Button>
-  ) : (
-    <Button onClick={() => onClickMint()}>Mint</Button>
-  );
+  if (mintState === "burn") {
+    return <Button onClick={() => onClickBurn()}>Burn</Button>;
+  }
+
+  return <Button onClick={() => onClickMint()}>Mint</Button>;
 };
