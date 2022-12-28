@@ -7,7 +7,7 @@ import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { GetServerSidePropsContext } from "next";
 import { addressHasSBT } from "helpers/contract-reads";
 import { publicKeyToMnemonic } from "helpers/public-key";
-import { generateImages } from "helpers/api-calls";
+import { deleteImage, generateImages } from "helpers/api-calls";
 import { SelectImage } from "components/select-image";
 
 type HomeProps = {
@@ -60,6 +60,17 @@ export default function Home({ hasSBT, mnemonic }: HomeProps) {
     setImageUrls(imageUrls);
   };
 
+  const onBurn = async () => {
+    if (address === undefined) {
+      return;
+    }
+
+    await deleteImage(address);
+
+    setPrompt(undefined);
+    setImageUrls([]);
+  };
+
   return (
     <>
       <header className="flex justify-between items-center">
@@ -75,7 +86,7 @@ export default function Home({ hasSBT, mnemonic }: HomeProps) {
           <Mnemonic mnemonic={mnemonic} />
         </div>
 
-        <MintButton hasSBT={hasSBT} onMint={onMint} />
+        <MintButton hasSBT={hasSBT} onMint={onMint} onBurn={onBurn} />
 
         <SelectImage
           prompt={prompt}

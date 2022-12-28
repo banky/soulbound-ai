@@ -13,11 +13,13 @@ import { useState } from "react";
 type MintButtonProps = {
   hasSBT: boolean;
   onMint: () => Promise<void>;
+  onBurn: () => Promise<void>;
 };
 
 export const MintButton = ({
   hasSBT: initialHasSBT,
   onMint,
+  onBurn,
 }: MintButtonProps) => {
   const contractAddress = SOULBOUND_AI_ADDRESS;
   const { address } = useAccount();
@@ -79,6 +81,8 @@ export const MintButton = ({
     const sendTransactionResult = await burn?.();
     await sendTransactionResult?.wait();
     await refetchHasSBT();
+
+    await onBurn();
 
     setLoading(false);
   };

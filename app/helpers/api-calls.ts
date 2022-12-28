@@ -33,3 +33,15 @@ export const saveImage = async (
     }),
   });
 };
+
+export const deleteImage = async (address: string): Promise<void> => {
+  await fetch("/api/delete-image", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      address,
+    }),
+  });
+};
