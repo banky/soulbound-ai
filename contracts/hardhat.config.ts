@@ -6,6 +6,14 @@ const config: HardhatUserConfig = {
   paths: {
     sources: "./src",
   },
+  networks: {
+    hardhat: {
+      mining: {
+        auto: false,
+        interval: 5000,
+      },
+    },
+  },
 };
 
 export default config;

@@ -14,7 +14,6 @@ import {
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { Inconsolata } from "@next/font/google";
-import dynamic from "next/dynamic";
 
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 
@@ -43,10 +42,3 @@ export default function App({ Component, pageProps }: AppProps) {
     </WagmiConfig>
   );
 }
-
-/**
- * SSR doesn't work well with wagmi
- */
-// export default dynamic(() => Promise.resolve(App), {
-//   ssr: false,
-// });
