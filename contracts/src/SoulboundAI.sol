@@ -50,7 +50,7 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
     }
 
     function _baseURI() internal pure override returns (string memory) {
-        return "https://soulbound-ai.party/image/";
+        return "https://storage.googleapis.com/soulbound-ai/";
     }
 
     function tokenURI(uint256 tokenId)

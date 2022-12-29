@@ -56,7 +56,7 @@ describe("SoulboundAI", () => {
     const tokenUri = await soulboundAI.tokenURI(0);
 
     expect(tokenUri).to.equal(
-      `https://soulbound-ai.party/image/${owner.address.toLowerCase()}.png`
+      `https://storage.googleapis.com/soulbound-ai/${owner.address.toLowerCase()}.png`
     );
   });
 
