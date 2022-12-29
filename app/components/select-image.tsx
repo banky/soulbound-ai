@@ -30,7 +30,7 @@ export const SelectImage = ({
     <div className="text-center mt-8">
       <p>Select an image below and that's it!</p>
 
-      <div className="flex gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
         {imageUrls.map((imageUrl, index) => {
           return (
             <button key={imageUrl} onClick={() => onClickImage(index)}>
