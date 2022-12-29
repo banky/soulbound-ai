@@ -1,5 +1,4 @@
 import { saveImage } from "helpers/api-calls";
-import Image from "next/image";
 import { useAccount } from "wagmi";
 
 type SelectImageProps = {
@@ -29,6 +28,8 @@ export const SelectImage = ({
 
   return (
     <div className="text-center mt-8">
+      <p>Select an image below and that's it!</p>
+
       <div className="flex gap-4">
         {imageUrls.map((imageUrl, index) => {
           return (

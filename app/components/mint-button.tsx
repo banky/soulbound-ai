@@ -9,6 +9,7 @@ import SoulboundAI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.jso
 import { SOULBOUND_AI_ADDRESS } from "constants/index";
 import { Button } from "./button";
 import { useState } from "react";
+import { ConnectButton } from "./connect-button";
 
 type MintState = "mint" | "burn";
 
@@ -28,7 +29,7 @@ export const MintButton = ({
   onBurn,
 }: MintButtonProps) => {
   const contractAddress = SOULBOUND_AI_ADDRESS;
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
 
   const { config: mintConfig } = usePrepareContractWrite({
     address: contractAddress,
@@ -38,7 +39,7 @@ export const MintButton = ({
     overrides: {
       value: ethers.utils.parseEther("0.01"),
     },
-    enabled: mintState === "mint",
+    enabled: mintState === "mint" && isConnected,
   });
   const { writeAsync: mint } = useContractWrite(mintConfig);
 
@@ -46,7 +47,7 @@ export const MintButton = ({
     address: contractAddress,
     abi: SoulboundAI.abi,
     functionName: "burn",
-    enabled: mintState === "burn",
+    enabled: mintState === "burn" && isConnected,
   });
   const { writeAsync: burn } = useContractWrite(burnConfig);
 
@@ -55,6 +56,7 @@ export const MintButton = ({
     abi: SoulboundAI.abi,
     functionName: "balanceOf",
     args: [address],
+    enabled: isConnected,
     onSuccess: (data: BigNumber) => {
       if (data.gt(0)) {
         setMintState("burn");
@@ -77,6 +79,10 @@ export const MintButton = ({
 
     setLoading(false);
   };
+
+  if (!address) {
+    return <ConnectButton />;
+  }
 
   const onClickBurn = async () => {
     setLoading(true);

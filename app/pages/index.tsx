@@ -1,4 +1,3 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 import { MintButton } from "../components/mint-button";
@@ -10,6 +9,7 @@ import { publicKeyToMnemonic } from "helpers/public-key";
 import { deleteImage, generateImages, saveImage } from "helpers/api-calls";
 import { SelectImage } from "components/select-image";
 import { SbtImage } from "components/sbt-image";
+import { ConnectButton } from "components/connect-button";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -22,15 +22,15 @@ export const getServerSideProps = async ({
   res,
 }: GetServerSidePropsContext): Promise<{ props: HomeProps }> => {
   const address = getCookie("address", { req, res })?.toString();
+  const fee = await getFee();
 
   if (address === undefined) {
     return {
-      props: { hasSBT: false, mnemonic: "", fee: "" },
+      props: { hasSBT: false, mnemonic: "", fee },
     };
   }
 
   const hasSBT = await addressHasSBT(address);
-  const fee = await getFee();
   const mnemonic = publicKeyToMnemonic(address);
 
   return {
@@ -38,14 +38,24 @@ export const getServerSideProps = async ({
   };
 };
 
-export default function Home({ hasSBT, mnemonic, fee }: HomeProps) {
+export default function Home({
+  hasSBT,
+  mnemonic: initialMnemonic,
+  fee,
+}: HomeProps) {
   const { address } = useAccount();
+  const [mnemonic, setMnemonic] = useState(initialMnemonic);
 
   useEffect(() => {
     setCookie("address", address, { sameSite: "strict" });
 
     if (address === undefined) {
       deleteCookie("address");
+      setMnemonic("");
+    }
+
+    if (address !== undefined) {
+      setMnemonic(publicKeyToMnemonic(address));
     }
   }, [address]);
 
@@ -84,7 +94,6 @@ export default function Home({ hasSBT, mnemonic, fee }: HomeProps) {
     <>
       <header className="flex justify-between items-center">
         <h1 className="text-3xl">soulbound ai</h1>
-        <ConnectButton />
       </header>
 
       <main className="mt-40">
@@ -104,10 +113,6 @@ export default function Home({ hasSBT, mnemonic, fee }: HomeProps) {
         />
 
         {/* {mintState === "burn" ? <SbtImage /> : null} */}
-
-        <p className=" mt-8 text-center">
-          Select an image below and that's it!
-        </p>
 
         <SelectImage
           prompt={prompt}
