@@ -5,14 +5,16 @@ import { MintButton } from "../components/mint-button";
 import { Mnemonic } from "../components/mnemonic";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { GetServerSidePropsContext } from "next";
-import { addressHasSBT } from "helpers/contract-reads";
+import { addressHasSBT, getFee } from "helpers/contract-reads";
 import { publicKeyToMnemonic } from "helpers/public-key";
-import { deleteImage, generateImages } from "helpers/api-calls";
+import { deleteImage, generateImages, saveImage } from "helpers/api-calls";
 import { SelectImage } from "components/select-image";
+import { SbtImage } from "components/sbt-image";
 
 type HomeProps = {
   hasSBT: boolean;
   mnemonic: string;
+  fee: string;
 };
 
 export const getServerSideProps = async ({
@@ -23,19 +25,20 @@ export const getServerSideProps = async ({
 
   if (address === undefined) {
     return {
-      props: { hasSBT: false, mnemonic: "" },
+      props: { hasSBT: false, mnemonic: "", fee: "" },
     };
   }
 
   const hasSBT = await addressHasSBT(address);
+  const fee = await getFee();
   const mnemonic = publicKeyToMnemonic(address);
 
   return {
-    props: { hasSBT, mnemonic },
+    props: { hasSBT, mnemonic, fee },
   };
 };
 
-export default function Home({ hasSBT, mnemonic }: HomeProps) {
+export default function Home({ hasSBT, mnemonic, fee }: HomeProps) {
   const { address } = useAccount();
 
   useEffect(() => {
@@ -50,6 +53,9 @@ export default function Home({ hasSBT, mnemonic }: HomeProps) {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
+  const initialMintState = hasSBT ? "burn" : "mint";
+  const [mintState, setMintState] = useState<"mint" | "burn">(initialMintState);
+
   const onMint = async () => {
     if (address === undefined) {
       return;
@@ -58,6 +64,9 @@ export default function Home({ hasSBT, mnemonic }: HomeProps) {
     const { prompt, imageUrls } = await generateImages(address);
     setPrompt(prompt);
     setImageUrls(imageUrls);
+
+    // Save the first image by default since it is selected by default
+    await saveImage(address, imageUrls[0]);
   };
 
   const onBurn = async () => {
@@ -86,7 +95,19 @@ export default function Home({ hasSBT, mnemonic }: HomeProps) {
           <Mnemonic mnemonic={mnemonic} />
         </div>
 
-        <MintButton hasSBT={hasSBT} onMint={onMint} onBurn={onBurn} />
+        <MintButton
+          onMint={onMint}
+          onBurn={onBurn}
+          fee={fee}
+          mintState={mintState}
+          setMintState={setMintState}
+        />
+
+        {/* {mintState === "burn" ? <SbtImage /> : null} */}
+
+        <p className=" mt-8 text-center">
+          Select an image below and that's it!
+        </p>
 
         <SelectImage
           prompt={prompt}

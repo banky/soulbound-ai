@@ -29,8 +29,6 @@ export const SelectImage = ({
 
   return (
     <div className="text-center mt-8">
-      <p className="mb-8">{prompt}</p>
-
       <div className="flex gap-4">
         {imageUrls.map((imageUrl, index) => {
           return (
@@ -44,6 +42,7 @@ export const SelectImage = ({
           );
         })}
       </div>
+      <p className="mt-8">{prompt}</p>
     </div>
   );
 };

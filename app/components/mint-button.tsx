@@ -6,26 +6,29 @@ import {
   useContractRead,
 } from "wagmi";
 import SoulboundAI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
-import { SOULBOUND_AI_ADDRESS } from "constants/contract-addresses";
+import { SOULBOUND_AI_ADDRESS } from "constants/index";
 import { Button } from "./button";
 import { useState } from "react";
 
+type MintState = "mint" | "burn";
+
 type MintButtonProps = {
-  hasSBT: boolean;
+  fee: string;
+  mintState: MintState;
+  setMintState: (s: MintState) => void;
   onMint: () => Promise<void>;
   onBurn: () => Promise<void>;
 };
 
 export const MintButton = ({
-  hasSBT: initialHasSBT,
+  fee,
+  mintState,
+  setMintState,
   onMint,
   onBurn,
 }: MintButtonProps) => {
   const contractAddress = SOULBOUND_AI_ADDRESS;
   const { address } = useAccount();
-
-  const initialState = initialHasSBT ? "burn" : "mint";
-  const [mintState, setMintState] = useState<"mint" | "burn">(initialState);
 
   const { config: mintConfig } = usePrepareContractWrite({
     address: contractAddress,
@@ -68,9 +71,9 @@ export const MintButton = ({
 
     const sendTransactionResult = await mint?.();
     await sendTransactionResult?.wait();
-    await refetchHasSBT();
 
     await onMint();
+    await refetchHasSBT();
 
     setLoading(false);
   };
@@ -80,9 +83,9 @@ export const MintButton = ({
 
     const sendTransactionResult = await burn?.();
     await sendTransactionResult?.wait();
-    await refetchHasSBT();
 
     await onBurn();
+    await refetchHasSBT();
 
     setLoading(false);
   };
@@ -95,5 +98,5 @@ export const MintButton = ({
     return <Button onClick={() => onClickBurn()}>Burn</Button>;
   }
 
-  return <Button onClick={() => onClickMint()}>Mint</Button>;
+  return <Button onClick={() => onClickMint()}>Mint ({fee}eth)</Button>;
 };
