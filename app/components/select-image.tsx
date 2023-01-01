@@ -21,8 +21,6 @@ export const SelectImage = ({
   }
 
   const onClickImage = (index: number) => {
-    const selectedImageUrl = imageUrls[index];
-    saveImage(address, selectedImageUrl);
     setSelectedImageIndex(index);
   };
 

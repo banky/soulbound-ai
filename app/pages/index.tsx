@@ -8,8 +8,7 @@ import { addressHasSBT, getFee } from "helpers/contract-reads";
 import { publicKeyToMnemonic } from "helpers/public-key";
 import { deleteImage, generateImages, saveImage } from "helpers/api-calls";
 import { SelectImage } from "components/select-image";
-import { SbtImage } from "components/sbt-image";
-import { ConnectButton } from "components/connect-button";
+import { MintState } from "types/mint-state";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -63,8 +62,8 @@ export default function Home({
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const initialMintState = hasSBT ? "burn" : "mint";
-  const [mintState, setMintState] = useState<"mint" | "burn">(initialMintState);
+  const initialMintState = hasSBT ? MintState.BURN : MintState.MINT;
+  const [mintState, setMintState] = useState<MintState>(initialMintState);
 
   const onMint = async () => {
     if (address === undefined) {
@@ -90,6 +89,11 @@ export default function Home({
     setImageUrls([]);
   };
 
+  const onSelectImage = async () => {
+    const selectedImageUrl = imageUrls[selectedImageIndex];
+    await saveImage(address, selectedImageUrl);
+  };
+
   return (
     <>
       <header className="flex justify-between items-center">
@@ -104,22 +108,25 @@ export default function Home({
           <Mnemonic mnemonic={mnemonic} />
         </div>
 
-        <MintButton
-          onMint={onMint}
-          onBurn={onBurn}
-          fee={fee}
-          mintState={mintState}
-          setMintState={setMintState}
-        />
-
-        {/* {mintState === "burn" ? <SbtImage /> : null} */}
-
         <SelectImage
           prompt={prompt}
           imageUrls={imageUrls}
           selectedImageIndex={selectedImageIndex}
           setSelectedImageIndex={setSelectedImageIndex}
         />
+
+        <div>
+          <MintButton
+            onMint={onMint}
+            onBurn={onBurn}
+            onSelectImage={onSelectImage}
+            fee={fee}
+            mintState={mintState}
+            setMintState={setMintState}
+          />
+        </div>
+
+        {/* {mintState === "burn" ? <SbtImage /> : null} */}
       </main>
     </>
   );

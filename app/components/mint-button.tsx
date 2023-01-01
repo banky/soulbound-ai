@@ -10,8 +10,7 @@ import { SOULBOUND_AI_ADDRESS } from "constants/index";
 import { Button } from "./button";
 import { useState } from "react";
 import { ConnectButton } from "./connect-button";
-
-type MintState = "mint" | "burn";
+import { MintState } from "types/mint-state";
 
 type MintButtonProps = {
   fee: string;
@@ -19,6 +18,7 @@ type MintButtonProps = {
   setMintState: (s: MintState) => void;
   onMint: () => Promise<void>;
   onBurn: () => Promise<void>;
+  onSelectImage: () => Promise<void>;
 };
 
 export const MintButton = ({
@@ -27,6 +27,7 @@ export const MintButton = ({
   setMintState,
   onMint,
   onBurn,
+  onSelectImage,
 }: MintButtonProps) => {
   const contractAddress = SOULBOUND_AI_ADDRESS;
   const { address, isConnected } = useAccount();
@@ -37,9 +38,9 @@ export const MintButton = ({
     functionName: "safeMint",
     args: [address],
     overrides: {
-      value: ethers.utils.parseEther("0.01"),
+      value: ethers.utils.parseEther(fee),
     },
-    enabled: mintState === "mint" && isConnected,
+    enabled: mintState === MintState.MINT && isConnected,
   });
   const { writeAsync: mint } = useContractWrite(mintConfig);
 
@@ -47,7 +48,7 @@ export const MintButton = ({
     address: contractAddress,
     abi: SoulboundAI.abi,
     functionName: "burn",
-    enabled: mintState === "burn" && isConnected,
+    enabled: mintState === MintState.BURN && isConnected,
   });
   const { writeAsync: burn } = useContractWrite(burnConfig);
 
@@ -59,9 +60,9 @@ export const MintButton = ({
     enabled: isConnected,
     onSuccess: (data: BigNumber) => {
       if (data.gt(0)) {
-        setMintState("burn");
+        setMintState(MintState.BURN);
       } else {
-        setMintState("mint");
+        setMintState(MintState.MINT);
       }
     },
   });
@@ -73,10 +74,9 @@ export const MintButton = ({
 
     const sendTransactionResult = await mint?.();
     await sendTransactionResult?.wait();
-
     await onMint();
-    await refetchHasSBT();
 
+    // setMintState("");
     setLoading(false);
   };
 
@@ -100,7 +100,7 @@ export const MintButton = ({
     return <Button disabled>Loading</Button>;
   }
 
-  if (mintState === "burn") {
+  if (mintState === MintState.BURN) {
     return <Button onClick={() => onClickBurn()}>Burn</Button>;
   }
 

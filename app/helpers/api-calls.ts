@@ -17,6 +17,11 @@ export const generateImages = async (
   return parsedResponse;
 };
 
+/**
+ * Save an image from an imageUrl associated with an ethereum address
+ * @param address
+ * @param imageUrl
+ */
 export const saveImage = async (
   // TODO: Error handling for undefined case
   address: string | undefined,
