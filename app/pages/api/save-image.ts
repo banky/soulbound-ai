@@ -1,16 +1,11 @@
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Storage } from "@google-cloud/storage";
+import { createClient } from "@supabase/supabase-js";
 
-const storage = new Storage({
-  projectId: process.env.GOOGLE_STORAGE_PROJECT_ID,
-  credentials: {
-    type: process.env.GOOGLE_STORAGE_TYPE,
-    private_key: process.env.GOOGLE_STORAGE_PRIVATE_KEY,
-    client_email: process.env.GOOGLE_STORAGE_CLIENT_EMAIL,
-    client_id: process.env.GOOGLE_STORAGE_CLIENT_ID,
-  },
-});
+const supabase = createClient(
+  process.env.SUPABASE_URL ?? "",
+  process.env.SUPABASE_KEY ?? ""
+);
 
 export default async function handler(
   req: NextApiRequest,
@@ -29,16 +24,18 @@ export default async function handler(
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  const bucket = storage.bucket("soulbound-ai");
+  const image = await fetch(imageUrl);
+  const blob = await image.blob();
+  const { error } = await supabase.storage
+    .from("images")
+    .upload(`test-123.png`, blob, {
+      cacheControl: "3600",
+      upsert: true,
+    });
 
-  // TODO: Check if file already exists. If it does, disallow creating a new file
-  const file = bucket.file(`${address}.png`);
-  const writeStream = file.createWriteStream();
-
-  const imageResponse = await fetch(imageUrl);
-
-  // @ts-ignore pipe exists
-  await imageResponse?.body?.pipe(writeStream);
+  if (error != null) {
+    return res.status(500).json({ message: "Failed to save image" });
+  }
 
   return res.status(200).end();
 }
