@@ -76,7 +76,7 @@ export const MintButton = ({
     await sendTransactionResult?.wait();
     await onMint();
 
-    // setMintState("");
+    setMintState(MintState.SELECT_IMAGE);
     setLoading(false);
   };
 
@@ -96,12 +96,24 @@ export const MintButton = ({
     setLoading(false);
   };
 
+  const onClickSelectImage = async () => {
+    setLoading(true);
+
+    await onSelectImage();
+
+    setLoading(false);
+  };
+
   if (loading) {
     return <Button disabled>Loading</Button>;
   }
 
   if (mintState === MintState.BURN) {
     return <Button onClick={() => onClickBurn()}>Burn</Button>;
+  }
+
+  if (mintState === MintState.SELECT_IMAGE) {
+    return <Button onClick={() => onClickSelectImage()}>Select Image</Button>;
   }
 
   return <Button onClick={() => onClickMint()}>Mint ({fee}eth)</Button>;

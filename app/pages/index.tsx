@@ -73,9 +73,6 @@ export default function Home({
     const { prompt, imageUrls } = await generateImages(address);
     setPrompt(prompt);
     setImageUrls(imageUrls);
-
-    // Save the first image by default since it is selected by default
-    await saveImage(address, imageUrls[0]);
   };
 
   const onBurn = async () => {

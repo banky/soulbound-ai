@@ -1,6 +1,3 @@
-import { saveImage } from "helpers/api-calls";
-import { useAccount } from "wagmi";
-
 type SelectImageProps = {
   prompt?: string;
   imageUrls: string[];
@@ -14,8 +11,6 @@ export const SelectImage = ({
   selectedImageIndex,
   setSelectedImageIndex,
 }: SelectImageProps) => {
-  const { address } = useAccount();
-
   if (prompt === undefined) {
     return null;
   }
@@ -25,7 +20,7 @@ export const SelectImage = ({
   };
 
   return (
-    <div className="text-center mt-8">
+    <div className="text-center my-8">
       <p>Select an image below and that is it!</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">

@@ -6,7 +6,7 @@ export const Mnemonic = ({ mnemonic }: { mnemonic: string }) => {
       {mnemonic.length > 0 ? (
         <div>
           <p>Your unique seed words are: </p>
-          <p>
+          <p className="text-pink-500">
             {words[0]}, {words[words.length - 1]}
           </p>
         </div>
