@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useAccount, useNetwork } from "wagmi";
 import { MintButton } from "../components/mint-button";
 import { Mnemonic } from "../components/mnemonic";
-import { deleteCookie, getCookie, setCookie } from "cookies-next";
 import { GetServerSidePropsContext } from "next";
 import { addressHasSBT, getFee } from "helpers/contract-reads";
 import { publicKeyToMnemonic } from "helpers/public-key";
@@ -11,10 +10,11 @@ import { SelectImage } from "components/select-image";
 import { MintState } from "types/mint-state";
 import { useSession } from "next-auth/react";
 import { SignInButton } from "components/sign-in-button";
+import { unstable_getServerSession } from "next-auth";
+import { authOptions, Session } from "./api/auth/[...nextauth]";
 
 type HomeProps = {
   hasSBT: boolean;
-  mnemonic: string;
   fee: string;
 };
 
@@ -22,51 +22,39 @@ export const getServerSideProps = async ({
   req,
   res,
 }: GetServerSidePropsContext): Promise<{ props: HomeProps }> => {
-  const address = getCookie("address", { req, res })?.toString();
   const fee = await getFee();
 
-  if (address === undefined) {
+  const session = await unstable_getServerSession<any, Session>(
+    req,
+    res,
+    authOptions
+  );
+
+  if (session == null) {
     return {
-      props: { hasSBT: false, mnemonic: "", fee },
+      props: { hasSBT: false, fee },
     };
   }
 
+  const { address } = session;
   const hasSBT = await addressHasSBT(address);
-  const mnemonic = publicKeyToMnemonic(address);
 
   return {
-    props: { hasSBT, mnemonic, fee },
+    props: { hasSBT, fee },
   };
 };
 
-export default function Home({
-  hasSBT,
-  mnemonic: initialMnemonic,
-  fee,
-}: HomeProps) {
+export default function Home({ hasSBT, fee }: HomeProps) {
   const { address, isConnected } = useAccount();
   const { status } = useSession();
-  const [mnemonic, setMnemonic] = useState(initialMnemonic);
-
-  useEffect(() => {
-    setCookie("address", address, { sameSite: "strict" });
-
-    if (address === undefined) {
-      deleteCookie("address");
-      setMnemonic("");
-    }
-
-    if (address !== undefined) {
-      setMnemonic(publicKeyToMnemonic(address));
-    }
-  }, [address]);
-
   const [prompt, setPrompt] = useState<string | undefined>(undefined);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const initialMintState = hasSBT ? MintState.BURN : MintState.MINT;
   const [mintState, setMintState] = useState<MintState>(initialMintState);
+
+  const mnemonic = address !== undefined ? publicKeyToMnemonic(address) : "";
 
   const onMint = async () => {
     if (address === undefined) {
@@ -91,6 +79,8 @@ export default function Home({
 
   const onSelectImage = async () => {
     await saveImage(selectedImageIndex);
+
+    setMintState(MintState.BURN);
   };
 
   const loggedIn = isConnected && status === "authenticated";
