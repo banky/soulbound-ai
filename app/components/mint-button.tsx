@@ -80,10 +80,6 @@ export const MintButton = ({
     setLoading(false);
   };
 
-  if (!address) {
-    return <ConnectButton />;
-  }
-
   const onClickBurn = async () => {
     setLoading(true);
 

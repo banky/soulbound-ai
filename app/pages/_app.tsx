@@ -15,6 +15,7 @@ import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { Inconsolata } from "@next/font/google";
 import dynamic from "next/dynamic";
+import { SessionProvider } from "next-auth/react";
 
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 
@@ -35,11 +36,13 @@ const wagmiClient = createClient({
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider chains={chains}>
-        <div className={inconsolata.className}>
-          <Component {...pageProps} />
-        </div>
-      </RainbowKitProvider>
+      <SessionProvider session={pageProps.session} refetchInterval={0}>
+        <RainbowKitProvider chains={chains}>
+          <div className={inconsolata.className}>
+            <Component {...pageProps} />
+          </div>
+        </RainbowKitProvider>
+      </SessionProvider>
     </WagmiConfig>
   );
 };

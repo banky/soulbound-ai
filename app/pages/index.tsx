@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useNetwork } from "wagmi";
 import { MintButton } from "../components/mint-button";
 import { Mnemonic } from "../components/mnemonic";
 import { deleteCookie, getCookie, setCookie } from "cookies-next";
@@ -9,6 +9,8 @@ import { publicKeyToMnemonic } from "helpers/public-key";
 import { deleteImage, generateImages, saveImage } from "helpers/api-calls";
 import { SelectImage } from "components/select-image";
 import { MintState } from "types/mint-state";
+import { useSession } from "next-auth/react";
+import { SignInButton } from "components/sign-in-button";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -42,7 +44,8 @@ export default function Home({
   mnemonic: initialMnemonic,
   fee,
 }: HomeProps) {
-  const { address } = useAccount();
+  const { address, isConnected } = useAccount();
+  const { status } = useSession();
   const [mnemonic, setMnemonic] = useState(initialMnemonic);
 
   useEffect(() => {
@@ -91,6 +94,8 @@ export default function Home({
     await saveImage(address, selectedImageUrl);
   };
 
+  const loggedIn = isConnected && status === "authenticated";
+
   return (
     <>
       <header className="flex justify-between items-center">
@@ -113,14 +118,18 @@ export default function Home({
         />
 
         <div>
-          <MintButton
-            onMint={onMint}
-            onBurn={onBurn}
-            onSelectImage={onSelectImage}
-            fee={fee}
-            mintState={mintState}
-            setMintState={setMintState}
-          />
+          {!loggedIn ? (
+            <SignInButton />
+          ) : (
+            <MintButton
+              onMint={onMint}
+              onBurn={onBurn}
+              onSelectImage={onSelectImage}
+              fee={fee}
+              mintState={mintState}
+              setMintState={setMintState}
+            />
+          )}
         </div>
 
         {/* {mintState === "burn" ? <SbtImage /> : null} */}
