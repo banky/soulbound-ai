@@ -22,7 +22,7 @@ jobs:
     defaults:
       run:
         working-directory: ./app
-    environment: ${{ inputs.ENVIRONMENT }}
+    environment: goerli
 
     steps:
       - uses: actions/checkout@v3
