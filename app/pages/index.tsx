@@ -73,7 +73,7 @@ export default function Home({
       return;
     }
 
-    const { prompt, imageUrls } = await generateImages(address);
+    const { prompt, imageUrls } = await generateImages();
     setPrompt(prompt);
     setImageUrls(imageUrls);
   };
@@ -90,8 +90,7 @@ export default function Home({
   };
 
   const onSelectImage = async () => {
-    const selectedImageUrl = imageUrls[selectedImageIndex];
-    await saveImage(address, selectedImageUrl);
+    await saveImage(selectedImageIndex);
   };
 
   const loggedIn = isConnected && status === "authenticated";

@@ -1,6 +1,8 @@
-export const generateImages = async (
-  address: string
-): Promise<{
+/**
+ * Generate images for a user that has minted a SBT
+ * @returns
+ */
+export const generateImages = async (): Promise<{
   prompt: string;
   imageUrls: string[];
 }> => {
@@ -9,32 +11,23 @@ export const generateImages = async (
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      address,
-    }),
   });
   const parsedResponse = await response.json();
   return parsedResponse;
 };
 
 /**
- * Save an image from an imageUrl associated with an ethereum address
- * @param address
- * @param imageUrl
+ * Save an image from an imageIndex of the generated images
+ * @param imageIndex
  */
-export const saveImage = async (
-  // TODO: Error handling for undefined case
-  address: string | undefined,
-  imageUrl: string
-): Promise<void> => {
+export const saveImage = async (imageIndex: number): Promise<void> => {
   await fetch("/api/save-image", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      address,
-      imageUrl,
+      imageIndex,
     }),
   });
 };
