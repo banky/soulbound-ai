@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useAccount, useNetwork } from "wagmi";
+import { useState } from "react";
+import { useAccount } from "wagmi";
 import { MintButton } from "../components/mint-button";
 import { Mnemonic } from "../components/mnemonic";
 import { GetServerSidePropsContext } from "next";
@@ -71,7 +71,7 @@ export default function Home({ hasSBT, fee }: HomeProps) {
       return;
     }
 
-    await deleteImage(address);
+    await deleteImage();
 
     setPrompt(undefined);
     setImageUrls([]);

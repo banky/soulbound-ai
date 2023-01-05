@@ -21,6 +21,6 @@ model DalleImage {
 model Token {
   owner       String  @id
   name        String
-  imageUrl    String?
+  imagePath   String?
   description String
 }

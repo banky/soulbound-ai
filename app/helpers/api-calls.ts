@@ -32,14 +32,14 @@ export const saveImage = async (imageIndex: number): Promise<void> => {
   });
 };
 
-export const deleteImage = async (address: string): Promise<void> => {
+/**
+ * Clean up data after burning an SBT
+ */
+export const deleteImage = async (): Promise<void> => {
   await fetch("/api/delete-image", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      address,
-    }),
   });
 };

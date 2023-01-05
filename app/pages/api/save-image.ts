@@ -70,14 +70,10 @@ export default async function handler(
     return res.status(500).json({ message: "Failed to save image" });
   }
 
-  const {
-    data: { publicUrl },
-  } = supabase.storage.from("images").getPublicUrl(imagePath);
-
   const currentToken = await prisma.token.update({
     where: { owner: address },
     data: {
-      imageUrl: publicUrl,
+      imagePath,
     },
   });
 
