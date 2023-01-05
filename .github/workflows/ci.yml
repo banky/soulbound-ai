@@ -29,6 +29,9 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - run: |
+          echo 'printing envs'
+          env
       - run: npm ci --force
       - run: npm test
       - run: npm run migrate
