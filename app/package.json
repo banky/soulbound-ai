@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test": "jest"
+    "test": "jest",
+    "migrate": "npx prisma migrate deploy",
+    "postinstall": "npx prisma generate",
+    "vercel-build": "npm run migrate && next build"
   },
   "dependencies": {
     "@next/font": "13.1.0",
