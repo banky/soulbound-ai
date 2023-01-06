@@ -47,11 +47,6 @@ export default async function handler(
   });
 
   const imagePath = token?.imagePath;
-  if (imagePath == null) {
-    return res.status(404).json({ message: "Could not find image to delete" });
-  }
-
-  const { error } = await supabase.storage.from("images").remove([imagePath]);
 
   await prisma.dalleImage.deleteMany({
     where: {
@@ -64,6 +59,12 @@ export default async function handler(
       owner: address,
     },
   });
+
+  if (imagePath == null) {
+    return res.status(404).json({ message: "Could not find image to delete" });
+  }
+
+  const { error } = await supabase.storage.from("images").remove([imagePath]);
 
   if (error != null) {
     return res.status(500).json({ message: "Failed to delete image" });

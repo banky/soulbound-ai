@@ -57,8 +57,10 @@ export const MintButton = ({
     functionName: "balanceOf",
     args: [address],
     enabled: isConnected,
-    onSuccess: (data: BigNumber) => {
-      if (data.gt(0)) {
+    onSuccess: (numTokens: BigNumber) => {
+      if (numTokens.gt(0) && mintState === MintState.MINT) {
+        setMintState(MintState.SELECT_IMAGE);
+      } else if (numTokens.gt(0) && mintState === MintState.SELECT_IMAGE) {
         setMintState(MintState.BURN);
       } else {
         setMintState(MintState.MINT);
@@ -67,49 +69,87 @@ export const MintButton = ({
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const setErrorMessage = (error: unknown) => {
+    if (typeof error === "string") {
+      setError(error);
+    } else if (error instanceof Error) {
+      setError(error.message);
+    }
+  };
 
   const onClickMint = async () => {
     setLoading(true);
+    setError("");
 
-    const sendTransactionResult = await mint?.();
-    await sendTransactionResult?.wait();
-    await onMint();
+    try {
+      const sendTransactionResult = await mint?.();
+      await sendTransactionResult?.wait();
+      await onMint();
 
-    setMintState(MintState.SELECT_IMAGE);
+      await refetchHasSBT();
+    } catch (error) {
+      setErrorMessage(error);
+    }
+
     setLoading(false);
   };
 
   const onClickBurn = async () => {
     setLoading(true);
+    setError("");
 
-    const sendTransactionResult = await burn?.();
-    await sendTransactionResult?.wait();
+    try {
+      const sendTransactionResult = await burn?.();
+      await sendTransactionResult?.wait();
 
-    await onBurn();
-    await refetchHasSBT();
+      await onBurn();
+      await refetchHasSBT();
+    } catch (error) {
+      setErrorMessage(error);
+    }
 
     setLoading(false);
   };
 
   const onClickSelectImage = async () => {
     setLoading(true);
+    setError("");
 
-    await onSelectImage();
+    try {
+      await onSelectImage();
+      await refetchHasSBT();
+    } catch (error) {
+      setErrorMessage(error);
+    }
 
     setLoading(false);
   };
 
-  if (loading) {
-    return <Button disabled>Loading</Button>;
-  }
+  const getButton = () => {
+    if (loading) {
+      return <Button disabled>Loading</Button>;
+    }
 
-  if (mintState === MintState.BURN) {
-    return <Button onClick={() => onClickBurn()}>Burn</Button>;
-  }
+    if (mintState === MintState.BURN) {
+      return <Button onClick={() => onClickBurn()}>Burn</Button>;
+    }
 
-  if (mintState === MintState.SELECT_IMAGE) {
-    return <Button onClick={() => onClickSelectImage()}>Select Image</Button>;
-  }
+    if (mintState === MintState.SELECT_IMAGE) {
+      return <Button onClick={() => onClickSelectImage()}>Select Image</Button>;
+    }
 
-  return <Button onClick={() => onClickMint()}>Mint ({fee}eth)</Button>;
+    return <Button onClick={() => onClickMint()}>Mint ({fee}eth)</Button>;
+  };
+
+  return (
+    <div>
+      {getButton()}
+
+      {error !== "" ? (
+        <p className="text-red-500 text-center">{error}</p>
+      ) : null}
+    </div>
+  );
 };

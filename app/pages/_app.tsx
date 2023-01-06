@@ -2,7 +2,7 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import "@rainbow-me/rainbowkit/styles.css";
 import { getDefaultWallets, RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { configureChains, createClient, WagmiConfig } from "wagmi";
+import { Chain, configureChains, createClient, WagmiConfig } from "wagmi";
 import {
   mainnet,
   polygon,
@@ -18,7 +18,30 @@ import { SessionProvider } from "next-auth/react";
 
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 
-const { chains, provider } = configureChains([goerli], [publicProvider()]);
+const configure = () => {
+  const chains: Chain[] = [];
+
+  switch (process.env.NEXT_PUBLIC_ENVIRONMENT) {
+    case "localhost":
+      chains.push(hardhat);
+      break;
+
+    case "preview":
+      chains.push(goerli);
+      break;
+
+    case "production":
+      chains.push(mainnet);
+      break;
+
+    default:
+      break;
+  }
+
+  return configureChains(chains, [publicProvider()]);
+};
+
+const { chains, provider } = configure();
 const { connectors } = getDefaultWallets({
   appName: "Soulbound AI",
   chains,
