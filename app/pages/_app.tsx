@@ -8,10 +8,9 @@ import {
   polygon,
   optimism,
   arbitrum,
-  localhost,
   hardhat,
+  goerli,
 } from "wagmi/chains";
-import { alchemyProvider } from "wagmi/providers/alchemy";
 import { publicProvider } from "wagmi/providers/public";
 import { Inconsolata } from "@next/font/google";
 import dynamic from "next/dynamic";
@@ -19,10 +18,7 @@ import { SessionProvider } from "next-auth/react";
 
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 
-const { chains, provider } = configureChains(
-  [mainnet, polygon, optimism, arbitrum, hardhat],
-  [publicProvider()]
-);
+const { chains, provider } = configureChains([goerli], [publicProvider()]);
 const { connectors } = getDefaultWallets({
   appName: "Soulbound AI",
   chains,
