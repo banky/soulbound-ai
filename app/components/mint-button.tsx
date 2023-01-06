@@ -6,7 +6,6 @@ import {
   useContractRead,
 } from "wagmi";
 import SoulboundAI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
-import { SOULBOUND_AI_ADDRESS } from "constants/index";
 import { Button } from "./button";
 import { useState } from "react";
 import { ConnectButton } from "./connect-button";
@@ -29,7 +28,7 @@ export const MintButton = ({
   onBurn,
   onSelectImage,
 }: MintButtonProps) => {
-  const contractAddress = SOULBOUND_AI_ADDRESS;
+  const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS;
   const { address, isConnected } = useAccount();
 
   const { config: mintConfig } = usePrepareContractWrite({

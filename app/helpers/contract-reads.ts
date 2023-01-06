@@ -1,5 +1,4 @@
-import { SOULBOUND_AI_ADDRESS } from "constants/index";
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { SoulboundAI } from "contracts/typechain-types";
 import SoulboundAIABI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
 
@@ -7,7 +6,7 @@ const provider = new ethers.providers.JsonRpcProvider();
 
 export const addressHasSBT = async (address: string): Promise<boolean> => {
   const soulboundAI = new ethers.Contract(
-    SOULBOUND_AI_ADDRESS,
+    process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "",
     SoulboundAIABI.abi,
     provider
   ) as SoulboundAI;
@@ -18,7 +17,7 @@ export const addressHasSBT = async (address: string): Promise<boolean> => {
 
 export const getFee = async (): Promise<string> => {
   const soulboundAI = new ethers.Contract(
-    SOULBOUND_AI_ADDRESS,
+    process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "",
     SoulboundAIABI.abi,
     provider
   ) as SoulboundAI;

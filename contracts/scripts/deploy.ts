@@ -4,9 +4,9 @@ async function main() {
   const SoulboundAI = await ethers.getContractFactory("SoulboundAI");
   const soulboundAI = await SoulboundAI.deploy();
 
-  await soulboundAI.deployed();
+  const contract = await soulboundAI.deployed();
 
-  console.log(`Deployed SoulboundAI contract`);
+  console.log(`Deployed SoulboundAI contract to ${contract.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
