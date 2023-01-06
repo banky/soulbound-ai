@@ -23,16 +23,18 @@ export const SelectImage = ({
     <div className="text-center my-8">
       <p>Select an image below and that is it!</p>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-7xl mx-auto">
         {imageUrls.map((imageUrl, index) => {
           return (
-            <button key={imageUrl} onClick={() => onClickImage(index)}>
-              <SelectableImage
-                url={imageUrl}
-                selected={index === selectedImageIndex}
-                alt={prompt + ` . Option ${index + 1}`}
-              />
-            </button>
+            <div className="justify-center">
+              <button key={imageUrl} onClick={() => onClickImage(index)}>
+                <SelectableImage
+                  url={imageUrl}
+                  selected={index === selectedImageIndex}
+                  alt={prompt + ` . Option ${index + 1}`}
+                />
+              </button>
+            </div>
           );
         })}
       </div>

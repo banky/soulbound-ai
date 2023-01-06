@@ -8,7 +8,6 @@ import {
 import SoulboundAI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
 import { Button } from "./button";
 import { useState } from "react";
-import { ConnectButton } from "./connect-button";
 import { MintState } from "types/mint-state";
 
 type MintButtonProps = {
@@ -58,13 +57,18 @@ export const MintButton = ({
     args: [address],
     enabled: isConnected,
     onSuccess: (numTokens: BigNumber) => {
-      if (numTokens.gt(0) && mintState === MintState.MINT) {
-        setMintState(MintState.SELECT_IMAGE);
-      } else if (numTokens.gt(0) && mintState === MintState.SELECT_IMAGE) {
+      if (numTokens.gt(0)) {
         setMintState(MintState.BURN);
       } else {
         setMintState(MintState.MINT);
       }
+      // if (numTokens.gt(0) && mintState === MintState.MINT) {
+      //   setMintState(MintState.SELECT_IMAGE);
+      // } else if (numTokens.gt(0) && mintState === MintState.SELECT_IMAGE) {
+      //   setMintState(MintState.BURN);
+      // } else {
+      //   setMintState(MintState.MINT);
+      // }
     },
   });
 
@@ -148,7 +152,7 @@ export const MintButton = ({
       {getButton()}
 
       {error !== "" ? (
-        <p className="text-red-500 text-center">{error}</p>
+        <p className="text-red-500 text-center mt-4">{error}</p>
       ) : null}
     </div>
   );

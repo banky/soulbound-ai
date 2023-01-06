@@ -45,6 +45,20 @@ export const fetchAndSaveImage = async (imageUrl: string): Promise<string> => {
 export const createImages = async (
   seedWords: string[]
 ): Promise<{ imagePrompt: string; imageUrls: string[] }> => {
+  if (process.env.NEXT_PUBLIC_ENVIRONMENT === "localhost") {
+    // Prevent hitting Dalle for local testing because this costs money
+
+    return {
+      imagePrompt: "This is a mock image prompt for local testing",
+      imageUrls: [
+        "https://picsum.photos/256?random=1",
+        "https://picsum.photos/256?random=2",
+        "https://picsum.photos/256?random=3",
+        "https://picsum.photos/256?random=4",
+      ],
+    };
+  }
+
   const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   });
