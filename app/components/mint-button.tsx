@@ -5,7 +5,7 @@ import {
   useAccount,
   useContractRead,
 } from "wagmi";
-import SoulboundAI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
+import { SoulboundAIABI } from "contracts";
 import { Button } from "./button";
 import { useState } from "react";
 import { MintState } from "types/mint-state";
@@ -32,7 +32,7 @@ export const MintButton = ({
 
   const { config: mintConfig } = usePrepareContractWrite({
     address: contractAddress,
-    abi: SoulboundAI.abi,
+    abi: SoulboundAIABI.abi,
     functionName: "safeMint",
     args: [address],
     overrides: {
@@ -44,7 +44,7 @@ export const MintButton = ({
 
   const { config: burnConfig } = usePrepareContractWrite({
     address: contractAddress,
-    abi: SoulboundAI.abi,
+    abi: SoulboundAIABI.abi,
     functionName: "burn",
     enabled: mintState === MintState.BURN && isConnected,
   });
@@ -52,7 +52,7 @@ export const MintButton = ({
 
   const { refetch: refetchHasSBT } = useContractRead({
     address: contractAddress,
-    abi: SoulboundAI.abi,
+    abi: SoulboundAIABI.abi,
     functionName: "balanceOf",
     args: [address],
     enabled: isConnected,

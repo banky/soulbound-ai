@@ -14,11 +14,8 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "baseUrl": ".",
-    "paths": {
-      "contracts/*": ["../contracts/*"]
-    }
+    "baseUrl": "."
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "hardhat.config.ts.bak"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "setup.setup.js"],
   "exclude": ["node_modules"]
 }

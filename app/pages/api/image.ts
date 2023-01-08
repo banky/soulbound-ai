@@ -10,10 +10,21 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
-  if (req.method !== "POST") {
-    return res.status(400).json({ message: "Invalid method" });
-  }
+  switch (req.method) {
+    case "POST":
+      await postImage(req, res);
+      break;
 
+    case "GET":
+      await getImage(req, res);
+      break;
+
+    default:
+      res.status(400).json({ message: "Invalid method" });
+  }
+}
+
+const postImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   const session = await unstable_getServerSession<any, Session>(
     req,
     res,
@@ -42,6 +53,7 @@ export default async function handler(
   );
 
   const prisma = new PrismaClient();
+
   const dalleImage = await prisma.dalleImage.findFirst({
     where: {
       owner: address,
@@ -78,4 +90,6 @@ export default async function handler(
   });
 
   return res.status(200).json(currentToken);
-}
+};
+
+const getImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {};
