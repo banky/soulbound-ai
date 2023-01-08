@@ -1,5 +1,5 @@
 import handler from "pages/api/image";
-import { createMocks } from "node-mocks-http";
+import { createMocks, MockRequest, MockResponse } from "node-mocks-http";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import { addressHasSBT } from "helpers/contract-reads";
@@ -12,6 +12,11 @@ jest.mock("@supabase/supabase-js", () => {
       storage: {
         from: () => ({
           upload: async () => ({}),
+          getPublicUrl: () => ({
+            data: {
+              publicUrl: "mock-supabase-image-url",
+            },
+          }),
         }),
       },
     }),
@@ -32,6 +37,9 @@ jest.mock("@prisma/client", () => {
         };
         this.token = {
           update: jest.fn(),
+          findFirst: jest.fn(() => ({
+            imagePath: "mock-image-path",
+          })),
         };
       }
     },
@@ -47,8 +55,8 @@ global.fetch = jest.fn().mockImplementation(async () => ({
 
 describe("/api/image", () => {
   describe("POST", () => {
-    let req: any;
-    let res: any;
+    let req: MockRequest<NextApiRequest>;
+    let res: MockResponse<NextApiResponse<any>>;
 
     beforeEach(() => {
       const { req: _req, res: _res } = createMocks<
@@ -99,6 +107,35 @@ describe("/api/image", () => {
       await handler(req, res);
 
       expect(res._getStatusCode()).toBe(200);
+    });
+  });
+
+  describe("GET", () => {
+    let req: MockRequest<NextApiRequest>;
+    let res: MockResponse<NextApiResponse<any>>;
+
+    beforeEach(() => {
+      const { req: _req, res: _res } = createMocks<
+        NextApiRequest,
+        NextApiResponse<any>
+      >({
+        method: "GET",
+        body: {
+          address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        },
+      });
+
+      req = _req;
+      res = _res;
+    });
+
+    it("gets the image URL of an existing image", async () => {
+      await handler(req, res);
+
+      expect(res._getStatusCode()).toBe(200);
+      expect(res._getJSONData()).toEqual({
+        publicUrl: "mock-supabase-image-url",
+      });
     });
   });
 });

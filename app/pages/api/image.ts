@@ -6,6 +6,13 @@ import { randomUUID } from "crypto";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 
+const supabase = createClient(
+  process.env.SUPABASE_URL ?? "",
+  process.env.SUPABASE_KEY ?? ""
+);
+
+const prisma = new PrismaClient();
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
@@ -47,13 +54,6 @@ const postImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  const supabase = createClient(
-    process.env.SUPABASE_URL ?? "",
-    process.env.SUPABASE_KEY ?? ""
-  );
-
-  const prisma = new PrismaClient();
-
   const dalleImage = await prisma.dalleImage.findFirst({
     where: {
       owner: address,
@@ -92,4 +92,18 @@ const postImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   return res.status(200).json(currentToken);
 };
 
-const getImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {};
+const getImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {
+  const { address } = req.body;
+
+  const token = await prisma.token.findFirst({ where: { owner: address } });
+
+  if (token == null || token.imagePath == null) {
+    return res.status(404).json({ message: "Not found" });
+  }
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("images").getPublicUrl(token.imagePath);
+
+  return res.status(200).json({ publicUrl });
+};
