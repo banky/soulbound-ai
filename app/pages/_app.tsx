@@ -8,6 +8,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { Inconsolata } from "@next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "react-query";
+import { Head } from "components/head";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = ({ Component, pageProps }: AppProps) => {
       <SessionProvider session={pageProps.session} refetchInterval={0}>
         <RainbowKitProvider chains={chains}>
           <QueryClientProvider client={queryClient}>
+            <Head />
             <div className={inconsolata.className}>
               <Component {...pageProps} />
             </div>

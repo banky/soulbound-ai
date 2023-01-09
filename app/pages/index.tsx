@@ -141,7 +141,6 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
 
   return (
     <>
-      <Head />
       <header className="flex justify-between items-center">
         <h1 className="text-3xl">soulbound ai</h1>
       </header>
