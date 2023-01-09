@@ -8,6 +8,9 @@ const config: HardhatUserConfig = {
   paths: {
     sources: "./src",
   },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY ?? "",
+  },
   networks: {
     hardhat: {
       mining: {
