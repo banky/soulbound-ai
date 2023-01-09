@@ -51,15 +51,15 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
 
     function _baseURI() internal view override returns (string memory) {
         if (block.chainid == 1) {
-            return "https://soulbound-ai.vercel.app/api/tokenMetadata/";
+            return "https://soulbound-ai.vercel.app/api/token-metadata/";
         }
         
         if (block.chainid == 5) {
-            return "https://soulbound-ai-goerli.vercel.app/api/tokenMetadata/";
+            return "https://soulbound-ai-goerli.vercel.app/api/token-metadata/";
         }
 
         if (block.chainid == 31337) {
-            return "http://localhost:3000/api/tokenMetadata/";
+            return "http://localhost:3000/api/token-metadata/";
         }
 
         revert("Invalid chain ID");

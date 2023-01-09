@@ -56,7 +56,7 @@ describe("SoulboundAI", () => {
     const tokenUri = await soulboundAI.tokenURI(0);
 
     expect(tokenUri).to.equal(
-      `http://localhost:3000/api/tokenMetadata/${owner.address.toLowerCase()}`
+      `http://localhost:3000/api/token-metadata/${owner.address.toLowerCase()}`
     );
   });
 
