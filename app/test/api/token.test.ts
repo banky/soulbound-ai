@@ -39,6 +39,7 @@ jest.mock("@prisma/client", () => {
           update: jest.fn(),
           findFirst: jest.fn(() => ({
             imagePath: "mock-image-path",
+            imageUrl: "mock-supabase-image-url",
           })),
         };
       }
@@ -120,7 +121,7 @@ describe("/api/token", () => {
         NextApiResponse<any>
       >({
         method: "GET",
-        body: {
+        query: {
           address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
         },
       });
@@ -134,7 +135,8 @@ describe("/api/token", () => {
 
       expect(res._getStatusCode()).toBe(200);
       expect(res._getJSONData()).toEqual({
-        publicUrl: "mock-supabase-image-url",
+        imagePath: "mock-image-path",
+        imageUrl: "mock-supabase-image-url",
       });
     });
   });
