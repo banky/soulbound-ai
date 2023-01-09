@@ -48,7 +48,7 @@ describe("SoulboundAI", () => {
     ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
-  it("gets the correct token uri", async () => {
+  it("gets the correct token uri for hardhat network", async () => {
     const [owner] = await ethers.getSigners();
     const { soulboundAI, fee } = await loadFixture(deployContractFixture);
 
@@ -56,7 +56,7 @@ describe("SoulboundAI", () => {
     const tokenUri = await soulboundAI.tokenURI(0);
 
     expect(tokenUri).to.equal(
-      `https://storage.googleapis.com/soulbound-ai/${owner.address.toLowerCase()}.png`
+      `http://localhost:3000/api/tokenMetadata/${owner.address.toLowerCase()}`
     );
   });
 

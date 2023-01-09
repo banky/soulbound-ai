@@ -49,8 +49,20 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
-    function _baseURI() internal pure override returns (string memory) {
-        return "https://storage.googleapis.com/soulbound-ai/";
+    function _baseURI() internal view override returns (string memory) {
+        if (block.chainid == 1) {
+            return "https://soulbound-ai.vercel.app/api/tokenMetadata/";
+        }
+        
+        if (block.chainid == 5) {
+            return "https://soulbound-ai-goerli.vercel.app/api/tokenMetadata/";
+        }
+
+        if (block.chainid == 31337) {
+            return "http://localhost:3000/api/tokenMetadata/";
+        }
+
+        revert("Invalid chain ID");
     }
 
     function tokenURI(uint256 tokenId)
@@ -65,7 +77,7 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
         string memory baseURI = _baseURI();
         string memory owner = Strings.toHexString(uint160(ownerOf(tokenId)));
 
-        return string(abi.encodePacked(baseURI, owner, ".png"));
+        return string(abi.encodePacked(baseURI, owner));
     }
 
     function withdrawFees(address payable recipient) external onlyOwner {
