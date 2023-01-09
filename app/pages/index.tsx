@@ -18,7 +18,6 @@ import { useDalleImages } from "hooks/use-dalle-images";
 import { SbtImage } from "components/sbt-image";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
-import { Head } from "components/head";
 
 type HomeProps = {
   hasSBT: boolean;
