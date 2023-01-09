@@ -42,7 +42,7 @@ export const SignInButton = () => {
       message: message.prepareMessage(),
     });
 
-    signIn("credentials", {
+    await signIn("credentials", {
       message: JSON.stringify(message),
       redirect: false,
       signature,

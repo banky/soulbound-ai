@@ -53,7 +53,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async session({ session, token }) {
       // @ts-expect-error address is not on the session
-      session.address = token.sub;
+      session.address = token.sub?.toLowerCase();
       return session;
     },
   },

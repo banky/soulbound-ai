@@ -23,7 +23,7 @@ export const generateImages = async (): Promise<{
  * @returns
  */
 export const getToken = async (address: string): Promise<Token | null> => {
-  const res = await fetch(`/api/token?address=${address}`, {
+  const res = await fetch(`/api/token?address=${address.toLocaleLowerCase()}`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -70,11 +70,14 @@ export const deleteToken = async (): Promise<void> => {
 export const getDalleImages = async (
   address: string
 ): Promise<DalleImage[]> => {
-  const res = await fetch(`/api/dalle-images?address=${address}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const res = await fetch(
+    `/api/dalle-images?address=${address.toLowerCase()}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return res.json();
 };
