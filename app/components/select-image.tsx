@@ -14,7 +14,6 @@ export const SelectImage = ({
   setSelectedImageIndex,
 }: SelectImageProps) => {
   const onClickImage = (index: number) => {
-    console.log("selected image index:", index);
     setSelectedImageIndex(index);
   };
 

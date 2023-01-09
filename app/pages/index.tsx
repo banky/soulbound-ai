@@ -16,6 +16,8 @@ import { useToken } from "hooks/use-token";
 import { SelectImageButton } from "components/select-image-button";
 import { useDalleImages } from "hooks/use-dalle-images";
 import { SbtImage } from "components/sbt-image";
+import { useMintState } from "hooks/use-mint-state";
+import dynamic from "next/dynamic";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -48,13 +50,13 @@ export const getServerSideProps = async ({
   };
 };
 
-export default function Home({ hasSBT, fee }: HomeProps) {
+const Home = ({ hasSBT, fee }: HomeProps) => {
   const { address, isConnected } = useAccount();
   const { status } = useSession();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const initialMintState = hasSBT ? MintState.BURN : MintState.MINT;
-  const [mintState, setMintState] = useState<MintState>(initialMintState);
+  const { mintState, refetchMintState } = useMintState(initialMintState);
 
   const mnemonic = address !== undefined ? publicKeyToMnemonic(address) : "";
   const { token, invalidateToken, updateTokenImage, deleteToken } = useToken();
@@ -71,8 +73,11 @@ export default function Home({ hasSBT, fee }: HomeProps) {
       return;
     }
 
+    await refetchMintState();
+
     await generateImages();
 
+    // Invalidate local caches
     await invalidateDalleImages();
     await invalidateToken();
   };
@@ -81,6 +86,8 @@ export default function Home({ hasSBT, fee }: HomeProps) {
     if (address === undefined) {
       return;
     }
+
+    await refetchMintState();
 
     await deleteToken();
 
@@ -105,8 +112,8 @@ export default function Home({ hasSBT, fee }: HomeProps) {
       );
     }
 
-    if (mintState === MintState.BURN) {
-      return <SbtImage imageUrl={token?.imageUrl ?? ""} />;
+    if (mintState === MintState.BURN && token !== undefined) {
+      return <SbtImage token={token} />;
     }
 
     return null;
@@ -125,10 +132,8 @@ export default function Home({ hasSBT, fee }: HomeProps) {
       <MintButton
         onMint={onMint}
         onBurn={onBurn}
-        onSelectImage={onSelectImage}
         fee={fee}
         mintState={mintState}
-        setMintState={setMintState}
       />
     );
   };
@@ -155,4 +160,11 @@ export default function Home({ hasSBT, fee }: HomeProps) {
       </main>
     </>
   );
-}
+};
+
+/**
+ * SSR doesn't work well with wagmi
+ */
+export default dynamic(() => Promise.resolve(Home), {
+  ssr: false,
+});

@@ -6,11 +6,12 @@ export const useToken = () => {
   const queryClient = useQueryClient();
   const { address } = useAccount();
 
-  const query = useQuery("token", () => {
+  const query = useQuery("token", async () => {
     if (address === undefined) {
       return;
     }
-    return getToken(address);
+    const token = await getToken(address);
+    return token ?? undefined;
   });
 
   const postTokenMutation = useMutation(postToken, {

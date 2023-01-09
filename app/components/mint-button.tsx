@@ -13,19 +13,15 @@ import { MintState } from "types/mint-state";
 type MintButtonProps = {
   fee: string;
   mintState: MintState;
-  setMintState: (s: MintState) => void;
   onMint: () => Promise<void>;
   onBurn: () => Promise<void>;
-  onSelectImage: () => Promise<void>;
 };
 
 export const MintButton = ({
   fee,
   mintState,
-  setMintState,
   onMint,
   onBurn,
-  onSelectImage,
 }: MintButtonProps) => {
   const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS;
   const { address, isConnected } = useAccount();
@@ -50,21 +46,6 @@ export const MintButton = ({
   });
   const { writeAsync: burn } = useContractWrite(burnConfig);
 
-  const { refetch: refetchHasSBT } = useContractRead({
-    address: contractAddress,
-    abi: SoulboundAIABI.abi,
-    functionName: "balanceOf",
-    args: [address],
-    enabled: isConnected,
-    onSuccess: (numTokens: BigNumber) => {
-      if (numTokens.gt(0)) {
-        setMintState(MintState.BURN);
-      } else {
-        setMintState(MintState.MINT);
-      }
-    },
-  });
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -84,7 +65,6 @@ export const MintButton = ({
       const sendTransactionResult = await mint?.();
       await sendTransactionResult?.wait();
 
-      await refetchHasSBT();
       await onMint();
     } catch (error) {
       setErrorMessage(error);
@@ -101,7 +81,6 @@ export const MintButton = ({
       const sendTransactionResult = await burn?.();
       await sendTransactionResult?.wait();
 
-      await refetchHasSBT();
       await onBurn();
     } catch (error) {
       setErrorMessage(error);

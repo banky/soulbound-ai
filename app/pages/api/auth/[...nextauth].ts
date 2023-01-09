@@ -52,8 +52,6 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXT_AUTH_SECRET,
   callbacks: {
     async session({ session, token }) {
-      // @ts-expect-error user.name might be undefined
-      session.user.name = token.sub;
       // @ts-expect-error address is not on the session
       session.address = token.sub;
       return session;

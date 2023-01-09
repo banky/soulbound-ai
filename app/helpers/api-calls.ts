@@ -17,7 +17,12 @@ export const generateImages = async (): Promise<{
   return parsedResponse;
 };
 
-export const getToken = async (address: string): Promise<Token> => {
+/**
+ * Get a Token belonging to a given address. Returns null if it doesn't exist
+ * @param address
+ * @returns
+ */
+export const getToken = async (address: string): Promise<Token | null> => {
   const res = await fetch(`/api/token?address=${address}`, {
     method: "GET",
     headers: {
@@ -27,6 +32,11 @@ export const getToken = async (address: string): Promise<Token> => {
   return res.json();
 };
 
+/**
+ * Update a token with a given Dalle Image index
+ * @param imageIndex
+ * @returns
+ */
 export const postToken = async (imageIndex: number): Promise<Token> => {
   const res = await fetch("/api/token", {
     method: "POST",
@@ -40,6 +50,9 @@ export const postToken = async (imageIndex: number): Promise<Token> => {
   return res.json();
 };
 
+/**
+ * Delete a token
+ */
 export const deleteToken = async (): Promise<void> => {
   await fetch("/api/token", {
     method: "DELETE",
@@ -49,6 +62,11 @@ export const deleteToken = async (): Promise<void> => {
   });
 };
 
+/**
+ * Get all the generated dalle images for a given address
+ * @param address
+ * @returns
+ */
 export const getDalleImages = async (
   address: string
 ): Promise<DalleImage[]> => {

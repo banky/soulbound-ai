@@ -110,10 +110,6 @@ const getToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
 
   const token = await prisma.token.findFirst({ where: { owner: address } });
 
-  if (token == null) {
-    return res.status(404).json({ message: "Not found" });
-  }
-
   return res.status(200).json(token);
 };
 
