@@ -7,7 +7,6 @@ export const ConnectButton = () => {
       {({
         account,
         chain,
-        openAccountModal,
         openChainModal,
         openConnectModal,
         authenticationStatus,
@@ -49,17 +48,6 @@ export const ConnectButton = () => {
                   </Button>
                 );
               }
-
-              return (
-                <div style={{ display: "flex", gap: 12 }}>
-                  <Button onClick={openAccountModal} type="button">
-                    {account.displayName}
-                    {account.displayBalance
-                      ? ` (${account.displayBalance})`
-                      : ""}
-                  </Button>
-                </div>
-              );
             })()}
           </div>
         );

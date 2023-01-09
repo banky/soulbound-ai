@@ -144,7 +144,7 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
         <h1 className="text-3xl">soulbound ai</h1>
       </header>
 
-      <main className="mt-40">
+      <main className="mt-24 md:mt-40">
         <h2 className="text-center text-pink-500 text-7xl mb-8">
           Mint a unique SoulBound NFT using AI
         </h2>
@@ -155,8 +155,6 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
         <div className="text-center my-8">{getDisplayImage()}</div>
 
         {getPrimaryButton()}
-
-        {/* {mintState === "burn" ? <SbtImage /> : null} */}
       </main>
     </>
   );

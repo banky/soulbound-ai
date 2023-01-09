@@ -1,5 +1,5 @@
-import { getCsrfToken, signIn, useSession } from "next-auth/react";
-import { useState } from "react";
+import { getCsrfToken, signIn, useSession, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
 import { SiweMessage } from "siwe";
 import { useAccount, useNetwork, useSignMessage } from "wagmi";
 import { Button } from "./button";
@@ -7,10 +7,23 @@ import { ConnectButton } from "./connect-button";
 
 export const SignInButton = () => {
   const { status } = useSession();
-  const { address } = useAccount();
+  const { address, isDisconnected } = useAccount();
   const { chain } = useNetwork();
   const { signMessageAsync } = useSignMessage();
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const signOutOnDisconnect = async () => {
+      await signOut({
+        redirect: false,
+        callbackUrl: "/",
+      });
+    };
+
+    if (isDisconnected) {
+      signOutOnDisconnect();
+    }
+  }, [isDisconnected]);
 
   const onClickSignIn = async () => {
     setLoading(true);
@@ -39,16 +52,16 @@ export const SignInButton = () => {
     setLoading(false);
   };
 
+  if (status === "loading" || loading) {
+    return <Button disabled>Loading</Button>;
+  }
+
   if (!address) {
     return <ConnectButton />;
   }
 
   if (status === "unauthenticated") {
     return <Button onClick={onClickSignIn}>Sign in with Ethereum</Button>;
-  }
-
-  if (status === "loading" || loading) {
-    return <Button disabled>Loading</Button>;
   }
 
   return null;
