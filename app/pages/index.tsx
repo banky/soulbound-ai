@@ -18,6 +18,7 @@ import { useDalleImages } from "hooks/use-dalle-images";
 import { SbtImage } from "components/sbt-image";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
+import { Head } from "components/head";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -140,6 +141,7 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
 
   return (
     <>
+      <Head />
       <header className="flex justify-between items-center">
         <h1 className="text-3xl">soulbound ai</h1>
       </header>
