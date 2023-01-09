@@ -82,6 +82,10 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       upsert: true,
     });
 
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from("images").getPublicUrl(imagePath);
+
   if (error != null) {
     return res.status(500).json({ message: "Failed to save image" });
   }
@@ -90,6 +94,7 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     where: { owner: address },
     data: {
       imagePath,
+      imageUrl: publicUrl,
     },
   });
 

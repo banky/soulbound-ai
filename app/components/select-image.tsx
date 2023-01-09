@@ -19,7 +19,7 @@ export const SelectImage = ({
   };
 
   return (
-    <div className="text-center my-8">
+    <>
       <p>Select an image below and that is it!</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-7xl mx-auto">
@@ -38,7 +38,7 @@ export const SelectImage = ({
         })}
       </div>
       <p className="mt-8">{prompt}</p>
-    </div>
+    </>
   );
 };
 

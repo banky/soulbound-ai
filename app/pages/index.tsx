@@ -15,6 +15,7 @@ import { authOptions, Session } from "./api/auth/[...nextauth]";
 import { useToken } from "hooks/use-token";
 import { SelectImageButton } from "components/select-image-button";
 import { useDalleImages } from "hooks/use-dalle-images";
+import { SbtImage } from "components/sbt-image";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -92,6 +93,25 @@ export default function Home({ hasSBT, fee }: HomeProps) {
 
   const loggedIn = isConnected && status === "authenticated";
 
+  const getDisplayImage = () => {
+    if (needsToSelectImage) {
+      return (
+        <SelectImage
+          prompt={token.description}
+          dalleImages={dalleImages}
+          selectedImageIndex={selectedImageIndex}
+          setSelectedImageIndex={setSelectedImageIndex}
+        />
+      );
+    }
+
+    if (mintState === MintState.BURN) {
+      return <SbtImage imageUrl={token?.imageUrl ?? ""} />;
+    }
+
+    return null;
+  };
+
   const getPrimaryButton = () => {
     if (!loggedIn) {
       return <SignInButton />;
@@ -127,16 +147,9 @@ export default function Home({ hasSBT, fee }: HomeProps) {
           <Mnemonic mnemonic={mnemonic} />
         </div>
 
-        {needsToSelectImage ? (
-          <SelectImage
-            prompt={token.description}
-            dalleImages={dalleImages}
-            selectedImageIndex={selectedImageIndex}
-            setSelectedImageIndex={setSelectedImageIndex}
-          />
-        ) : null}
+        <div className="text-center my-8">{getDisplayImage()}</div>
 
-        <div>{getPrimaryButton()}</div>
+        {getPrimaryButton()}
 
         {/* {mintState === "burn" ? <SbtImage /> : null} */}
       </main>

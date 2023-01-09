@@ -57,7 +57,6 @@ export const MintButton = ({
     args: [address],
     enabled: isConnected,
     onSuccess: (numTokens: BigNumber) => {
-      console.log("refetched");
       if (numTokens.gt(0)) {
         setMintState(MintState.BURN);
       } else {

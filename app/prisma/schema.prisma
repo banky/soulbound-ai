@@ -22,5 +22,6 @@ model Token {
   owner       String  @id
   name        String
   imagePath   String?
+  imageUrl    String?
   description String
 }
