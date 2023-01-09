@@ -9,8 +9,9 @@
     "lint": "next lint",
     "test": "jest",
     "migrate": "npx prisma migrate deploy",
-    "postinstall": "npx prisma generate",
-    "vercel-build": "npm run migrate && next build"
+    "postinstall": "npx prisma generate && npm run generate-contract-artifacts",
+    "vercel-build": "npm run migrate && next build",
+    "generate-contract-artifacts": "cd ../contracts && npm install && npm run build && cd ../app"
   },
   "dependencies": {
     "@next/font": "13.1.0",
