@@ -25,8 +25,8 @@ export const SelectImage = ({
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-7xl mx-auto">
         {dalleImages.map(({ imageIndex, imageUrl }) => {
           return (
-            <div className="justify-center">
-              <button key={imageUrl} onClick={() => onClickImage(imageIndex)}>
+            <div key={imageUrl} className="justify-center">
+              <button onClick={() => onClickImage(imageIndex)}>
                 <SelectableImage
                   url={imageUrl}
                   selected={imageIndex === selectedImageIndex}
