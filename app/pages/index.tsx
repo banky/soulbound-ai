@@ -5,13 +5,17 @@ import { Mnemonic } from "../components/mnemonic";
 import { GetServerSidePropsContext } from "next";
 import { addressHasSBT, getFee } from "helpers/contract-reads";
 import { publicKeyToMnemonic } from "helpers/public-key";
-import { deleteImage, generateImages, saveImage } from "helpers/api-calls";
+import { generateImages } from "helpers/api-calls";
 import { SelectImage } from "components/select-image";
 import { MintState } from "types/mint-state";
 import { useSession } from "next-auth/react";
 import { SignInButton } from "components/sign-in-button";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./api/auth/[...nextauth]";
+import { useToken } from "hooks/use-token";
+import { SelectImageButton } from "components/select-image-button";
+import { useDalleImages } from "hooks/use-dalle-images";
+import { SbtImage } from "components/sbt-image";
 
 type HomeProps = {
   hasSBT: boolean;
@@ -47,23 +51,30 @@ export const getServerSideProps = async ({
 export default function Home({ hasSBT, fee }: HomeProps) {
   const { address, isConnected } = useAccount();
   const { status } = useSession();
-  const [prompt, setPrompt] = useState<string | undefined>(undefined);
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const initialMintState = hasSBT ? MintState.BURN : MintState.MINT;
   const [mintState, setMintState] = useState<MintState>(initialMintState);
 
   const mnemonic = address !== undefined ? publicKeyToMnemonic(address) : "";
+  const { token, invalidateToken, updateTokenImage, deleteToken } = useToken();
+  const { dalleImages, invalidateDalleImages } = useDalleImages();
+
+  const needsToSelectImage =
+    token !== undefined &&
+    dalleImages !== undefined &&
+    token.imagePath == null &&
+    mintState === MintState.BURN;
 
   const onMint = async () => {
     if (address === undefined) {
       return;
     }
 
-    const { prompt, imageUrls } = await generateImages();
-    setPrompt(prompt);
-    setImageUrls(imageUrls);
+    await generateImages();
+
+    await invalidateDalleImages();
+    await invalidateToken();
   };
 
   const onBurn = async () => {
@@ -71,19 +82,56 @@ export default function Home({ hasSBT, fee }: HomeProps) {
       return;
     }
 
-    await deleteImage();
+    await deleteToken();
 
-    setPrompt(undefined);
-    setImageUrls([]);
+    await invalidateDalleImages();
   };
 
   const onSelectImage = async () => {
-    await saveImage(selectedImageIndex);
-
-    setMintState(MintState.BURN);
+    await updateTokenImage(selectedImageIndex);
   };
 
   const loggedIn = isConnected && status === "authenticated";
+
+  const getDisplayImage = () => {
+    if (needsToSelectImage) {
+      return (
+        <SelectImage
+          prompt={token.description}
+          dalleImages={dalleImages}
+          selectedImageIndex={selectedImageIndex}
+          setSelectedImageIndex={setSelectedImageIndex}
+        />
+      );
+    }
+
+    if (mintState === MintState.BURN) {
+      return <SbtImage imageUrl={token?.imageUrl ?? ""} />;
+    }
+
+    return null;
+  };
+
+  const getPrimaryButton = () => {
+    if (!loggedIn) {
+      return <SignInButton />;
+    }
+
+    if (needsToSelectImage) {
+      return <SelectImageButton onSelectImage={onSelectImage} />;
+    }
+
+    return (
+      <MintButton
+        onMint={onMint}
+        onBurn={onBurn}
+        onSelectImage={onSelectImage}
+        fee={fee}
+        mintState={mintState}
+        setMintState={setMintState}
+      />
+    );
+  };
 
   return (
     <>
@@ -99,27 +147,9 @@ export default function Home({ hasSBT, fee }: HomeProps) {
           <Mnemonic mnemonic={mnemonic} />
         </div>
 
-        <SelectImage
-          prompt={prompt}
-          imageUrls={imageUrls}
-          selectedImageIndex={selectedImageIndex}
-          setSelectedImageIndex={setSelectedImageIndex}
-        />
+        <div className="text-center my-8">{getDisplayImage()}</div>
 
-        <div>
-          {!loggedIn ? (
-            <SignInButton />
-          ) : (
-            <MintButton
-              onMint={onMint}
-              onBurn={onBurn}
-              onSelectImage={onSelectImage}
-              fee={fee}
-              mintState={mintState}
-              setMintState={setMintState}
-            />
-          )}
-        </div>
+        {getPrimaryButton()}
 
         {/* {mintState === "burn" ? <SbtImage /> : null} */}
       </main>

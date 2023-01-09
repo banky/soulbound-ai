@@ -1,5 +1,4 @@
 export enum MintState {
-  MINT,
-  BURN,
-  SELECT_IMAGE,
+  MINT = "MINT",
+  BURN = "BURN",
 }

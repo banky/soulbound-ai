@@ -61,5 +61,5 @@ export default async function handler(
     },
   });
 
-  res.status(200).json({ prompt: imagePrompt, imageUrls });
+  res.status(200).json({ imageUrls });
 }

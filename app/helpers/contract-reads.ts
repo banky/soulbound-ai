@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
-import { SoulboundAI } from "contracts/typechain-types";
-import SoulboundAIABI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
+import { SoulboundAI, SoulboundAIABI } from "contracts";
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
 

@@ -1,15 +1,10 @@
-import { IMAGE_BASE_URL } from "constants/index";
 import { useAccount } from "wagmi";
 
-export const SbtImage = () => {
-  const { address } = useAccount();
+type SbtImageProps = {
+  imageUrl: string;
+};
 
-  if (address === undefined) {
-    return null;
-  }
-
-  const imageUrl = `${IMAGE_BASE_URL}/${address}.png`;
-
+export const SbtImage = ({ imageUrl }: SbtImageProps) => {
   return (
     <div className="mt-8 flex justify-center">
       <img

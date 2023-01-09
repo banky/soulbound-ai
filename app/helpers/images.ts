@@ -51,10 +51,10 @@ export const createImages = async (
     return {
       imagePrompt: "This is a mock image prompt for local testing",
       imageUrls: [
-        "https://picsum.photos/256?random=1",
-        "https://picsum.photos/256?random=2",
-        "https://picsum.photos/256?random=3",
-        "https://picsum.photos/256?random=4",
+        "https://picsum.photos/id/1/256/256",
+        "https://picsum.photos/id/2/256/256",
+        "https://picsum.photos/id/3/256/256",
+        "https://picsum.photos/id/4/256/256",
       ],
     };
   }

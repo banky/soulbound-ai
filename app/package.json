@@ -9,8 +9,9 @@
     "lint": "next lint",
     "test": "jest",
     "migrate": "npx prisma migrate deploy",
-    "postinstall": "npx prisma generate",
-    "vercel-build": "npm run migrate && next build"
+    "postinstall": "npx prisma generate && npm run generate-contract-artifacts",
+    "vercel-build": "npm run migrate && next build",
+    "generate-contract-artifacts": "cd ../contracts && npm install && npm run build && cd ../app"
   },
   "dependencies": {
     "@next/font": "13.1.0",
@@ -29,6 +30,7 @@
     "openai": "^3.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-query": "^3.39.2",
     "siwe": "^1.1.6",
     "typescript": "4.9.4",
     "wagmi": "^0.9.5"
@@ -40,8 +42,10 @@
     "autoprefixer": "^10.4.13",
     "jest": "^29.3.1",
     "jest-environment-jsdom": "^29.3.1",
+    "node-mocks-http": "^1.12.1",
     "postcss": "^8.4.20",
     "prisma": "^4.8.0",
-    "tailwindcss": "^3.2.4"
+    "tailwindcss": "^3.2.4",
+    "ts-jest": "^29.0.3"
   }
 }

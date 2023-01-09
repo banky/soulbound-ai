@@ -1,9 +1,10 @@
+import { DalleImage, Token } from "@prisma/client";
+
 /**
  * Generate images for a user that has minted a SBT
  * @returns
  */
 export const generateImages = async (): Promise<{
-  prompt: string;
   imageUrls: string[];
 }> => {
   const response = await fetch("/api/generate-images", {
@@ -16,12 +17,18 @@ export const generateImages = async (): Promise<{
   return parsedResponse;
 };
 
-/**
- * Save an image from an imageIndex of the generated images
- * @param imageIndex
- */
-export const saveImage = async (imageIndex: number): Promise<void> => {
-  await fetch("/api/save-image", {
+export const getToken = async (address: string): Promise<Token> => {
+  const res = await fetch(`/api/token?address=${address}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res.json();
+};
+
+export const postToken = async (imageIndex: number): Promise<Token> => {
+  const res = await fetch("/api/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -30,16 +37,26 @@ export const saveImage = async (imageIndex: number): Promise<void> => {
       imageIndex,
     }),
   });
+  return res.json();
 };
 
-/**
- * Clean up data after burning an SBT
- */
-export const deleteImage = async (): Promise<void> => {
-  await fetch("/api/delete-image", {
+export const deleteToken = async (): Promise<void> => {
+  await fetch("/api/token", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
   });
+};
+
+export const getDalleImages = async (
+  address: string
+): Promise<DalleImage[]> => {
+  const res = await fetch(`/api/dalle-images?address=${address}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res.json();
 };

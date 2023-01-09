@@ -15,6 +15,9 @@ import { publicProvider } from "wagmi/providers/public";
 import { Inconsolata } from "@next/font/google";
 import dynamic from "next/dynamic";
 import { SessionProvider } from "next-auth/react";
+import { QueryClient, QueryClientProvider } from "react-query";
+
+const queryClient = new QueryClient();
 
 const inconsolata = Inconsolata({ subsets: ["latin"] });
 
@@ -57,9 +60,11 @@ const App = ({ Component, pageProps }: AppProps) => {
     <WagmiConfig client={wagmiClient}>
       <SessionProvider session={pageProps.session} refetchInterval={0}>
         <RainbowKitProvider chains={chains}>
-          <div className={inconsolata.className}>
-            <Component {...pageProps} />
-          </div>
+          <QueryClientProvider client={queryClient}>
+            <div className={inconsolata.className}>
+              <Component {...pageProps} />
+            </div>
+          </QueryClientProvider>
         </RainbowKitProvider>
       </SessionProvider>
     </WagmiConfig>

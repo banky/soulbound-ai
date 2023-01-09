@@ -5,7 +5,7 @@ import {
   useAccount,
   useContractRead,
 } from "wagmi";
-import SoulboundAI from "contracts/artifacts/src/SoulboundAI.sol/SoulboundAI.json";
+import { SoulboundAIABI } from "contracts";
 import { Button } from "./button";
 import { useState } from "react";
 import { MintState } from "types/mint-state";
@@ -32,7 +32,7 @@ export const MintButton = ({
 
   const { config: mintConfig } = usePrepareContractWrite({
     address: contractAddress,
-    abi: SoulboundAI.abi,
+    abi: SoulboundAIABI.abi,
     functionName: "safeMint",
     args: [address],
     overrides: {
@@ -44,7 +44,7 @@ export const MintButton = ({
 
   const { config: burnConfig } = usePrepareContractWrite({
     address: contractAddress,
-    abi: SoulboundAI.abi,
+    abi: SoulboundAIABI.abi,
     functionName: "burn",
     enabled: mintState === MintState.BURN && isConnected,
   });
@@ -52,7 +52,7 @@ export const MintButton = ({
 
   const { refetch: refetchHasSBT } = useContractRead({
     address: contractAddress,
-    abi: SoulboundAI.abi,
+    abi: SoulboundAIABI.abi,
     functionName: "balanceOf",
     args: [address],
     enabled: isConnected,
@@ -62,13 +62,6 @@ export const MintButton = ({
       } else {
         setMintState(MintState.MINT);
       }
-      // if (numTokens.gt(0) && mintState === MintState.MINT) {
-      //   setMintState(MintState.SELECT_IMAGE);
-      // } else if (numTokens.gt(0) && mintState === MintState.SELECT_IMAGE) {
-      //   setMintState(MintState.BURN);
-      // } else {
-      //   setMintState(MintState.MINT);
-      // }
     },
   });
 
@@ -90,9 +83,9 @@ export const MintButton = ({
     try {
       const sendTransactionResult = await mint?.();
       await sendTransactionResult?.wait();
-      await onMint();
 
       await refetchHasSBT();
+      await onMint();
     } catch (error) {
       setErrorMessage(error);
     }
@@ -108,22 +101,8 @@ export const MintButton = ({
       const sendTransactionResult = await burn?.();
       await sendTransactionResult?.wait();
 
+      await refetchHasSBT();
       await onBurn();
-      await refetchHasSBT();
-    } catch (error) {
-      setErrorMessage(error);
-    }
-
-    setLoading(false);
-  };
-
-  const onClickSelectImage = async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      await onSelectImage();
-      await refetchHasSBT();
     } catch (error) {
       setErrorMessage(error);
     }
@@ -138,10 +117,6 @@ export const MintButton = ({
 
     if (mintState === MintState.BURN) {
       return <Button onClick={() => onClickBurn()}>Burn</Button>;
-    }
-
-    if (mintState === MintState.SELECT_IMAGE) {
-      return <Button onClick={() => onClickSelectImage()}>Select Image</Button>;
     }
 
     return <Button onClick={() => onClickMint()}>Mint ({fee}eth)</Button>;

@@ -1,37 +1,36 @@
+import { DalleImage } from "@prisma/client";
+
 type SelectImageProps = {
   prompt?: string;
-  imageUrls: string[];
+  dalleImages: DalleImage[];
   selectedImageIndex: number;
   setSelectedImageIndex: (i: number) => void;
 };
 
 export const SelectImage = ({
   prompt,
-  imageUrls,
+  dalleImages,
   selectedImageIndex,
   setSelectedImageIndex,
 }: SelectImageProps) => {
-  if (prompt === undefined) {
-    return null;
-  }
-
   const onClickImage = (index: number) => {
+    console.log("selected image index:", index);
     setSelectedImageIndex(index);
   };
 
   return (
-    <div className="text-center my-8">
+    <>
       <p>Select an image below and that is it!</p>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8 max-w-7xl mx-auto">
-        {imageUrls.map((imageUrl, index) => {
+        {dalleImages.map(({ imageIndex, imageUrl }) => {
           return (
-            <div className="justify-center">
-              <button key={imageUrl} onClick={() => onClickImage(index)}>
+            <div key={imageUrl} className="justify-center">
+              <button onClick={() => onClickImage(imageIndex)}>
                 <SelectableImage
                   url={imageUrl}
-                  selected={index === selectedImageIndex}
-                  alt={prompt + ` . Option ${index + 1}`}
+                  selected={imageIndex === selectedImageIndex}
+                  alt={prompt + ` . Option ${imageIndex + 1}`}
                 />
               </button>
             </div>
@@ -39,7 +38,7 @@ export const SelectImage = ({
         })}
       </div>
       <p className="mt-8">{prompt}</p>
-    </div>
+    </>
   );
 };
 
