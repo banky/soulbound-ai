@@ -1,27 +1,16 @@
-import { addressHasSBT } from "helpers/contract-reads";
-import { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { PrismaClient } from "@prisma/client";
-import { randomUUID } from "crypto";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions, Session } from "./auth/[...nextauth]";
+import { NextApiRequest, NextApiResponse } from "next";
 
 const supabase = createClient(
   process.env.SUPABASE_URL ?? "",
   process.env.SUPABASE_KEY ?? ""
 );
 
-const prisma = new PrismaClient();
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) {
   switch (req.method) {
-    case "POST":
-      await postImage(req, res);
-      break;
-
     case "GET":
       await getImage(req, res);
       break;
@@ -31,79 +20,16 @@ export default async function handler(
   }
 }
 
-const postImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
-
-  if (session == null) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized. User is not logged in" });
-  }
-
-  const { address } = session;
-  const { imageIndex } = req.body;
-  const hasSBT = await addressHasSBT(address);
-
-  if (!hasSBT) {
-    return res
-      .status(401)
-      .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
-  }
-
-  const dalleImage = await prisma.dalleImage.findFirst({
-    where: {
-      owner: address,
-      imageIndex: imageIndex,
-    },
-  });
-
-  if (dalleImage === null) {
-    return res.status(400).json({ message: "Image index not found for user" });
-  }
-
-  const dalleImageUrl = dalleImage.imageUrl;
-
-  const image = await fetch(dalleImageUrl);
-  const blob = await image.blob();
-  const imagePath = `${randomUUID()}.png`;
-
-  const { error } = await supabase.storage
-    .from("images")
-    .upload(imagePath, blob, {
-      cacheControl: "3600",
-      upsert: true,
-    });
-
-  if (error != null) {
-    return res.status(500).json({ message: "Failed to save image" });
-  }
-
-  const currentToken = await prisma.token.update({
-    where: { owner: address },
-    data: {
-      imagePath,
-    },
-  });
-
-  return res.status(200).json(currentToken);
-};
-
 const getImage = async (req: NextApiRequest, res: NextApiResponse<any>) => {
-  const { address } = req.body;
+  const { imagePath } = req.body;
 
-  const token = await prisma.token.findFirst({ where: { owner: address } });
-
-  if (token == null || token.imagePath == null) {
-    return res.status(404).json({ message: "Not found" });
+  if (typeof imagePath !== "string" || imagePath.length === 0) {
+    res.status(400).json({ message: "Invalid imagePath" });
   }
 
   const {
     data: { publicUrl },
-  } = supabase.storage.from("images").getPublicUrl(token.imagePath);
+  } = supabase.storage.from("images").getPublicUrl(imagePath);
 
-  return res.status(200).json({ publicUrl });
+  res.status(200).json({ publicUrl });
 };

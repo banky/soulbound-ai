@@ -57,18 +57,12 @@ export const MintButton = ({
     args: [address],
     enabled: isConnected,
     onSuccess: (numTokens: BigNumber) => {
+      console.log("refetched");
       if (numTokens.gt(0)) {
         setMintState(MintState.BURN);
       } else {
         setMintState(MintState.MINT);
       }
-      // if (numTokens.gt(0) && mintState === MintState.MINT) {
-      //   setMintState(MintState.SELECT_IMAGE);
-      // } else if (numTokens.gt(0) && mintState === MintState.SELECT_IMAGE) {
-      //   setMintState(MintState.BURN);
-      // } else {
-      //   setMintState(MintState.MINT);
-      // }
     },
   });
 
@@ -90,9 +84,9 @@ export const MintButton = ({
     try {
       const sendTransactionResult = await mint?.();
       await sendTransactionResult?.wait();
-      await onMint();
 
       await refetchHasSBT();
+      await onMint();
     } catch (error) {
       setErrorMessage(error);
     }
@@ -108,22 +102,8 @@ export const MintButton = ({
       const sendTransactionResult = await burn?.();
       await sendTransactionResult?.wait();
 
+      await refetchHasSBT();
       await onBurn();
-      await refetchHasSBT();
-    } catch (error) {
-      setErrorMessage(error);
-    }
-
-    setLoading(false);
-  };
-
-  const onClickSelectImage = async () => {
-    setLoading(true);
-    setError("");
-
-    try {
-      await onSelectImage();
-      await refetchHasSBT();
     } catch (error) {
       setErrorMessage(error);
     }
@@ -138,10 +118,6 @@ export const MintButton = ({
 
     if (mintState === MintState.BURN) {
       return <Button onClick={() => onClickBurn()}>Burn</Button>;
-    }
-
-    if (mintState === MintState.SELECT_IMAGE) {
-      return <Button onClick={() => onClickSelectImage()}>Select Image</Button>;
     }
 
     return <Button onClick={() => onClickMint()}>Mint ({fee}eth)</Button>;

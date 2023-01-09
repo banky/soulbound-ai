@@ -1,4 +1,4 @@
-import handler from "pages/api/image";
+import handler from "pages/api/token";
 import { createMocks, MockRequest, MockResponse } from "node-mocks-http";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
@@ -53,7 +53,7 @@ global.fetch = jest.fn().mockImplementation(async () => ({
   blob: jest.fn(async () => ({})),
 }));
 
-describe("/api/image", () => {
+describe("/api/token", () => {
   describe("POST", () => {
     let req: MockRequest<NextApiRequest>;
     let res: MockResponse<NextApiResponse<any>>;
