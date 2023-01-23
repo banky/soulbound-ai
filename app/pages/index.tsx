@@ -131,6 +131,9 @@ const Home = ({ fee }: HomeProps) => {
       case AppState.StartTraining:
         return <StartTraining />;
 
+      // case AppState.Training:
+      //   return <TrainingInProgress />;
+
       default:
         // TODO: Maybe a loading spinner
         return <div className="text-center">Loading</div>;

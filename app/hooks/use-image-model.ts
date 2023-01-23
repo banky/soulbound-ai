@@ -1,5 +1,11 @@
-import { getImageModel, postImageModel, uploadImages } from "helpers/api-calls";
+import {
+  getImageModel,
+  postImageModel,
+  postTrainModel,
+  uploadImages,
+} from "helpers/api-calls";
 import { useMutation, useQuery, useQueryClient } from "react-query";
+import { Descriptor } from "types/descriptor";
 import { useAccount } from "wagmi";
 
 export const useImageModel = () => {
@@ -26,10 +32,18 @@ export const useImageModel = () => {
     },
   });
 
+  const trainModelMutation = useMutation(postTrainModel, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("imageModel");
+    },
+  });
+
   return {
     imageModel: query.data,
     postImageModel: () => postImageModelMutation.mutateAsync(),
     uploadImages: (formData: FormData) =>
       uploadImagesMutation.mutateAsync(formData),
+    trainModel: (descriptor: Descriptor) =>
+      trainModelMutation.mutateAsync(descriptor),
   };
 };

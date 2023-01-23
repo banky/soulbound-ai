@@ -1,4 +1,5 @@
 import { DalleImage, Token, ImageModel } from "@prisma/client";
+import { Descriptor } from "types/descriptor";
 
 /**
  * Generate images for a user that has minted a SBT
@@ -111,6 +112,19 @@ export const uploadImages = async (formData: FormData): Promise<void> => {
   const res = await fetch("/api/upload-images", {
     method: "POST",
     body: formData,
+  });
+  return res.json();
+};
+
+export const postTrainModel = async (descriptor: Descriptor): Promise<void> => {
+  const res = await fetch("/api/train-model", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      descriptor,
+    }),
   });
   return res.json();
 };

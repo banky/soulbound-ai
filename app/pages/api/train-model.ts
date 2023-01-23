@@ -63,6 +63,7 @@ const postTrainModel = async (
   }
 
   const { s3Urls } = imageModel;
+  await new Promise((res) => setTimeout(res, 2000));
   // const { orderId } = await trainModel(s3Urls, address, descriptor);
 
   const orderId = "mock-order-123";
@@ -74,6 +75,8 @@ const postTrainModel = async (
       state: "IS_TRAINING",
     },
   });
+
+  return res.status(200).json({});
 };
 
 /**
