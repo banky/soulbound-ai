@@ -34,7 +34,7 @@ export const MintButton = ({
     overrides: {
       value: ethers.utils.parseEther(fee),
     },
-    enabled: mintState === MintState.MINT && isConnected,
+    enabled: mintState === MintState.Mint && isConnected,
   });
   const { writeAsync: mint } = useContractWrite(mintConfig);
 
@@ -42,7 +42,7 @@ export const MintButton = ({
     address: contractAddress,
     abi: SoulboundAIABI.abi,
     functionName: "burn",
-    enabled: mintState === MintState.BURN && isConnected,
+    enabled: mintState === MintState.Burn && isConnected,
   });
   const { writeAsync: burn } = useContractWrite(burnConfig);
 
@@ -94,7 +94,7 @@ export const MintButton = ({
       return <Button disabled>Loading</Button>;
     }
 
-    if (mintState === MintState.BURN) {
+    if (mintState === MintState.Burn) {
       return <Button onClick={() => onClickBurn()}>Burn</Button>;
     }
 

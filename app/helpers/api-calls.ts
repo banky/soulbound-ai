@@ -1,4 +1,4 @@
-import { DalleImage, Token } from "@prisma/client";
+import { DalleImage, Token, ImageModel } from "@prisma/client";
 
 /**
  * Generate images for a user that has minted a SBT
@@ -29,6 +29,21 @@ export const getToken = async (address: string): Promise<Token | null> => {
       "Content-Type": "application/json",
     },
   });
+  return res.json();
+};
+
+export const getImageModel = async (
+  address: string
+): Promise<ImageModel | null> => {
+  const res = await fetch(
+    `/api/image-model?address=${address.toLocaleLowerCase()}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return res.json();
 };
 

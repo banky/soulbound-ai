@@ -18,9 +18,9 @@ import { useDalleImages } from "hooks/use-dalle-images";
 import { SbtImage } from "components/sbt-image";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
+import { useImageModel } from "hooks/use-image-model";
 
 type HomeProps = {
-  hasSBT: boolean;
   fee: string;
 };
 
@@ -30,33 +30,60 @@ export const getServerSideProps = async ({
 }: GetServerSidePropsContext): Promise<{ props: HomeProps }> => {
   const fee = await getFee();
 
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
-
-  if (session == null) {
-    return {
-      props: { hasSBT: false, fee },
-    };
-  }
-
-  const { address } = session;
-  const hasSBT = await addressHasSBT(address);
-
   return {
-    props: { hasSBT, fee },
+    props: { fee },
   };
 };
 
-const Home = ({ hasSBT, fee }: HomeProps) => {
+enum AppState {
+  Connect,
+  SignIn,
+  Mint,
+  UploadImages,
+  Training,
+  SelectImage,
+  Burn,
+}
+
+const useAppState = (): AppState => {
+  const { isConnected } = useAccount();
+  const { status } = useSession();
+  const { mintState } = useMintState();
+  const { imageModel } = useImageModel();
+
+  if (!isConnected) {
+    return AppState.Connect;
+  }
+
+  if (status !== "authenticated") {
+    return AppState.SignIn;
+  }
+
+  if (mintState === MintState.Mint) {
+    return AppState.Mint;
+  }
+
+  if (imageModel?.state === "NEEDS_IMAGES") {
+    return AppState.UploadImages;
+  }
+
+  if (imageModel?.state === "IS_TRAINING") {
+    return AppState.Training;
+  }
+
+  if (imageModel?.state === "READY") {
+    return AppState.SelectImage;
+  }
+
+  return AppState.Burn;
+};
+
+const Home = ({ fee }: HomeProps) => {
   const { address, isConnected } = useAccount();
   const { status } = useSession();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const initialMintState = hasSBT ? MintState.BURN : MintState.MINT;
-  const { mintState, refetchMintState } = useMintState(initialMintState);
+  const { mintState, refetchMintState } = useMintState();
 
   const mnemonic = address !== undefined ? publicKeyToMnemonic(address) : "";
   const { token, invalidateToken, updateTokenImage, deleteToken } = useToken();
@@ -66,7 +93,7 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
     token !== undefined &&
     dalleImages !== undefined &&
     token.imagePath == null &&
-    mintState === MintState.BURN;
+    mintState === MintState.Burn;
 
   const onMint = async () => {
     if (address === undefined) {
@@ -75,10 +102,6 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
 
     await refetchMintState();
 
-    await generateImages();
-
-    // Invalidate local caches
-    await invalidateDalleImages();
     await invalidateToken();
   };
 
@@ -112,7 +135,7 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
       );
     }
 
-    if (mintState === MintState.BURN && token !== undefined) {
+    if (mintState === MintState.Burn && token !== undefined) {
       return <SbtImage token={token} />;
     }
 

@@ -25,3 +25,14 @@ model Token {
   imageUrl    String?
   description String
 }
+
+model ImageModel {
+  owner String          @id
+  state ImageModelState
+}
+
+enum ImageModelState {
+  NEEDS_IMAGES
+  IS_TRAINING
+  READY
+}
