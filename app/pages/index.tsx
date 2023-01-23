@@ -69,8 +69,6 @@ const useAppState = (): AppState => {
     return AppState.Mint;
   }
 
-  console.log("imageModel state:", imageModel?.state);
-
   if (imageModel?.state === "NEEDS_IMAGES") {
     return AppState.UploadImages;
   }
@@ -93,20 +91,15 @@ const useAppState = (): AppState => {
 const Home = ({ fee }: HomeProps) => {
   const appState = useAppState();
 
-  console.log("appState", appState);
   const { refetchMintState } = useMintState();
   const { postImageModel } = useImageModel();
 
   const onMint = async () => {
-    console.log("Calling onMint");
-
     await postImageModel();
     await refetchMintState();
   };
 
   const onBurn = async () => {
-    console.log("Calling onBurn");
-
     await refetchMintState();
 
     // await invalidateToken();

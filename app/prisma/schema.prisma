@@ -27,12 +27,15 @@ model Token {
 }
 
 model ImageModel {
-  owner String          @id
-  state ImageModelState
+  owner   String          @id
+  state   ImageModelState
+  s3Urls  String[]
+  orderId String?
 }
 
 enum ImageModelState {
   NEEDS_IMAGES
+  NEEDS_TRAINING
   IS_TRAINING
   READY
 }
