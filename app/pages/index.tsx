@@ -19,6 +19,11 @@ import { SbtImage } from "components/sbt-image";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
 import { useImageModel } from "hooks/use-image-model";
+import { ConnectWallet } from "slots/connect-wallet";
+import { SignIn } from "slots/sign-in";
+import { Mint } from "slots/mint";
+import { Burn } from "slots/burn";
+import { UploadImages } from "slots/upload-images";
 
 type HomeProps = {
   fee: string;
@@ -36,13 +41,14 @@ export const getServerSideProps = async ({
 };
 
 enum AppState {
-  Connect,
-  SignIn,
-  Mint,
-  UploadImages,
-  Training,
-  SelectImage,
-  Burn,
+  Connect = "Connect",
+  SignIn = "SignIn",
+  Mint = "Mint",
+  UploadImages = "UploadImages",
+  Training = "Training",
+  SelectImage = "SelectImage",
+  Burn = "Burn",
+  Invalid = "Invalid",
 }
 
 const useAppState = (): AppState => {
@@ -63,6 +69,8 @@ const useAppState = (): AppState => {
     return AppState.Mint;
   }
 
+  console.log("imageModel state:", imageModel?.state);
+
   if (imageModel?.state === "NEEDS_IMAGES") {
     return AppState.UploadImages;
   }
@@ -75,91 +83,139 @@ const useAppState = (): AppState => {
     return AppState.SelectImage;
   }
 
-  return AppState.Burn;
+  if (mintState === MintState.Burn) {
+    return AppState.Burn;
+  }
+
+  return AppState.Invalid;
 };
 
 const Home = ({ fee }: HomeProps) => {
-  const { address, isConnected } = useAccount();
-  const { status } = useSession();
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const appState = useAppState();
 
-  const { mintState, refetchMintState } = useMintState();
-
-  const mnemonic = address !== undefined ? publicKeyToMnemonic(address) : "";
-  const { token, invalidateToken, updateTokenImage, deleteToken } = useToken();
-  const { dalleImages, invalidateDalleImages } = useDalleImages();
-
-  const needsToSelectImage =
-    token !== undefined &&
-    dalleImages !== undefined &&
-    token.imagePath == null &&
-    mintState === MintState.Burn;
+  console.log("appState", appState);
+  const { refetchMintState } = useMintState();
+  const { postImageModel } = useImageModel();
 
   const onMint = async () => {
-    if (address === undefined) {
-      return;
-    }
+    console.log("Calling onMint");
 
+    await postImageModel();
     await refetchMintState();
-
-    await invalidateToken();
   };
 
   const onBurn = async () => {
-    if (address === undefined) {
-      return;
-    }
+    console.log("Calling onBurn");
 
     await refetchMintState();
 
-    await deleteToken();
-
-    await invalidateDalleImages();
+    // await invalidateToken();
   };
 
-  const onSelectImage = async () => {
-    await updateTokenImage(selectedImageIndex);
+  const getSlot = () => {
+    switch (appState) {
+      case AppState.Connect:
+        return <ConnectWallet />;
+
+      case AppState.SignIn:
+        return <SignIn />;
+
+      case AppState.Mint:
+        return <Mint fee={fee} onMint={onMint} />;
+
+      case AppState.Burn:
+        return <Burn onBurn={onBurn} />;
+
+      case AppState.UploadImages:
+        return <UploadImages />;
+
+      default:
+        // TODO: Maybe a loading spinner
+        return <div>Some new state</div>;
+    }
   };
 
-  const loggedIn = isConnected && status === "authenticated";
+  // const { address, isConnected } = useAccount();
+  // const { status } = useSession();
+  // const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  const getDisplayImage = () => {
-    if (needsToSelectImage) {
-      return (
-        <SelectImage
-          prompt={token.description}
-          dalleImages={dalleImages}
-          selectedImageIndex={selectedImageIndex}
-          setSelectedImageIndex={setSelectedImageIndex}
-        />
-      );
-    }
+  // const { mintState, refetchMintState } = useMintState();
 
-    if (mintState === MintState.Burn && token !== undefined) {
-      return <SbtImage token={token} />;
-    }
+  // const mnemonic = address !== undefined ? publicKeyToMnemonic(address) : "";
+  // const { token, invalidateToken, updateTokenImage, deleteToken } = useToken();
+  // const { dalleImages, invalidateDalleImages } = useDalleImages();
 
-    return null;
-  };
+  // const needsToSelectImage =
+  //   token !== undefined &&
+  //   dalleImages !== undefined &&
+  //   token.imagePath == null &&
+  //   mintState === MintState.Burn;
 
-  const getPrimaryButton = () => {
-    if (!loggedIn) {
-      return <SignInButton />;
-    }
+  // const onMint = async () => {
+  //   if (address === undefined) {
+  //     return;
+  //   }
 
-    if (needsToSelectImage) {
-      return <SelectImageButton onSelectImage={onSelectImage} />;
-    }
+  //   await refetchMintState();
 
-    return (
-      <MintButton
-        onMint={onMint}
-        onBurn={onBurn}
-        fee={fee}
-        mintState={mintState}
-      />
-    );
-  };
+  //   await invalidateToken();
+  // };
+
+  // const onBurn = async () => {
+  //   if (address === undefined) {
+  //     return;
+  //   }
+
+  //   await refetchMintState();
+
+  //   await deleteToken();
+
+  //   await invalidateDalleImages();
+  // };
+
+  // const onSelectImage = async () => {
+  //   await updateTokenImage(selectedImageIndex);
+  // };
+
+  // const loggedIn = isConnected && status === "authenticated";
+
+  // const getDisplayImage = () => {
+  //   if (needsToSelectImage) {
+  //     return (
+  //       <SelectImage
+  //         prompt={token.description}
+  //         dalleImages={dalleImages}
+  //         selectedImageIndex={selectedImageIndex}
+  //         setSelectedImageIndex={setSelectedImageIndex}
+  //       />
+  //     );
+  //   }
+
+  //   if (mintState === MintState.Burn && token !== undefined) {
+  //     return <SbtImage token={token} />;
+  //   }
+
+  //   return null;
+  // };
+
+  // const getPrimaryButton = () => {
+  //   if (!loggedIn) {
+  //     return <SignInButton />;
+  //   }
+
+  //   if (needsToSelectImage) {
+  //     return <SelectImageButton onSelectImage={onSelectImage} />;
+  //   }
+
+  //   return (
+  //     <MintButton
+  //       onMint={onMint}
+  //       onBurn={onBurn}
+  //       fee={fee}
+  //       mintState={mintState}
+  //     />
+  //   );
+  // };
 
   return (
     <>
@@ -171,13 +227,13 @@ const Home = ({ fee }: HomeProps) => {
         <h2 className="text-center text-pink-500 text-7xl mb-8">
           Mint a unique SoulBound NFT using AI
         </h2>
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <Mnemonic mnemonic={mnemonic} />
-        </div>
+        </div> */}
 
-        <div className="text-center my-8">{getDisplayImage()}</div>
+        {/* <div className="text-center my-8">{getDisplayImage()}</div> */}
 
-        {getPrimaryButton()}
+        {getSlot()}
       </main>
     </>
   );

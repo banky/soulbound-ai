@@ -8,7 +8,7 @@ export const useMintState = () => {
   const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS;
   const { address, isConnected } = useAccount();
 
-  const [mintState, setMintState] = useState(MintState.Mint);
+  const [mintState, setMintState] = useState<MintState>();
 
   const { refetch: refetchMintState } = useContractRead({
     address: contractAddress,

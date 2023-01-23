@@ -1,19 +1,27 @@
-import { getImageModel } from "helpers/api-calls";
-import { useQuery, useQueryClient } from "react-query";
+import { getImageModel, postImageModel } from "helpers/api-calls";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useAccount } from "wagmi";
 
 export const useImageModel = () => {
+  const queryClient = useQueryClient();
   const { address } = useAccount();
 
-  const query = useQuery("token", async () => {
+  const query = useQuery("imageModel", async () => {
     if (address === undefined) {
       return;
     }
-    const token = await getImageModel(address);
-    return token ?? undefined;
+    const imageModel = await getImageModel(address);
+    return imageModel ?? undefined;
+  });
+
+  const postImageModelMutation = useMutation(postImageModel, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("imageModel");
+    },
   });
 
   return {
     imageModel: query.data,
+    postImageModel: () => postImageModelMutation.mutateAsync(),
   };
 };

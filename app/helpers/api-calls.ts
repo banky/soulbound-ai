@@ -96,3 +96,13 @@ export const getDalleImages = async (
   );
   return res.json();
 };
+
+export const postImageModel = async (): Promise<ImageModel> => {
+  const res = await fetch("/api/image-model", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res.json();
+};

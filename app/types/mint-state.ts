@@ -1,4 +1,4 @@
 export enum MintState {
-  Mint,
-  Burn,
+  Mint = "Mint",
+  Burn = "Burn",
 }
