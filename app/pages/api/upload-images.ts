@@ -60,9 +60,12 @@ const postUploadImages = async (
       if (err) {
         reject(err);
       }
+      console.log("files", files);
       resolve(files);
     });
   });
+
+  console.log("uploading files", files);
 
   if (!(files.media instanceof Array) || files.media.length < MIN_FILES) {
     return res
@@ -70,9 +73,12 @@ const postUploadImages = async (
       .json({ message: `Expected at least ${MIN_FILES} files` });
   }
 
-  const s3Urls = await Promise.all(
-    files.media.map((persistentFile) => uploadFile(persistentFile, address))
-  );
+  // const s3Urls = await Promise.all(
+  //   files.media.map((persistentFile) => uploadFile(persistentFile, address))
+  // );
+
+  await new Promise((res) => setTimeout(res, 2000));
+  const s3Urls = files.media.map((persistentFile) => persistentFile.filepath);
 
   await prisma.imageModel.update({
     where: { owner: address },
@@ -82,7 +88,7 @@ const postUploadImages = async (
     },
   });
 
-  return res.status(200);
+  return res.status(200).json({});
 };
 
 /**

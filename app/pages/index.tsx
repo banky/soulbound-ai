@@ -24,6 +24,7 @@ import { SignIn } from "slots/sign-in";
 import { Mint } from "slots/mint";
 import { Burn } from "slots/burn";
 import { UploadImages } from "slots/upload-images";
+import { StartTraining } from "slots/start-training";
 
 type HomeProps = {
   fee: string;
@@ -45,6 +46,7 @@ enum AppState {
   SignIn = "SignIn",
   Mint = "Mint",
   UploadImages = "UploadImages",
+  StartTraining = "StartTraining",
   Training = "Training",
   SelectImage = "SelectImage",
   Burn = "Burn",
@@ -71,6 +73,10 @@ const useAppState = (): AppState => {
 
   if (imageModel?.state === "NEEDS_IMAGES") {
     return AppState.UploadImages;
+  }
+
+  if (imageModel?.state === "NEEDS_TRAINING") {
+    return AppState.StartTraining;
   }
 
   if (imageModel?.state === "IS_TRAINING") {
@@ -122,9 +128,12 @@ const Home = ({ fee }: HomeProps) => {
       case AppState.UploadImages:
         return <UploadImages />;
 
+      case AppState.StartTraining:
+        return <StartTraining />;
+
       default:
         // TODO: Maybe a loading spinner
-        return <div>Some new state</div>;
+        return <div className="text-center">Loading</div>;
     }
   };
 

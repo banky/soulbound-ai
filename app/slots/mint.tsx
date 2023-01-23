@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import { useState } from "react";
 import { stringifyError } from "helpers/stringify-error";
 import { Button } from "components/button";
+import { ActiveButton } from "components/active-button";
 
 type MintProps = {
   fee: string;
@@ -47,15 +48,13 @@ export const Mint = ({ fee, onMint }: MintProps) => {
 
   return (
     <div>
-      {loading ? (
-        <Button disabled>Loading</Button>
-      ) : (
-        <Button onClick={() => onClickMint()}>Mint ({fee}eth)</Button>
-      )}
-
-      {error !== "" ? (
-        <p className="text-red-500 text-center mt-4">{error}</p>
-      ) : null}
+      <ActiveButton
+        loading={loading}
+        error={error}
+        onClick={() => onClickMint()}
+      >
+        Mint ({fee}eth)
+      </ActiveButton>
     </div>
   );
 };

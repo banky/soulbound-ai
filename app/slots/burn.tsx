@@ -1,3 +1,4 @@
+import { ActiveButton } from "components/active-button";
 import { Button } from "components/button";
 import { SoulboundAIABI } from "contracts";
 import { stringifyError } from "helpers/stringify-error";
@@ -40,15 +41,13 @@ export const Burn = ({ onBurn }: BurnProps) => {
 
   return (
     <div>
-      {loading ? (
-        <Button disabled>Loading</Button>
-      ) : (
-        <Button onClick={() => onClickBurn()}>Burn</Button>
-      )}
-
-      {error !== "" ? (
-        <p className="text-red-500 text-center mt-4">{error}</p>
-      ) : null}
+      <ActiveButton
+        loading={loading}
+        error={error}
+        onClick={() => onClickBurn()}
+      >
+        Burn
+      </ActiveButton>
     </div>
   );
 };

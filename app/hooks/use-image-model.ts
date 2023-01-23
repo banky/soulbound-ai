@@ -1,4 +1,4 @@
-import { getImageModel, postImageModel } from "helpers/api-calls";
+import { getImageModel, postImageModel, uploadImages } from "helpers/api-calls";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useAccount } from "wagmi";
 
@@ -20,8 +20,16 @@ export const useImageModel = () => {
     },
   });
 
+  const uploadImagesMutation = useMutation(uploadImages, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("imageModel");
+    },
+  });
+
   return {
     imageModel: query.data,
     postImageModel: () => postImageModelMutation.mutateAsync(),
+    uploadImages: (formData: FormData) =>
+      uploadImagesMutation.mutateAsync(formData),
   };
 };

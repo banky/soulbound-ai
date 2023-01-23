@@ -1,5 +1,7 @@
+import { ActiveButton } from "components/active-button";
 import { Button } from "components/button";
 import { stringifyError } from "helpers/stringify-error";
+import { useImageModel } from "hooks/use-image-model";
 import {
   ChangeEvent,
   DragEvent,
@@ -18,6 +20,7 @@ export const UploadImages = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const { uploadImages } = useImageModel();
 
   // handle drag events
   const handleDrag = function (e: DragEvent<HTMLFormElement | HTMLDivElement>) {
@@ -59,11 +62,10 @@ export const UploadImages = () => {
     const formData = new FormData();
     files.forEach((file) => formData.append("media", file));
 
+    console.log("formData", formData);
+
     try {
-      fetch("/api/upload-images", {
-        method: "POST",
-        body: formData,
-      });
+      await uploadImages(formData);
     } catch (error) {
       const errorMessage = stringifyError(error);
       setError(errorMessage);
@@ -98,7 +100,12 @@ export const UploadImages = () => {
             {files.length > 0 ? (
               <ImagePreviews files={files} setFiles={setFiles} />
             ) : (
-              <p>Upload images here</p>
+              <>
+                <p>
+                  Upload 10 or more selfies from different angles and a neutral
+                  background. We delete them after 24 hours
+                </p>
+              </>
             )}
             <div className="mt-8 animate-bounce">
               <Arrow />
@@ -118,9 +125,16 @@ export const UploadImages = () => {
           ></div>
         )}
       </div>
-      <Button type="submit" onClick={handleSubmit} className="my-8">
+      <ActiveButton
+        loading={loading}
+        error={error}
+        type="submit"
+        onClick={handleSubmit}
+        className="my-8"
+        disabled={files.length < 2}
+      >
         Submit
-      </Button>
+      </ActiveButton>
     </form>
   );
 };

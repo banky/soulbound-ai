@@ -106,3 +106,11 @@ export const postImageModel = async (): Promise<ImageModel> => {
   });
   return res.json();
 };
+
+export const uploadImages = async (formData: FormData): Promise<void> => {
+  const res = await fetch("/api/upload-images", {
+    method: "POST",
+    body: formData,
+  });
+  return res.json();
+};

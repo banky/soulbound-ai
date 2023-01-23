@@ -63,12 +63,15 @@ const postTrainModel = async (
   }
 
   const { s3Urls } = imageModel;
-  const { orderId } = await trainModel(s3Urls, address, descriptor);
+  // const { orderId } = await trainModel(s3Urls, address, descriptor);
+
+  const orderId = "mock-order-123";
 
   await prisma.imageModel.update({
     where: { owner: address },
     data: {
       orderId,
+      state: "IS_TRAINING",
     },
   });
 };
