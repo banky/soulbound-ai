@@ -1,5 +1,4 @@
 import { useAccount } from "wagmi";
-import { GetServerSidePropsContext } from "next";
 import { getFee } from "helpers/contract-reads";
 import { SelectImage } from "slots/select-image";
 import { MintState } from "types/mint-state";
@@ -21,10 +20,7 @@ type HomeProps = {
   fee: string;
 };
 
-export const getServerSideProps = async ({
-  req,
-  res,
-}: GetServerSidePropsContext): Promise<{ props: HomeProps }> => {
+export const getServerSideProps = async (): Promise<{ props: HomeProps }> => {
   const fee = await getFee();
 
   return {
@@ -147,7 +143,9 @@ const Home = ({ fee }: HomeProps) => {
 
       default:
         // TODO: Maybe a loading spinner
-        return <div className="text-center">Loading</div>;
+        return (
+          <div className="text-center">An error occured. Unknown state :(</div>
+        );
     }
   };
 

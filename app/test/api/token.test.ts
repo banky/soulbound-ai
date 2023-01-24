@@ -35,6 +35,10 @@ jest.mock("@prisma/client", () => {
             imagePath: "mock-image-path",
             imageUrl: "mock-supabase-image-url",
           })),
+          findUnique: jest.fn(() => ({
+            imagePath: "mock-image-path",
+            imageUrl: "mock-supabase-image-url",
+          })),
         };
       }
     },

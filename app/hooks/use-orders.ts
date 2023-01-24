@@ -1,4 +1,3 @@
-import { Order } from "@prisma/client";
 import { generateImages, getOrders } from "helpers/api-calls";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useAccount } from "wagmi";
