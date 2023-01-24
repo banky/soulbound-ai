@@ -5,8 +5,7 @@ import { Mnemonic } from "../components/mnemonic";
 import { GetServerSidePropsContext } from "next";
 import { addressHasSBT, getFee } from "helpers/contract-reads";
 import { publicKeyToMnemonic } from "helpers/public-key";
-import { generateImages } from "helpers/api-calls";
-import { SelectImage } from "components/select-image";
+import { SelectImage } from "slots/select-image";
 import { MintState } from "types/mint-state";
 import { useSession } from "next-auth/react";
 import { SignInButton } from "components/sign-in-button";
@@ -25,6 +24,7 @@ import { Mint } from "slots/mint";
 import { Burn } from "slots/burn";
 import { UploadImages } from "slots/upload-images";
 import { StartTraining } from "slots/start-training";
+import { TrainingInProgress } from "slots/training-in-progress";
 
 type HomeProps = {
   fee: string;
@@ -107,8 +107,6 @@ const Home = ({ fee }: HomeProps) => {
 
   const onBurn = async () => {
     await refetchMintState();
-
-    // await invalidateToken();
   };
 
   const getSlot = () => {
@@ -131,8 +129,11 @@ const Home = ({ fee }: HomeProps) => {
       case AppState.StartTraining:
         return <StartTraining />;
 
-      // case AppState.Training:
-      //   return <TrainingInProgress />;
+      case AppState.Training:
+        return <TrainingInProgress />;
+
+      case AppState.SelectImage:
+        return <SelectImage />;
 
       default:
         // TODO: Maybe a loading spinner

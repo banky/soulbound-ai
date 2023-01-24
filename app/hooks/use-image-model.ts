@@ -12,13 +12,24 @@ export const useImageModel = () => {
   const queryClient = useQueryClient();
   const { address } = useAccount();
 
-  const query = useQuery("imageModel", async () => {
-    if (address === undefined) {
-      return;
+  const query = useQuery(
+    "imageModel",
+    async () => {
+      if (address === undefined) {
+        return;
+      }
+      const imageModel = await getImageModel(address);
+      return imageModel ?? undefined;
+    },
+    {
+      refetchInterval: (imageModel) => {
+        if (imageModel?.state === "IS_TRAINING") {
+          return 2000;
+        }
+        return Infinity;
+      },
     }
-    const imageModel = await getImageModel(address);
-    return imageModel ?? undefined;
-  });
+  );
 
   const postImageModelMutation = useMutation(postImageModel, {
     onSuccess: () => {

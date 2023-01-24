@@ -60,12 +60,9 @@ const postUploadImages = async (
       if (err) {
         reject(err);
       }
-      console.log("files", files);
       resolve(files);
     });
   });
-
-  console.log("uploading files", files);
 
   if (!(files.media instanceof Array) || files.media.length < MIN_FILES) {
     return res

@@ -74,7 +74,56 @@ const getImageModel = async (
     where: { owner: address },
   });
 
-  return res.status(200).json(imageModel);
+  if (imageModel == null) {
+    return res.status(404).json({ message: "Image model not found" });
+  }
+
+  if (imageModel.state !== "IS_TRAINING") {
+    return res.status(200).json(imageModel);
+  }
+
+  if (imageModel.modelId == null) {
+    return res.status(500).json({
+      message:
+        "Something has gone terribly wrong. modelId does not exist but we think it is training",
+    });
+  }
+
+  const isReady = await isModelReady(imageModel.modelId);
+
+  if (!isReady) {
+    return res.status(200).json(imageModel);
+  }
+
+  const updatedImageModel = await prisma.imageModel.update({
+    where: {
+      owner: address,
+    },
+    data: {
+      state: "READY",
+    },
+  });
+
+  return res.status(200).json(updatedImageModel);
+};
+
+const isModelReady = async (modelId: string) => {
+  const modelResponse = await fetch(
+    `https://api.neural.love/v1/ai-art/custom-model/models/${modelId}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${process.env.NEURAL_LOVE_API_KEY}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    }
+  );
+
+  const model = await modelResponse.json();
+  const status = model.status.code;
+
+  return status === 250;
 };
 
 const deleteImageModel = async (

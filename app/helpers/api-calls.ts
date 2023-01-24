@@ -1,19 +1,21 @@
-import { DalleImage, Token, ImageModel } from "@prisma/client";
+import { DalleImage, Token, ImageModel, Order } from "@prisma/client";
 import { Descriptor } from "types/descriptor";
 
 /**
  * Generate images for a user that has minted a SBT
  * @returns
  */
-export const generateImages = async (): Promise<{
-  imageUrls: string[];
-}> => {
+export const generateImages = async (prompt: string): Promise<Order> => {
   const response = await fetch("/api/generate-images", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
+    body: JSON.stringify({
+      prompt,
+    }),
   });
+  console.log("response", response);
   const parsedResponse = await response.json();
   return parsedResponse;
 };
@@ -125,6 +127,16 @@ export const postTrainModel = async (descriptor: Descriptor): Promise<void> => {
     body: JSON.stringify({
       descriptor,
     }),
+  });
+  return res.json();
+};
+
+export const getOrders = async (address: string): Promise<Order[]> => {
+  const res = await fetch(`/api/orders?address=${address.toLowerCase()}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
   });
   return res.json();
 };

@@ -30,7 +30,17 @@ model ImageModel {
   owner   String          @id
   state   ImageModelState
   s3Urls  String[]
-  orderId String?
+  modelId String?
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  owner     String
+  orderId   String
+  imageUrls String[]
+  ready     Boolean
+  prompt    String
+  createdAt DateTime @default(now())
 }
 
 enum ImageModelState {
