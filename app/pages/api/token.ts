@@ -58,20 +58,7 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  const dalleImage = await prisma.dalleImage.findFirst({
-    where: {
-      owner: address,
-      imageIndex: imageIndex,
-    },
-  });
-
-  if (dalleImage === null) {
-    return res.status(400).json({ message: "Image index not found for user" });
-  }
-
-  const dalleImageUrl = dalleImage.imageUrl;
-
-  const image = await fetch(dalleImageUrl);
+  const image = await fetch("TODO");
   const blob = await image.blob();
   const imagePath = `${randomUUID()}.png`;
 
@@ -142,12 +129,6 @@ const deleteToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   });
 
   const imagePath = token?.imagePath;
-
-  await prisma.dalleImage.deleteMany({
-    where: {
-      owner: address,
-    },
-  });
 
   await prisma.token.delete({
     where: {

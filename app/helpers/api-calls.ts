@@ -1,12 +1,32 @@
-import { DalleImage, Token, ImageModel, Order } from "@prisma/client";
+import { Token, ImageModel, Order } from "@prisma/client";
 import { Descriptor } from "types/descriptor";
+
+const fetchAndThrow = async (
+  input: RequestInfo | URL,
+  init?: RequestInit | undefined
+): Promise<Response> => {
+  const response = await fetch(input, init);
+
+  if (!response.ok) {
+    let result: any;
+    try {
+      result = await response.json();
+    } catch (error) {
+      throw new Error("An unexpected error occured");
+    }
+
+    throw new Error(result.message);
+  }
+
+  return response;
+};
 
 /**
  * Generate images for a user that has minted a SBT
  * @returns
  */
 export const generateImages = async (prompt: string): Promise<Order> => {
-  const response = await fetch("/api/generate-images", {
+  const response = await fetchAndThrow("/api/generate-images", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -15,7 +35,6 @@ export const generateImages = async (prompt: string): Promise<Order> => {
       prompt,
     }),
   });
-  console.log("response", response);
   const parsedResponse = await response.json();
   return parsedResponse;
 };
@@ -26,19 +45,22 @@ export const generateImages = async (prompt: string): Promise<Order> => {
  * @returns
  */
 export const getToken = async (address: string): Promise<Token | null> => {
-  const res = await fetch(`/api/token?address=${address.toLocaleLowerCase()}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const res = await fetchAndThrow(
+    `/api/token?address=${address.toLocaleLowerCase()}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return res.json();
 };
 
 export const getImageModel = async (
   address: string
 ): Promise<ImageModel | null> => {
-  const res = await fetch(
+  const res = await fetchAndThrow(
     `/api/image-model?address=${address.toLocaleLowerCase()}`,
     {
       method: "GET",
@@ -51,17 +73,24 @@ export const getImageModel = async (
 };
 
 /**
- * Update a token with a given Dalle Image index
+ * Update a token with a given generated image
  * @param imageIndex
  * @returns
  */
-export const postToken = async (imageIndex: number): Promise<Token> => {
-  const res = await fetch("/api/token", {
+export const postToken = async ({
+  orderId,
+  imageIndex,
+}: {
+  orderId: string;
+  imageIndex: number;
+}): Promise<Token> => {
+  const res = await fetchAndThrow("/api/token", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
+      orderId,
       imageIndex,
     }),
   });
@@ -72,7 +101,7 @@ export const postToken = async (imageIndex: number): Promise<Token> => {
  * Delete a token
  */
 export const deleteToken = async (): Promise<void> => {
-  await fetch("/api/token", {
+  await fetchAndThrow("/api/token", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",
@@ -80,28 +109,8 @@ export const deleteToken = async (): Promise<void> => {
   });
 };
 
-/**
- * Get all the generated dalle images for a given address
- * @param address
- * @returns
- */
-export const getDalleImages = async (
-  address: string
-): Promise<DalleImage[]> => {
-  const res = await fetch(
-    `/api/dalle-images?address=${address.toLowerCase()}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return res.json();
-};
-
 export const postImageModel = async (): Promise<ImageModel> => {
-  const res = await fetch("/api/image-model", {
+  const res = await fetchAndThrow("/api/image-model", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -111,7 +120,7 @@ export const postImageModel = async (): Promise<ImageModel> => {
 };
 
 export const uploadImages = async (formData: FormData): Promise<void> => {
-  const res = await fetch("/api/upload-images", {
+  const res = await fetchAndThrow("/api/upload-images", {
     method: "POST",
     body: formData,
   });
@@ -119,7 +128,7 @@ export const uploadImages = async (formData: FormData): Promise<void> => {
 };
 
 export const postTrainModel = async (descriptor: Descriptor): Promise<void> => {
-  const res = await fetch("/api/train-model", {
+  const res = await fetchAndThrow("/api/train-model", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -132,11 +141,14 @@ export const postTrainModel = async (descriptor: Descriptor): Promise<void> => {
 };
 
 export const getOrders = async (address: string): Promise<Order[]> => {
-  const res = await fetch(`/api/orders?address=${address.toLowerCase()}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const res = await fetchAndThrow(
+    `/api/orders?address=${address.toLowerCase()}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
   return res.json();
 };

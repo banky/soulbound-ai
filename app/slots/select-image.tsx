@@ -1,64 +1,130 @@
 import { ActiveButton } from "components/active-button";
 import { stringifyError } from "helpers/stringify-error";
 import { useOrders } from "hooks/use-orders";
+import { useToken } from "hooks/use-token";
 import { useState } from "react";
 
-type SelectImageProps = {};
-
-export const SelectImage = ({}: SelectImageProps) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+export const SelectImage = () => {
+  const [generateImageLoading, setGenerateImageLoading] = useState(false);
+  const [confirmImageLoading, setConfirmImageLoading] = useState(false);
+  const [generateImageError, setGenerateImageError] = useState("");
+  const [confirmImageError, setConfirmImageError] = useState("");
   const { orders, generateImages } = useOrders();
+  const { updateTokenImage } = useToken();
   const [prompt, setPrompt] = useState("");
+  const [selectedImage, setSelectedImage] = useState<{
+    orderId: string;
+    imageIndex: number;
+  }>();
 
   const onClickGenerate = async () => {
-    setLoading(true);
+    setGenerateImageLoading(true);
+    setGenerateImageError("");
 
     try {
       await generateImages(prompt);
+      setPrompt("");
     } catch (error) {
       const errorMessage = stringifyError(error);
-      setError(errorMessage);
+      setGenerateImageError(errorMessage);
     }
 
-    setLoading(false);
+    setGenerateImageLoading(false);
+  };
+
+  const onSelectImage = (orderId: string, imageIndex: number) => {
+    setSelectedImage({ orderId, imageIndex });
+  };
+
+  const onClickConfirm = async () => {
+    setConfirmImageLoading(true);
+    setConfirmImageError("");
+
+    try {
+      // await updateTokenImage();
+      setPrompt("");
+    } catch (error) {
+      const errorMessage = stringifyError(error);
+      setGenerateImageError(errorMessage);
+    }
+
+    setConfirmImageLoading(false);
   };
 
   return (
     <>
-      <p>Enter an image generation prompt</p>
-      <input
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        placeholder="Portrait art of @object, closeup, male | painted by Miles Aldridge"
-      ></input>
-      <ActiveButton
-        loading={loading}
-        error={error}
-        onClick={() => onClickGenerate()}
-        disabled={prompt.length === 0}
-      >
-        Generate
-      </ActiveButton>
-
-      <div>
-        {orders.map((order) => {
-          return (
-            <div key={order.orderId}>
-              <p>Prompt: {order.prompt}</p>
-
-              <div className="grid grid-cols-4">
-                {order.imageUrls.map((imageUrl) => {
-                  return (
-                    /* eslint-disable-next-line @next/next/no-img-element*/
-                    <img key={imageUrl} src={imageUrl} alt={order.prompt}></img>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+      <div className="text-center">
+        <p className="mb-4">
+          Enter a prompt and generate as many images as you like! Then click
+          confirm below
+        </p>
+        <input
+          className="w-full max-w-3xl p-4 rounded-md text-blue mb-4 hover:scale-105 transition"
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="Portrait art of @object, closeup, male | painted by Miles Aldridge"
+        ></input>
+        <ActiveButton
+          loading={generateImageLoading}
+          error={generateImageError}
+          onClick={() => onClickGenerate()}
+          disabled={prompt.length === 0}
+        >
+          Generate
+        </ActiveButton>
       </div>
+
+      {orders.map((order) => {
+        return (
+          <div
+            key={order.orderId}
+            className="border-2 rounded-2xl border-dashed border-pink-500 p-8 my-8"
+          >
+            <p className="mb-4">Prompt: {order.prompt}</p>
+
+            <div className="grid gap-8 grid-cols-2 md:grid-cols-4 items-center">
+              {order.imageUrls.map((imageUrl, imageIndex) => {
+                const selected =
+                  selectedImage?.orderId === order.orderId &&
+                  selectedImage.imageIndex === imageIndex;
+
+                return (
+                  <div key={imageUrl} className="flex justify-center">
+                    <button
+                      onClick={() => onSelectImage(order.orderId, imageIndex)}
+                    >
+                      <SelectableImage
+                        url={imageUrl}
+                        selected={selected}
+                        alt={order.prompt}
+                      />
+                    </button>
+                  </div>
+                );
+              })}
+
+              {order.ready === false
+                ? Array.from(Array(4).keys()).map((_, index) => {
+                    return (
+                      <div key={index} className="flex justify-center">
+                        <LoadingImage />
+                      </div>
+                    );
+                  })
+                : null}
+            </div>
+          </div>
+        );
+      })}
+
+      <ActiveButton
+        loading={confirmImageLoading}
+        error={confirmImageError}
+        onClick={() => onClickConfirm()}
+        disabled={selectedImage === undefined}
+      >
+        Confirm
+      </ActiveButton>
     </>
   );
 };
@@ -74,7 +140,26 @@ const SelectableImage = ({ url, selected, alt }: SelectableImageProps) => {
     <div
       className={`relative transition ${selected ? "" : "scale-90 opacity-40"}`}
     >
-      <img className="rounded-md" src={url} alt={alt} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img className="w-64 rounded-lg" src={url} alt={alt} />
     </div>
+  );
+};
+
+const LoadingImage = () => {
+  return (
+    <div
+      className="
+        relative 
+        before:absolute before:inset-0
+        before:-translate-x-full
+        before:animate-[shimmer_2s_infinite]
+        before:bg-gradient-to-r
+        before:from-transparent before:via-white/10 before:to-transparent
+        isolate
+        overflow-hidden
+        before:border-t before:border-rose-100/10
+        w-64 h-64 rounded-lg"
+    ></div>
   );
 };

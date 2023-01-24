@@ -26,9 +26,6 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   }
 
   const pendingOrders = await prisma.order.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
     where: {
       owner: address,
       ready: false,
@@ -57,6 +54,9 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   }
 
   const orders = await prisma.order.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
     where: {
       owner: address,
     },

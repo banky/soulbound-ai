@@ -11,13 +11,6 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model DalleImage {
-  id         Int    @id @default(autoincrement())
-  owner      String
-  imageIndex Int
-  imageUrl   String
-}
-
 model Token {
   owner       String  @id
   name        String

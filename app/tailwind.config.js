@@ -12,6 +12,13 @@ module.exports = {
         white: "#FCF0D7",
         blue: "#182F69",
       },
+      keyframes: {
+        shimmer: {
+          "100%": {
+            transform: "translateX(100%)",
+          },
+        },
+      },
     },
   },
   plugins: [],
