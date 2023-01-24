@@ -5,7 +5,11 @@ import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
 import fs from "fs";
 import { PrismaClient } from "@prisma/client";
-import { ALLOWED_FILE_EXTENSIONS, MIN_FILES } from "constants/image-upload";
+import {
+  ALLOWED_FILE_EXTENSIONS,
+  MAX_FILES,
+  MIN_FILES,
+} from "constants/image-upload";
 import {
   uniqueFormidableFile,
   validFormidableFileType,
@@ -71,14 +75,20 @@ const postUploadImages = async (
 
   if (!(files.media instanceof Array) || files.media.length < MIN_FILES) {
     return res
-      .status(401)
+      .status(400)
       .json({ message: `Expected at least ${MIN_FILES} files` });
+  }
+
+  if (files.media.length > MAX_FILES) {
+    return res
+      .status(400)
+      .json({ message: `Cannot upload more than ${MAX_FILES} files` });
   }
 
   const allFilesAllowed = files.media.every(validFormidableFileType);
 
   if (!allFilesAllowed) {
-    return res.status(401).json({
+    return res.status(400).json({
       message: `Some uploaded files are not valid. Valid file types are ${ALLOWED_FILE_EXTENSIONS.join(
         ", "
       )}`,
@@ -88,11 +98,12 @@ const postUploadImages = async (
   const allFilesUnique = files.media.every(uniqueFormidableFile);
 
   if (!allFilesUnique) {
-    return res.status(401).json({
+    return res.status(400).json({
       message: `Cannot upload duplicate files`,
     });
   }
 
+  // The batchId can only contain letters and numbers
   const batchId = randomUUID().replaceAll("-", "");
   const s3Urls = await Promise.all(
     files.media.map((persistentFile) => uploadFile(persistentFile, batchId))

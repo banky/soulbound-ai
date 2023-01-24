@@ -2,6 +2,7 @@ import { ActiveButton } from "components/active-button";
 import {
   ALLOWED_FILE_EXTENSIONS,
   ALLOWED_FILE_TYPES,
+  MAX_FILES,
   MIN_FILES,
 } from "constants/image-upload";
 import { uniqueFile, validFileType } from "helpers/file-list";
@@ -44,12 +45,13 @@ export const UploadImages = () => {
     const fileArray = Array.from(fileList);
     const updatedFiles = [...files, ...fileArray];
 
-    const validFiles = updatedFiles.filter(validFileType).filter(uniqueFile);
-
     const allFilesUnique = updatedFiles.every(uniqueFile);
     const allFilesValid = updatedFiles.every(validFileType);
+    const tooManyFiles = updatedFiles.length > MAX_FILES;
 
-    if (!allFilesUnique) {
+    if (tooManyFiles) {
+      setError(`Cannot upload more than ${MAX_FILES} files`);
+    } else if (!allFilesUnique) {
       setError(`A selected file was already selected previously`);
     } else if (!allFilesValid) {
       setError(
@@ -58,6 +60,11 @@ export const UploadImages = () => {
         )}`
       );
     }
+
+    const validFiles = updatedFiles
+      .filter(validFileType)
+      .filter(uniqueFile)
+      .slice(0, MAX_FILES);
 
     setFiles(validFiles);
   };
