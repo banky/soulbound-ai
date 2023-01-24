@@ -46,7 +46,13 @@ export const UploadImages = () => {
     );
 
     if (someInvalidFiles) {
-      setError("Some selected files are not valid image files");
+      const allowedFileExtensions = ALLOWED_FILE_TYPES.map((fileType) =>
+        fileType.replace("image/", ".")
+      ).join(", ");
+
+      setError(
+        `Some selected files are not valid image files. Accepted image file types: ${allowedFileExtensions}`
+      );
       setTimeout(() => setError(""), 10_000);
     }
 
@@ -119,9 +125,9 @@ export const UploadImages = () => {
               <ImagePreviews files={files} setFiles={setFiles} />
             ) : (
               <>
-                <p>
-                  Upload 10 or more selfies from different angles and a neutral
-                  background. We delete them after 24 hours
+                <p className="text-center">
+                  Click or drag here to upload 10 or more selfies from different
+                  angles and a neutral background. We delete them after 24 hours
                 </p>
               </>
             )}
