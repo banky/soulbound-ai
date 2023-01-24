@@ -1,5 +1,10 @@
 import { ActiveButton } from "components/active-button";
-import { ALLOWED_FILE_TYPES, MIN_FILES } from "constants/image-upload";
+import {
+  ALLOWED_FILE_EXTENSIONS,
+  ALLOWED_FILE_TYPES,
+  MIN_FILES,
+} from "constants/image-upload";
+import { uniqueFile, validFileType } from "helpers/file-list";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
 import {
@@ -37,26 +42,24 @@ export const UploadImages = () => {
     setError("");
 
     const fileArray = Array.from(fileList);
-    const newFiles = fileArray.filter((file) =>
-      ALLOWED_FILE_TYPES.includes(file.type)
-    );
+    const updatedFiles = [...files, ...fileArray];
 
-    const someInvalidFiles = fileArray.some(
-      (file) => !ALLOWED_FILE_TYPES.includes(file.type)
-    );
+    const validFiles = updatedFiles.filter(validFileType).filter(uniqueFile);
 
-    if (someInvalidFiles) {
-      const allowedFileExtensions = ALLOWED_FILE_TYPES.map((fileType) =>
-        fileType.replace("image/", ".")
-      ).join(", ");
+    const allFilesUnique = updatedFiles.every(uniqueFile);
+    const allFilesValid = updatedFiles.every(validFileType);
 
+    if (!allFilesUnique) {
+      setError(`A selected file was already selected previously`);
+    } else if (!allFilesValid) {
       setError(
-        `Some selected files are not valid image files. Accepted image file types: ${allowedFileExtensions}`
+        `Some selected files are not valid image files. Accepted image file types: ${ALLOWED_FILE_EXTENSIONS.join(
+          ", "
+        )}`
       );
-      setTimeout(() => setError(""), 10_000);
     }
 
-    setFiles([...files, ...newFiles]);
+    setFiles(validFiles);
   };
 
   // triggers when file is dropped

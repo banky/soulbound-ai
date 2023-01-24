@@ -3,10 +3,14 @@ import { IncomingForm, Files, File } from "formidable";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
-import { randomUUID } from "crypto";
 import fs from "fs";
 import { PrismaClient } from "@prisma/client";
-import { MIN_FILES } from "constants/image-upload";
+import { ALLOWED_FILE_EXTENSIONS, MIN_FILES } from "constants/image-upload";
+import {
+  uniqueFormidableFile,
+  validFormidableFileType,
+} from "helpers/file-list";
+import { randomUUID } from "crypto";
 
 export const config = {
   api: {
@@ -69,6 +73,24 @@ const postUploadImages = async (
     return res
       .status(401)
       .json({ message: `Expected at least ${MIN_FILES} files` });
+  }
+
+  const allFilesAllowed = files.media.every(validFormidableFileType);
+
+  if (!allFilesAllowed) {
+    return res.status(401).json({
+      message: `Some uploaded files are not valid. Valid file types are ${ALLOWED_FILE_EXTENSIONS.join(
+        ", "
+      )}`,
+    });
+  }
+
+  const allFilesUnique = files.media.every(uniqueFormidableFile);
+
+  if (!allFilesUnique) {
+    return res.status(401).json({
+      message: `Cannot upload duplicate files`,
+    });
   }
 
   const batchId = randomUUID().replaceAll("-", "");
