@@ -1,5 +1,5 @@
 import { ActiveButton } from "components/active-button";
-import { MIN_FILES } from "constants/image-upload";
+import { ALLOWED_FILE_TYPES, MIN_FILES } from "constants/image-upload";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
 import {
@@ -33,13 +33,33 @@ export const UploadImages = () => {
     }
   };
 
+  const addFiles = (fileList: FileList) => {
+    setError("");
+
+    const fileArray = Array.from(fileList);
+    const newFiles = fileArray.filter((file) =>
+      ALLOWED_FILE_TYPES.includes(file.type)
+    );
+
+    const someInvalidFiles = fileArray.some(
+      (file) => !ALLOWED_FILE_TYPES.includes(file.type)
+    );
+
+    if (someInvalidFiles) {
+      setError("Some selected files are not valid image files");
+      setTimeout(() => setError(""), 10_000);
+    }
+
+    setFiles([...files, ...newFiles]);
+  };
+
   // triggers when file is dropped
   const handleDrop = function (e: DragEvent<HTMLDivElement>) {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files) {
-      setFiles([...files, ...Array.from(e.dataTransfer.files)]);
+      addFiles(e.dataTransfer.files);
     }
   };
 
@@ -47,7 +67,7 @@ export const UploadImages = () => {
   const handleChange = function (e: ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      setFiles([...files, ...Array.from(e.target.files)]);
+      addFiles(e.target.files);
     }
   };
 
@@ -86,7 +106,7 @@ export const UploadImages = () => {
           className="hidden"
           multiple={true}
           onChange={handleChange}
-          accept=".jpg,.png"
+          accept={ALLOWED_FILE_TYPES.join(", ")}
         />
         <label
           htmlFor="input-file-upload"
