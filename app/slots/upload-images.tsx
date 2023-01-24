@@ -3,9 +3,10 @@ import {
   ALLOWED_FILE_EXTENSIONS,
   ALLOWED_FILE_TYPES,
   MAX_FILES,
+  MAX_FILE_SIZE,
   MIN_FILES,
 } from "constants/image-upload";
-import { uniqueFile, validFileType } from "helpers/file-list";
+import { uniqueFile, validFileSize, validFileType } from "helpers/file-list";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
 import {
@@ -48,9 +49,14 @@ export const UploadImages = () => {
     const allFilesUnique = updatedFiles.every(uniqueFile);
     const allFilesValid = updatedFiles.every(validFileType);
     const tooManyFiles = updatedFiles.length > MAX_FILES;
+    const allFilesSmallEnough = updatedFiles.every(validFileSize);
 
     if (tooManyFiles) {
       setError(`Cannot upload more than ${MAX_FILES} files`);
+    } else if (!allFilesSmallEnough) {
+      setError(
+        `Cannot upload files larger than ${MAX_FILE_SIZE / 1_000_000}MB`
+      );
     } else if (!allFilesUnique) {
       setError(`A selected file was already selected previously`);
     } else if (!allFilesValid) {
@@ -64,6 +70,7 @@ export const UploadImages = () => {
     const validFiles = updatedFiles
       .filter(validFileType)
       .filter(uniqueFile)
+      .filter(validFileSize)
       .slice(0, MAX_FILES);
 
     setFiles(validFiles);

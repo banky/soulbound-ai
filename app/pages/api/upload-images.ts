@@ -8,10 +8,12 @@ import { PrismaClient } from "@prisma/client";
 import {
   ALLOWED_FILE_EXTENSIONS,
   MAX_FILES,
+  MAX_FILE_SIZE,
   MIN_FILES,
 } from "constants/image-upload";
 import {
   uniqueFormidableFile,
+  validFormidableFileSize,
   validFormidableFileType,
 } from "helpers/file-list";
 import { randomUUID } from "crypto";
@@ -83,6 +85,16 @@ const postUploadImages = async (
     return res
       .status(400)
       .json({ message: `Cannot upload more than ${MAX_FILES} files` });
+  }
+
+  const allFilesValidSize = files.media.every(validFormidableFileSize);
+
+  if (!allFilesValidSize) {
+    return res.status(400).json({
+      message: `Some uploaded files are too large. Max file size is ${
+        MAX_FILE_SIZE / 1_000_000
+      }MB`,
+    });
   }
 
   const allFilesAllowed = files.media.every(validFormidableFileType);
