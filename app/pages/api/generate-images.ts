@@ -45,9 +45,16 @@ const postGenerateImages = async (
   const { prompt } = req.body;
 
   if (typeof prompt !== "string") {
-    return res.status(401).json({
+    return res.status(400).json({
       message:
         "Need to provide a descriptor for the images. Options are man, woman, other",
+    });
+  }
+
+  if (!prompt.includes("@object")) {
+    return res.status(400).json({
+      message:
+        "Please use @object in prompt to utilise custom model. Example: Renaissance portrait of @object",
     });
   }
 
@@ -119,5 +126,11 @@ const generateImages = async (prompt: string, modelId: string) => {
     generateBody
   );
 
-  return generateImagesResponse.json();
+  const result = await generateImagesResponse.json();
+
+  if (!generateImagesResponse.ok) {
+    throw new Error(result.detail);
+  }
+
+  return result;
 };

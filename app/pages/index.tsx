@@ -3,7 +3,7 @@ import { GetServerSidePropsContext } from "next";
 import { getFee } from "helpers/contract-reads";
 import { SelectImage } from "slots/select-image";
 import { MintState } from "types/mint-state";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
 import { useImageModel } from "hooks/use-image-model";
@@ -14,6 +14,8 @@ import { Burn } from "slots/burn";
 import { UploadImages } from "slots/upload-images";
 import { StartTraining } from "slots/start-training";
 import { TrainingInProgress } from "slots/training-in-progress";
+import { useToken } from "hooks/use-token";
+import { useEffect } from "react";
 
 type HomeProps = {
   fee: string;
@@ -47,6 +49,7 @@ const useAppState = (): AppState => {
   const { status } = useSession();
   const { mintState } = useMintState();
   const { imageModel } = useImageModel();
+  const { token } = useToken();
 
   if (!isConnected) {
     return AppState.Connect;
@@ -72,7 +75,7 @@ const useAppState = (): AppState => {
     return AppState.Training;
   }
 
-  if (imageModel?.state === "READY") {
+  if (imageModel?.state === "READY" && token?.imageUrl === undefined) {
     return AppState.SelectImage;
   }
 
@@ -88,6 +91,23 @@ const Home = ({ fee }: HomeProps) => {
 
   const { refetchMintState } = useMintState();
   const { postImageModel } = useImageModel();
+  const { deleteToken } = useToken();
+
+  const { isDisconnected } = useAccount();
+
+  // Sign the user out if they disconnect wallet
+  useEffect(() => {
+    const signOutOnDisconnect = async () => {
+      await signOut({
+        redirect: false,
+        callbackUrl: "/",
+      });
+    };
+
+    if (isDisconnected) {
+      signOutOnDisconnect();
+    }
+  }, [isDisconnected]);
 
   const onMint = async () => {
     await postImageModel();
@@ -95,6 +115,7 @@ const Home = ({ fee }: HomeProps) => {
   };
 
   const onBurn = async () => {
+    await deleteToken();
     await refetchMintState();
   };
 

@@ -1,7 +1,7 @@
 import { ActiveButton } from "components/active-button";
-import { Button } from "components/button";
 import { SoulboundAIABI } from "contracts";
 import { stringifyError } from "helpers/stringify-error";
+import { useToken } from "hooks/use-token";
 import { useState } from "react";
 import { useContractWrite, usePrepareContractWrite } from "wagmi";
 
@@ -10,6 +10,7 @@ type BurnProps = {
 };
 
 export const Burn = ({ onBurn }: BurnProps) => {
+  const { token } = useToken();
   const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS;
 
   const { config: burnConfig } = usePrepareContractWrite({
@@ -40,7 +41,11 @@ export const Burn = ({ onBurn }: BurnProps) => {
   };
 
   return (
-    <div>
+    <div className="flex flex-col items-center gap-4">
+      {/*eslint-disable-next-line @next/next/no-img-element*/}
+      <img className="rounded-lg" src={token?.imageUrl ?? ""} alt="SBT Image" />
+      <p className="max-w-3xl">{token?.description}</p>
+
       <ActiveButton
         loading={loading}
         error={error}

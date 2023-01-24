@@ -3,8 +3,10 @@ import { IncomingForm, Files, File } from "formidable";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
+import { randomUUID } from "crypto";
 import fs from "fs";
 import { PrismaClient } from "@prisma/client";
+import { MIN_FILES } from "constants/image-upload";
 
 export const config = {
   api: {
@@ -12,7 +14,6 @@ export const config = {
   },
 };
 
-const MIN_FILES = 2;
 const prisma = new PrismaClient();
 
 export default async function handler(
@@ -70,12 +71,10 @@ const postUploadImages = async (
       .json({ message: `Expected at least ${MIN_FILES} files` });
   }
 
-  // const s3Urls = await Promise.all(
-  //   files.media.map((persistentFile) => uploadFile(persistentFile, address))
-  // );
-
-  await new Promise((res) => setTimeout(res, 2000));
-  const s3Urls = files.media.map((persistentFile) => persistentFile.filepath);
+  const batchId = randomUUID().replaceAll("-", "");
+  const s3Urls = await Promise.all(
+    files.media.map((persistentFile) => uploadFile(persistentFile, batchId))
+  );
 
   await prisma.imageModel.update({
     where: { owner: address },

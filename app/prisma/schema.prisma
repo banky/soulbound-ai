@@ -27,9 +27,8 @@ model ImageModel {
 }
 
 model Order {
-  id        Int      @id @default(autoincrement())
+  orderId   String   @id
   owner     String
-  orderId   String
   imageUrls String[]
   ready     Boolean
   prompt    String

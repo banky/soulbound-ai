@@ -18,13 +18,18 @@ export const useImageModel = () => {
       if (address === undefined) {
         return;
       }
-      const imageModel = await getImageModel(address);
-      return imageModel ?? undefined;
+      try {
+        const imageModel = await getImageModel(address);
+        return imageModel ?? undefined;
+      } catch (error) {
+        // swallow these
+      }
     },
     {
       refetchInterval: (imageModel) => {
         if (imageModel?.state === "IS_TRAINING") {
-          return 2000;
+          // Training takes a while, so update only once per 5 mins
+          return 5 * 60 * 1000;
         }
         return Infinity;
       },

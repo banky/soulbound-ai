@@ -18,7 +18,7 @@ export const useOrders = () => {
       return orders ?? undefined;
     },
     {
-      refetchInterval: 2000,
+      refetchInterval: 1 * 60 * 1000,
     }
   );
 

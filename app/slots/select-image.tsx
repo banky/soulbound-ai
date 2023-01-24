@@ -40,12 +40,16 @@ export const SelectImage = () => {
     setConfirmImageLoading(true);
     setConfirmImageError("");
 
+    if (selectedImage === undefined) {
+      return;
+    }
+
     try {
-      // await updateTokenImage();
+      await updateTokenImage(selectedImage);
       setPrompt("");
     } catch (error) {
       const errorMessage = stringifyError(error);
-      setGenerateImageError(errorMessage);
+      setConfirmImageError(errorMessage);
     }
 
     setConfirmImageLoading(false);
@@ -117,14 +121,16 @@ export const SelectImage = () => {
         );
       })}
 
-      <ActiveButton
-        loading={confirmImageLoading}
-        error={confirmImageError}
-        onClick={() => onClickConfirm()}
-        disabled={selectedImage === undefined}
-      >
-        Confirm
-      </ActiveButton>
+      {orders.length > 0 ? (
+        <ActiveButton
+          loading={confirmImageLoading}
+          error={confirmImageError}
+          onClick={() => onClickConfirm()}
+          disabled={selectedImage === undefined}
+        >
+          Confirm
+        </ActiveButton>
+      ) : null}
     </>
   );
 };
@@ -159,7 +165,7 @@ const LoadingImage = () => {
         isolate
         overflow-hidden
         before:border-t before:border-rose-100/10
-        w-64 h-64 rounded-lg"
+        w-64 aspect-square rounded-lg"
     ></div>
   );
 };

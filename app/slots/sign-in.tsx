@@ -11,19 +11,6 @@ export const SignIn = () => {
   const { signMessageAsync } = useSignMessage();
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const signOutOnDisconnect = async () => {
-      await signOut({
-        redirect: false,
-        callbackUrl: "/",
-      });
-    };
-
-    if (isDisconnected) {
-      signOutOnDisconnect();
-    }
-  }, [isDisconnected]);
-
   const onClickSignIn = async () => {
     setLoading(true);
 

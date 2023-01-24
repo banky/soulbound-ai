@@ -1,5 +1,5 @@
 import { ActiveButton } from "components/active-button";
-import { Button } from "components/button";
+import { MIN_FILES } from "constants/image-upload";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
 import {
@@ -12,7 +12,7 @@ import {
 } from "react";
 import { Arrow } from "svg/arrow";
 import { Delete } from "svg/delete";
-import { Server as Tray } from "svg/tray";
+import { Tray } from "svg/tray";
 
 export const UploadImages = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -61,8 +61,6 @@ export const UploadImages = () => {
 
     const formData = new FormData();
     files.forEach((file) => formData.append("media", file));
-
-    console.log("formData", formData);
 
     try {
       await uploadImages(formData);
@@ -131,7 +129,7 @@ export const UploadImages = () => {
         type="submit"
         onClick={handleSubmit}
         className="my-8"
-        disabled={files.length < 2}
+        disabled={files.length < MIN_FILES}
       >
         Submit
       </ActiveButton>

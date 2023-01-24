@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { randomUUID } from "crypto";
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
@@ -62,11 +63,15 @@ const postTrainModel = async (
     return res.status(404).json({ message: "Image model not found" });
   }
 
-  const { s3Urls } = imageModel;
-  await new Promise((res) => setTimeout(res, 2000));
-  // const { orderId } = await trainModel(s3Urls, address, descriptor);
+  if (imageModel.state !== "NEEDS_TRAINING") {
+    return res.status(500).json({
+      message: "Refusing to train. This model is not in the right state",
+    });
+  }
 
-  const orderId = "1ed9aa29-9bb8-6620-aae4-69e4ea551a86";
+  const { s3Urls } = imageModel;
+  const name = randomUUID();
+  const { orderId } = await trainModel(s3Urls, name, descriptor);
 
   await prisma.imageModel.update({
     where: { owner: address },
@@ -106,5 +111,11 @@ const trainModel = async (
     }
   );
 
-  return createModelResponse.json();
+  const result = await createModelResponse.json();
+
+  if (!createModelResponse.ok) {
+    throw new Error(result.detail);
+  }
+
+  return result;
 };

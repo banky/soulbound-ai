@@ -70,7 +70,7 @@ const getImageModel = async (
     return res.status(400).json({ message: "Invalid address" });
   }
 
-  const imageModel = await prisma.imageModel.findFirst({
+  const imageModel = await prisma.imageModel.findUnique({
     where: { owner: address },
   });
 

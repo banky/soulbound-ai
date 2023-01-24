@@ -1,4 +1,4 @@
-export const Server = () => {
+export const Tray = () => {
   return (
     <svg
       width="115"

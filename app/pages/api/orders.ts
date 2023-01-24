@@ -44,7 +44,7 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
 
     await prisma.order.update({
       where: {
-        id: order.id,
+        orderId: order.orderId,
       },
       data: {
         ready: updatedOrder.ready,
