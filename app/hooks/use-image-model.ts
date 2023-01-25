@@ -6,24 +6,28 @@ import {
 } from "helpers/api-calls";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Descriptor } from "types/descriptor";
+import { MintState } from "types/mint-state";
 import { useAccount } from "wagmi";
+import { useMintState } from "./use-mint-state";
 
 export const useImageModel = () => {
   const queryClient = useQueryClient();
   const { address } = useAccount();
+  const { mintState } = useMintState();
 
   const query = useQuery(
     "imageModel",
     async () => {
+      if (mintState !== MintState.Burn) {
+        return;
+      }
+
       if (address === undefined) {
         return;
       }
-      try {
-        const imageModel = await getImageModel(address);
-        return imageModel ?? undefined;
-      } catch (error) {
-        // swallow these
-      }
+
+      const imageModel = await getImageModel(address);
+      return imageModel ?? undefined;
     },
     {
       refetchInterval: (imageModel) => {
