@@ -1,4 +1,5 @@
 import { Order, PrismaClient } from "@prisma/client";
+import { ORDER_REFETCH_INTERVAL } from "constants/refetch-interval";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -32,26 +33,28 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     },
   });
 
-  const updatedOrders = await Promise.all(
-    pendingOrders.map((order) => {
-      return getNeuralLoveOrder(order);
+  await Promise.all(
+    pendingOrders.map(async (order) => {
+      // Prevent polling neural-love too frequently since the rate limit is low
+      if (
+        Date.now() - order.updatedAt.getMilliseconds() <
+        ORDER_REFETCH_INTERVAL
+      ) {
+        return;
+      }
+
+      const { ready, imageUrls } = await getNeuralLoveOrder(order);
+      await prisma.order.update({
+        where: {
+          orderId: order.orderId,
+        },
+        data: {
+          ready,
+          imageUrls,
+        },
+      });
     })
   );
-
-  for (let index = 0; index < pendingOrders.length; index++) {
-    const order = pendingOrders[index];
-    const updatedOrder = updatedOrders[index];
-
-    await prisma.order.update({
-      where: {
-        orderId: order.orderId,
-      },
-      data: {
-        ready: updatedOrder.ready,
-        imageUrls: updatedOrder.imageUrls,
-      },
-    });
-  }
 
   const orders = await prisma.order.findMany({
     orderBy: {

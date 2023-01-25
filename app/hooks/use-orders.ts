@@ -1,3 +1,4 @@
+import { ORDER_REFETCH_INTERVAL } from "constants/refetch-interval";
 import { generateImages, getOrders } from "helpers/api-calls";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useAccount } from "wagmi";
@@ -17,7 +18,7 @@ export const useOrders = () => {
       return orders ?? undefined;
     },
     {
-      refetchInterval: 1 * 60 * 1000,
+      refetchInterval: ORDER_REFETCH_INTERVAL,
     }
   );
 

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { IMAGE_MODEL_REFETCH_INTERVAL } from "constants/refetch-interval";
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
@@ -82,6 +83,15 @@ const getImageModel = async (
     return res.status(200).json(imageModel);
   }
 
+  // Prevent polling neural-love too frequently since the rate limit is low
+  const lastUpdatedAt = imageModel.updatedAt;
+  if (
+    Date.now() - lastUpdatedAt.getMilliseconds() <
+    IMAGE_MODEL_REFETCH_INTERVAL
+  ) {
+    return res.status(200).json(imageModel);
+  }
+
   if (imageModel.modelId == null) {
     return res.status(500).json({
       message:
@@ -91,16 +101,12 @@ const getImageModel = async (
 
   const isReady = await isModelReady(imageModel.modelId);
 
-  if (!isReady) {
-    return res.status(200).json(imageModel);
-  }
-
   const updatedImageModel = await prisma.imageModel.update({
     where: {
       owner: address,
     },
     data: {
-      state: "READY",
+      state: isReady ? "READY" : imageModel.state,
     },
   });
 

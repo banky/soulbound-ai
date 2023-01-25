@@ -1,3 +1,4 @@
+import { IMAGE_MODEL_REFETCH_INTERVAL } from "constants/refetch-interval";
 import {
   getImageModel,
   postImageModel,
@@ -33,7 +34,7 @@ export const useImageModel = () => {
       refetchInterval: (imageModel) => {
         if (imageModel?.state === "IS_TRAINING") {
           // Training takes a while, so update only once per 5 mins
-          return 5 * 60 * 1000;
+          return IMAGE_MODEL_REFETCH_INTERVAL;
         }
         return Infinity;
       },
