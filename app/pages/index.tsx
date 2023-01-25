@@ -15,6 +15,7 @@ import { TrainingInProgress } from "slots/training-in-progress";
 import { useToken } from "hooks/use-token";
 import { useEffect } from "react";
 import { AppState, useAppState } from "hooks/use-app-state";
+import { Description } from "slots/description";
 
 type HomeProps = {
   fee: string;
@@ -94,6 +95,12 @@ const Home = ({ fee }: HomeProps) => {
     }
   };
 
+  const showDescription = [
+    AppState.Connect,
+    AppState.SignIn,
+    AppState.Mint,
+  ].includes(appState);
+
   return (
     <>
       <header className="flex justify-between items-center">
@@ -101,11 +108,13 @@ const Home = ({ fee }: HomeProps) => {
       </header>
 
       <main className="mt-24 md:mt-40">
-        <h2 className="text-center text-pink-500 text-7xl mb-8">
+        <h2 className="text-center text-pink-500 text-5xl md:text-7xl mb-32">
           Mint a unique SoulBound NFT using AI
         </h2>
 
         {getSlot()}
+
+        {showDescription ? <Description /> : null}
       </main>
     </>
   );

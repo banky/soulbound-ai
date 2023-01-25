@@ -197,7 +197,6 @@ const ImagePreviews = ({ files, setFiles }: ImagePreviewProps) => {
         const imagePreviewUrl = URL.createObjectURL(file);
         return (
           <div className="relative" key={file.name}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               className="w-24 rounded-md"
               src={imagePreviewUrl}

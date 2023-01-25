@@ -63,8 +63,8 @@ export const SelectImage = () => {
     <>
       <div className="text-center">
         <p className="mb-4">
-          Enter a prompt and generate as many images as you like! Then click
-          confirm below
+          Enter a prompt and generate as many images as you like! Then select an
+          image and click confirm below
         </p>
         <input
           className="w-full max-w-3xl p-4 rounded-md text-blue mb-4 hover:scale-105 transition"
@@ -113,7 +113,7 @@ type OrderProps = {
 
 const Order = ({ order, selectedImage, onSelectImage }: OrderProps) => {
   return (
-    <div className="border-2 rounded-2xl border-dashed border-pink-500 p-8 my-8">
+    <div className="border-2 rounded-2xl border-dashed border-pink-500 p-8 my-8 max-w-6xl mx-auto">
       <p className="mb-4">Prompt: {order.prompt}</p>
 
       <div className="grid gap-8 grid-cols-2 md:grid-cols-4 items-center">
@@ -171,7 +171,6 @@ const SelectableImage = ({ url, selected, alt }: SelectableImageProps) => {
     <div
       className={`relative transition ${selected ? "" : "scale-90 opacity-40"}`}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img className="w-64 rounded-lg" src={url} alt={alt} />
     </div>
   );
