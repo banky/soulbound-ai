@@ -3,7 +3,6 @@ import { SoulboundAIABI } from "contracts";
 import { ethers } from "ethers";
 import { useState } from "react";
 import { stringifyError } from "helpers/stringify-error";
-import { Button } from "components/button";
 import { ActiveButton } from "components/active-button";
 
 type MintProps = {

@@ -1,8 +1,10 @@
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 
 async function main() {
   const SoulboundAI = await ethers.getContractFactory("SoulboundAI");
-  const soulboundAI = await SoulboundAI.deploy();
+  const soulboundAI = await upgrades.deployProxy(SoulboundAI, [
+    ethers.utils.parseEther("0.01"),
+  ]);
 
   const contract = await soulboundAI.deployed();
 

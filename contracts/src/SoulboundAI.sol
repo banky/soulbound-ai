@@ -2,19 +2,23 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract SoulboundAI is ERC721Enumerable, Ownable {
+contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
 
-    uint256 public fee = 0.01 ether;
+    uint256 public fee;
 
-    constructor() ERC721("SoulboundAI", "SBAI") {}
+    function initialize(uint256 _fee) public initializer {
+        __Ownable_init();
+        __ERC721_init("SoulboundAI", "SBAI");
+        fee = _fee;
+    }
 
     function safeMint(address to) public payable {
         require(msg.value >= fee, "Insufficient fee");
@@ -27,20 +31,15 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
 
     function burn() external {
         uint256 tokenId = tokenOfOwnerByIndex(msg.sender, 0);
-        require(
-            ownerOf(tokenId) == msg.sender,
-            "Only the owner of the token can burn it."
-        );
+        require(ownerOf(tokenId) == msg.sender, "Only the owner of the token can burn it.");
 
         super._burn(tokenId);
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 firstTokenId,
-        uint256 batchSize
-    ) internal override {
+    function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize)
+        internal
+        override
+    {
         require(
             from == address(0) || to == address(0),
             "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner."
@@ -53,7 +52,7 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
         if (block.chainid == 1) {
             return "https://soulbound-ai.vercel.app/api/token-metadata/";
         }
-        
+
         if (block.chainid == 5) {
             return "https://soulbound-ai-goerli.vercel.app/api/token-metadata/";
         }
@@ -65,13 +64,7 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
         revert("Invalid chain ID");
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
+    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
 
         string memory baseURI = _baseURI();
@@ -81,7 +74,7 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
     }
 
     function withdrawFees(address payable recipient) external onlyOwner {
-        (bool sent, ) = recipient.call{value: address(this).balance}("");
+        (bool sent,) = recipient.call{value: address(this).balance}("");
 
         require(sent, "Failed to transfer ether");
     }

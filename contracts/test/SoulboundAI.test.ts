@@ -1,11 +1,13 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
 
 describe("SoulboundAI", () => {
   const deployContractFixture = async () => {
     const SoulboundAI = await ethers.getContractFactory("SoulboundAI");
-    const soulboundAI = await SoulboundAI.deploy();
+    const soulboundAI = await upgrades.deployProxy(SoulboundAI, [
+      ethers.utils.parseEther("0.01"),
+    ]);
     const fee = await soulboundAI.fee();
 
     return { soulboundAI, fee };
