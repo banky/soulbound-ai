@@ -234,4 +234,16 @@ describe("SoulboundAI", () => {
         .safeMintWithReferral(otherUser.address, owner.address, { value: fee })
     ).to.be.revertedWith("Must have an SBT to refer others");
   });
+
+  it("only the owner can update the referral fee", async () => {
+    const [_, otherUser] = await ethers.getSigners();
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+
+    const referralPercentage = 30;
+    await expect(
+      soulboundAI
+        .connect(otherUser)
+        .updateReferralPercentage(referralPercentage)
+    ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
 });

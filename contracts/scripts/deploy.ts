@@ -1,8 +1,8 @@
 import { ethers, upgrades } from "hardhat";
 
 async function main() {
-  const SoulboundAI = await ethers.getContractFactory("SoulboundAI");
-  const soulboundAI = await upgrades.deployProxy(SoulboundAI, [
+  const SoulboundAIFactory = await ethers.getContractFactory("SoulboundAI");
+  const soulboundAI = await upgrades.deployProxy(SoulboundAIFactory, [
     ethers.utils.parseEther("0.01"),
   ]);
 

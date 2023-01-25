@@ -52,7 +52,7 @@ export const Mint = ({ fee, onMint }: MintProps) => {
         error={error}
         onClick={() => onClickMint()}
       >
-        Mint ({fee}eth)
+        Mint ({fee} eth)
       </ActiveButton>
     </div>
   );

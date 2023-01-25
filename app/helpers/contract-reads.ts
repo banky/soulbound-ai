@@ -20,7 +20,7 @@ export const getFee = async (): Promise<string> => {
     SoulboundAIABI.abi,
     provider
   ) as SoulboundAI;
-  const fee = await soulboundAI.fee();
+  const fee = await soulboundAI.getFee();
 
   return ethers.utils.formatEther(fee);
 };

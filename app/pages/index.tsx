@@ -53,8 +53,8 @@ const Home = ({ fee }: HomeProps) => {
   }, [isDisconnected]);
 
   const onMint = async () => {
-    await refetchMintState();
     await postImageModel();
+    await refetchMintState();
   };
 
   const onBurn = async () => {
