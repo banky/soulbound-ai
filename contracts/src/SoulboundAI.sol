@@ -13,7 +13,10 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     Counters.Counter private _tokenIdCounter;
 
     uint256 private fee;
+    uint256 private referralPercentage;
     mapping(address => bool) whitelist;
+
+    event Referral(address referrer, bool sent);
 
     function initialize(uint256 _fee) public initializer {
         __Ownable_init();
@@ -30,6 +33,16 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
+    }
+
+    function safeMintWithReferral(address to, address referrer) public payable {
+        require(balanceOf(referrer) > 0, "Must have an SBT to refer others");
+
+        uint256 referrerCut = (msg.value * referralPercentage) / 100;
+        (bool sent, ) = referrer.call{value: referrerCut}("");
+        emit Referral(referrer, sent);
+
+        safeMint(to);
     }
 
     function burn() external {
@@ -95,6 +108,16 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
             return 0;
         }
         return fee;
+    }
+
+    function updateReferralPercentage(
+        uint256 _referralPercentage
+    ) external onlyOwner {
+        referralPercentage = _referralPercentage;
+    }
+
+    function getReferralPercentage() external view returns (uint256) {
+        return referralPercentage;
     }
 
     function updateWhitelist(address receiver, bool state) external onlyOwner {

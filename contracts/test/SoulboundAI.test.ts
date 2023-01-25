@@ -193,4 +193,45 @@ describe("SoulboundAI", () => {
 
     expect(balance).to.equal(0);
   });
+
+  it("a referrer receives a cut when a mint is made", async () => {
+    const [owner, otherUser] = await ethers.getSigners();
+    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+
+    const referralPercentage = 30;
+    await soulboundAI.updateReferralPercentage(referralPercentage);
+
+    await soulboundAI.safeMint(owner.address, { value: fee });
+    const prevReferrerEthBalance = await owner.getBalance();
+
+    await soulboundAI
+      .connect(otherUser)
+      .safeMintWithReferral(otherUser.address, owner.address, { value: fee });
+    const currentReferrerEthBalance = await owner.getBalance();
+
+    const ownerBalance = await soulboundAI.balanceOf(owner.address);
+    const otherUserBalance = await soulboundAI.balanceOf(owner.address);
+
+    expect(ownerBalance).to.equal(1);
+    expect(otherUserBalance).to.equal(1);
+
+    const referralFee = fee.mul(referralPercentage).div(100);
+    expect(prevReferrerEthBalance.add(referralFee)).to.equal(
+      currentReferrerEthBalance
+    );
+  });
+
+  it("referrer must have an SBT minted", async () => {
+    const [owner, otherUser] = await ethers.getSigners();
+    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+
+    const referralPercentage = 30;
+    await soulboundAI.updateReferralPercentage(referralPercentage);
+
+    await expect(
+      soulboundAI
+        .connect(otherUser)
+        .safeMintWithReferral(otherUser.address, owner.address, { value: fee })
+    ).to.be.revertedWith("Must have an SBT to refer others");
+  });
 });
