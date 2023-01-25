@@ -12,7 +12,8 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
 
     Counters.Counter private _tokenIdCounter;
 
-    uint256 public fee;
+    uint256 private fee;
+    mapping(address => bool) whitelist;
 
     function initialize(uint256 _fee) public initializer {
         __Ownable_init();
@@ -21,7 +22,9 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     }
 
     function safeMint(address to) public payable {
-        require(msg.value >= fee, "Insufficient fee");
+        bool whitelisted = msg.sender == to && whitelist[to];
+
+        require(whitelisted || msg.value >= fee, "Insufficient fee");
         require(balanceOf(to) == 0, "Only one SBT is allowed per user");
 
         uint256 tokenId = _tokenIdCounter.current();
@@ -30,16 +33,18 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     }
 
     function burn() external {
+        require(balanceOf(msg.sender) > 0, "No token to burn");
         uint256 tokenId = tokenOfOwnerByIndex(msg.sender, 0);
-        require(ownerOf(tokenId) == msg.sender, "Only the owner of the token can burn it.");
 
         super._burn(tokenId);
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 firstTokenId, uint256 batchSize)
-        internal
-        override
-    {
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal override {
         require(
             from == address(0) || to == address(0),
             "This a Soulbound token. It cannot be transferred. It can only be burned by the token owner."
@@ -64,7 +69,9 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         revert("Invalid chain ID");
     }
 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
 
         string memory baseURI = _baseURI();
@@ -74,12 +81,23 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     }
 
     function withdrawFees(address payable recipient) external onlyOwner {
-        (bool sent,) = recipient.call{value: address(this).balance}("");
+        (bool sent, ) = recipient.call{value: address(this).balance}("");
 
         require(sent, "Failed to transfer ether");
     }
 
     function updateFee(uint256 _fee) external onlyOwner {
         fee = _fee;
+    }
+
+    function getFee() external view returns (uint256) {
+        if (whitelist[msg.sender]) {
+            return 0;
+        }
+        return fee;
+    }
+
+    function updateWhitelist(address receiver, bool state) external onlyOwner {
+        whitelist[receiver] = state;
     }
 }

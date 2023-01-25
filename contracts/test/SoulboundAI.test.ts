@@ -1,14 +1,15 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { ethers, upgrades } from "hardhat";
 import { expect } from "chai";
+import { SoulboundAI } from "../typechain-types";
 
 describe("SoulboundAI", () => {
   const deployContractFixture = async () => {
-    const SoulboundAI = await ethers.getContractFactory("SoulboundAI");
-    const soulboundAI = await upgrades.deployProxy(SoulboundAI, [
+    const SoulboundAIFactory = await ethers.getContractFactory("SoulboundAI");
+    const soulboundAI = (await upgrades.deployProxy(SoulboundAIFactory, [
       ethers.utils.parseEther("0.01"),
-    ]);
-    const fee = await soulboundAI.fee();
+    ])) as SoulboundAI;
+    const fee = await soulboundAI.getFee();
 
     return { soulboundAI, fee };
   };
@@ -90,13 +91,12 @@ describe("SoulboundAI", () => {
     expect(balance).to.equal(0);
   });
 
-  it("reverts if user tries to burn someone else's token", async () => {
-    const [owner, otherUser] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+  it("reverts if user tries to burn when they don't have a token", async () => {
+    const [_, otherUser] = await ethers.getSigners();
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    await soulboundAI.safeMint(owner.address, { value: fee });
     await expect(soulboundAI.connect(otherUser).burn()).to.be.revertedWith(
-      "ERC721Enumerable: owner index out of bounds"
+      "No token to burn"
     );
   });
 
@@ -115,7 +115,7 @@ describe("SoulboundAI", () => {
 
     const updatedFee = ethers.utils.parseEther("0.02");
     await soulboundAI.updateFee(updatedFee);
-    const fee = await soulboundAI.fee();
+    const fee = await soulboundAI.getFee();
 
     expect(updatedFee).to.equal(fee);
   });
@@ -148,6 +148,49 @@ describe("SoulboundAI", () => {
 
     await soulboundAI.burn();
     balance = await soulboundAI.balanceOf(owner.address);
+    expect(balance).to.equal(0);
+  });
+
+  it("fee for whitelisted user should be 0", async () => {
+    const [_, whitelistedUser] = await ethers.getSigners();
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+
+    await soulboundAI.updateWhitelist(whitelistedUser.address, true);
+    const feeForUser = await soulboundAI.connect(whitelistedUser).getFee();
+
+    expect(feeForUser).to.equal(0);
+  });
+
+  it("allows whitelisted user to mint for free", async () => {
+    const [_, whitelistedUser] = await ethers.getSigners();
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+
+    await soulboundAI.updateWhitelist(whitelistedUser.address, true);
+
+    await soulboundAI
+      .connect(whitelistedUser)
+      .safeMint(whitelistedUser.address);
+    const balance = await soulboundAI
+      .connect(whitelistedUser)
+      .balanceOf(whitelistedUser.address);
+
+    expect(balance).to.equal(1);
+  });
+
+  it("blocks whitelisted user from minting to a different address", async () => {
+    const [_, whitelistedUser, otherUser] = await ethers.getSigners();
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+
+    await soulboundAI.updateWhitelist(whitelistedUser.address, true);
+
+    await expect(
+      soulboundAI.connect(whitelistedUser).safeMint(otherUser.address)
+    ).to.be.revertedWith("Insufficient fee");
+
+    const balance = await soulboundAI
+      .connect(otherUser)
+      .balanceOf(otherUser.address);
+
     expect(balance).to.equal(0);
   });
 });
