@@ -20,10 +20,6 @@ export default async function handler(
       await getImageModel(req, res);
       break;
 
-    case "DELETE":
-      await deleteImageModel(req, res);
-      break;
-
     default:
       res.status(400).json({ message: "Invalid method" });
   }
@@ -85,10 +81,7 @@ const getImageModel = async (
 
   // Prevent polling neural-love too frequently since the rate limit is low
   const lastUpdatedAt = imageModel.updatedAt;
-  if (
-    Date.now() - lastUpdatedAt.getMilliseconds() <
-    IMAGE_MODEL_REFETCH_INTERVAL
-  ) {
+  if (Date.now() - lastUpdatedAt.getTime() < IMAGE_MODEL_REFETCH_INTERVAL) {
     return res.status(200).json(imageModel);
   }
 
@@ -113,7 +106,18 @@ const getImageModel = async (
   return res.status(200).json(updatedImageModel);
 };
 
+/**
+ * Check if the model has completed training and is ready for
+ * image generation
+ *
+ * @param modelId
+ * @returns
+ */
 const isModelReady = async (modelId: string) => {
+  if (process.env.NEURAL_LOVE_IMAGE_MODEL !== undefined) {
+    return mockIsModelReady(process.env.NEURAL_LOVE_IMAGE_MODEL);
+  }
+
   const modelResponse = await fetch(
     `https://api.neural.love/v1/ai-art/custom-model/models/${modelId}`,
     {
@@ -132,9 +136,28 @@ const isModelReady = async (modelId: string) => {
   return status === 250;
 };
 
-const deleteImageModel = async (
-  req: NextApiRequest,
-  res: NextApiResponse<any>
-) => {
-  throw new Error("Function not implemented.");
+/**
+ * This is used to provide a realistic scenario for training time by using
+ * and existing trained model. It is needed because training a real model costs
+ * money
+ *
+ * @param existingModelId
+ * @returns
+ */
+const mockIsModelReady = async (existingModelId: string) => {
+  const imageModel = await prisma.imageModel.findUnique({
+    where: {
+      modelId: existingModelId,
+    },
+  });
+
+  if (imageModel == null) {
+    throw new Error("Image model provided in env file does not exist");
+  }
+
+  const mockTrainingTime = 10 * 60 * 1000;
+  const isReady =
+    Date.now() - imageModel.createdAt.getTime() > mockTrainingTime;
+
+  return isReady;
 };

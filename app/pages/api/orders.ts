@@ -36,10 +36,7 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   await Promise.all(
     pendingOrders.map(async (order) => {
       // Prevent polling neural-love too frequently since the rate limit is low
-      if (
-        Date.now() - order.updatedAt.getMilliseconds() <
-        ORDER_REFETCH_INTERVAL
-      ) {
+      if (Date.now() - order.updatedAt.getTime() < ORDER_REFETCH_INTERVAL) {
         return;
       }
 

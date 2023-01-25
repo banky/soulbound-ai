@@ -23,7 +23,7 @@ model ImageModel {
   owner     String          @id
   state     ImageModelState
   s3Urls    String[]
-  modelId   String?
+  modelId   String?         @unique
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 }
@@ -33,6 +33,7 @@ model Order {
   owner     String
   imageUrls String[]
   ready     Boolean
+  error     Boolean  @default(false)
   prompt    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

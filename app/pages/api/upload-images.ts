@@ -115,11 +115,7 @@ const postUploadImages = async (
     });
   }
 
-  // The batchId can only contain letters and numbers
-  const batchId = randomUUID().replaceAll("-", "");
-  const s3Urls = await Promise.all(
-    files.media.map((persistentFile) => uploadFile(persistentFile, batchId))
-  );
+  const s3Urls = await uploadFiles(files.media);
 
   await prisma.imageModel.update({
     where: { owner: address },
@@ -130,6 +126,27 @@ const postUploadImages = async (
   });
 
   return res.status(200).json({});
+};
+
+/**
+ * Upload the list of files to s3 for neural-love
+ * @param files
+ */
+const uploadFiles = async (files: File[]) => {
+  // No need to upload images if
+  if (process.env.NEURAL_LOVE_IMAGE_MODEL !== undefined) {
+    await new Promise((res) => setTimeout(res, 2000));
+
+    return ["mock-image-url-1", "mock-image-url-2", "mock-image-url-3"];
+  }
+
+  // The batchId can only contain letters and numbers
+  const batchId = randomUUID().replaceAll("-", "");
+  const s3Urls = await Promise.all(
+    files.map((persistentFile) => uploadFile(persistentFile, batchId))
+  );
+
+  return s3Urls;
 };
 
 /**

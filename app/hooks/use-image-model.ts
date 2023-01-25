@@ -19,10 +19,6 @@ export const useImageModel = () => {
   const query = useQuery(
     "imageModel",
     async () => {
-      if (mintState !== MintState.Burn) {
-        return;
-      }
-
       if (address === undefined) {
         return;
       }
@@ -31,6 +27,7 @@ export const useImageModel = () => {
       return imageModel ?? undefined;
     },
     {
+      enabled: mintState === MintState.Burn,
       refetchInterval: (imageModel) => {
         if (imageModel?.state === "IS_TRAINING") {
           // Training takes a while, so update only once per 5 mins

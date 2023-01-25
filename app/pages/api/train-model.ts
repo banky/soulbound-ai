@@ -93,7 +93,11 @@ const trainModel = async (
   sources: string[],
   name: string,
   descriptor: string
-) => {
+): Promise<{ orderId: string }> => {
+  if (process.env.NEURAL_LOVE_IMAGE_MODEL !== undefined) {
+    return { orderId: process.env.NEURAL_LOVE_IMAGE_MODEL };
+  }
+
   const createModelResponse = await fetch(
     "https://api.neural.love/v1/ai-art/custom-model/create",
     {
