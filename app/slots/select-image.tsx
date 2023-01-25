@@ -1,8 +1,15 @@
+import { Order } from "@prisma/client";
 import { ActiveButton } from "components/active-button";
 import { stringifyError } from "helpers/stringify-error";
 import { useOrders } from "hooks/use-orders";
 import { useToken } from "hooks/use-token";
 import { useState } from "react";
+import { Error } from "svg/error";
+
+type SelectedImage = {
+  orderId: string;
+  imageIndex: number;
+};
 
 export const SelectImage = () => {
   const [generateImageLoading, setGenerateImageLoading] = useState(false);
@@ -12,10 +19,7 @@ export const SelectImage = () => {
   const { orders, generateImages } = useOrders();
   const { updateTokenImage } = useToken();
   const [prompt, setPrompt] = useState("");
-  const [selectedImage, setSelectedImage] = useState<{
-    orderId: string;
-    imageIndex: number;
-  }>();
+  const [selectedImage, setSelectedImage] = useState<SelectedImage>();
 
   const onClickGenerate = async () => {
     setGenerateImageLoading(true);
@@ -78,48 +82,14 @@ export const SelectImage = () => {
         </ActiveButton>
       </div>
 
-      {orders.map((order) => {
-        return (
-          <div
-            key={order.orderId}
-            className="border-2 rounded-2xl border-dashed border-pink-500 p-8 my-8"
-          >
-            <p className="mb-4">Prompt: {order.prompt}</p>
-
-            <div className="grid gap-8 grid-cols-2 md:grid-cols-4 items-center">
-              {order.imageUrls.map((imageUrl, imageIndex) => {
-                const selected =
-                  selectedImage?.orderId === order.orderId &&
-                  selectedImage.imageIndex === imageIndex;
-
-                return (
-                  <div key={imageUrl} className="flex justify-center">
-                    <button
-                      onClick={() => onSelectImage(order.orderId, imageIndex)}
-                    >
-                      <SelectableImage
-                        url={imageUrl}
-                        selected={selected}
-                        alt={order.prompt}
-                      />
-                    </button>
-                  </div>
-                );
-              })}
-
-              {order.ready === false
-                ? Array.from(Array(4).keys()).map((_, index) => {
-                    return (
-                      <div key={index} className="flex justify-center">
-                        <LoadingImage />
-                      </div>
-                    );
-                  })
-                : null}
-            </div>
-          </div>
-        );
-      })}
+      {orders.map((order) => (
+        <Order
+          key={order.orderId}
+          order={order}
+          selectedImage={selectedImage}
+          onSelectImage={onSelectImage}
+        />
+      ))}
 
       {orders.length > 0 ? (
         <ActiveButton
@@ -132,6 +102,61 @@ export const SelectImage = () => {
         </ActiveButton>
       ) : null}
     </>
+  );
+};
+
+type OrderProps = {
+  order: Order;
+  selectedImage?: SelectedImage;
+  onSelectImage: (orderId: string, imageIndex: number) => void;
+};
+
+const Order = ({ order, selectedImage, onSelectImage }: OrderProps) => {
+  return (
+    <div className="border-2 rounded-2xl border-dashed border-pink-500 p-8 my-8">
+      <p className="mb-4">Prompt: {order.prompt}</p>
+
+      <div className="grid gap-8 grid-cols-2 md:grid-cols-4 items-center">
+        {order.imageUrls.map((imageUrl, imageIndex) => {
+          const selected =
+            selectedImage?.orderId === order.orderId &&
+            selectedImage.imageIndex === imageIndex;
+
+          return (
+            <div key={imageUrl} className="flex justify-center">
+              <button onClick={() => onSelectImage(order.orderId, imageIndex)}>
+                <SelectableImage
+                  url={imageUrl}
+                  selected={selected}
+                  alt={order.prompt}
+                />
+              </button>
+            </div>
+          );
+        })}
+
+        {order.ready === false
+          ? Array.from(Array(4).keys()).map((_, index) => {
+              return (
+                <div key={index} className="flex justify-center">
+                  <LoadingImage />
+                </div>
+              );
+            })
+          : null}
+      </div>
+
+      {order.error === true ? (
+        <div className="flex flex-col items-center">
+          <div className="mt-4 mb-8">
+            <Error />
+          </div>
+          <p className="text-center">
+            An error occured processing this order. Please try again
+          </p>
+        </div>
+      ) : null}
+    </div>
   );
 };
 

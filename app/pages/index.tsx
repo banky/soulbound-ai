@@ -1,8 +1,7 @@
 import { useAccount } from "wagmi";
 import { getFee } from "helpers/contract-reads";
 import { SelectImage } from "slots/select-image";
-import { MintState } from "types/mint-state";
-import { signOut, useSession } from "next-auth/react";
+import { signOut } from "next-auth/react";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
 import { useImageModel } from "hooks/use-image-model";
@@ -15,6 +14,7 @@ import { StartTraining } from "slots/start-training";
 import { TrainingInProgress } from "slots/training-in-progress";
 import { useToken } from "hooks/use-token";
 import { useEffect } from "react";
+import { AppState, useAppState } from "hooks/use-app-state";
 
 type HomeProps = {
   fee: string;
@@ -26,60 +26,6 @@ export const getServerSideProps = async (): Promise<{ props: HomeProps }> => {
   return {
     props: { fee },
   };
-};
-
-enum AppState {
-  Connect = "Connect",
-  SignIn = "SignIn",
-  Mint = "Mint",
-  UploadImages = "UploadImages",
-  StartTraining = "StartTraining",
-  Training = "Training",
-  SelectImage = "SelectImage",
-  Burn = "Burn",
-  Invalid = "Invalid",
-}
-
-const useAppState = (): AppState => {
-  const { isConnected } = useAccount();
-  const { status } = useSession();
-  const { mintState } = useMintState();
-  const { imageModel } = useImageModel();
-  const { token } = useToken();
-
-  if (!isConnected) {
-    return AppState.Connect;
-  }
-
-  if (status !== "authenticated") {
-    return AppState.SignIn;
-  }
-
-  if (mintState === MintState.Mint) {
-    return AppState.Mint;
-  }
-
-  if (imageModel?.state === "NEEDS_IMAGES") {
-    return AppState.UploadImages;
-  }
-
-  if (imageModel?.state === "NEEDS_TRAINING") {
-    return AppState.StartTraining;
-  }
-
-  if (imageModel?.state === "IS_TRAINING") {
-    return AppState.Training;
-  }
-
-  if (imageModel?.state === "READY" && token?.imageUrl === undefined) {
-    return AppState.SelectImage;
-  }
-
-  if (mintState === MintState.Burn) {
-    return AppState.Burn;
-  }
-
-  return AppState.Invalid;
 };
 
 const Home = ({ fee }: HomeProps) => {
@@ -106,8 +52,8 @@ const Home = ({ fee }: HomeProps) => {
   }, [isDisconnected]);
 
   const onMint = async () => {
-    await postImageModel();
     await refetchMintState();
+    await postImageModel();
   };
 
   const onBurn = async () => {
@@ -142,7 +88,6 @@ const Home = ({ fee }: HomeProps) => {
         return <SelectImage />;
 
       default:
-        // TODO: Maybe a loading spinner
         return (
           <div className="text-center">An error occured. Unknown state :(</div>
         );

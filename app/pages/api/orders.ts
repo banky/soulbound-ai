@@ -40,7 +40,10 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
         return;
       }
 
-      const { ready, imageUrls } = await getNeuralLoveOrder(order);
+      const { ready, imageUrls, error } = await getNeuralLoveOrder(
+        order.orderId
+      );
+
       await prisma.order.update({
         where: {
           orderId: order.orderId,
@@ -48,6 +51,7 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
         data: {
           ready,
           imageUrls,
+          error,
         },
       });
     })
@@ -65,9 +69,9 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   res.status(200).json(orders);
 };
 
-const getNeuralLoveOrder = async (order: Order) => {
+const getNeuralLoveOrder = async (orderId: string) => {
   const orderResponse = await fetch(
-    `https://api.neural.love/v1/ai-art/orders/${order.orderId}`,
+    `https://api.neural.love/v1/ai-art/orders/${orderId}`,
     {
       method: "GET",
       headers: {
@@ -90,11 +94,21 @@ const getNeuralLoveOrder = async (order: Order) => {
     return {
       ready: true,
       imageUrls: imageUrls,
+      error: false,
+    };
+  }
+
+  if (status > 900) {
+    return {
+      ready: true,
+      imageUrls: [],
+      error: true,
     };
   }
 
   return {
     ready: false,
     imageUrls: [],
+    error: false,
   };
 };

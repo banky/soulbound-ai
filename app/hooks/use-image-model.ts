@@ -23,8 +23,12 @@ export const useImageModel = () => {
         return;
       }
 
-      const imageModel = await getImageModel(address);
-      return imageModel ?? undefined;
+      try {
+        const imageModel = await getImageModel(address);
+        return imageModel ?? undefined;
+      } catch (error) {
+        // Swallow these errors
+      }
     },
     {
       enabled: mintState === MintState.Burn,
