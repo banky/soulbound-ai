@@ -1,6 +1,12 @@
 import { Token, ImageModel, Order } from "@prisma/client";
 import { Descriptor } from "types/descriptor";
 
+/**
+ * Fetch wrapper that throws if the response is not ok
+ * @param input
+ * @param init
+ * @returns
+ */
 const fetchAndThrow = async (
   input: RequestInfo | URL,
   init?: RequestInit | undefined
@@ -23,6 +29,7 @@ const fetchAndThrow = async (
 
 /**
  * Generate images for a user that has minted a SBT
+ * @param prompt
  * @returns
  */
 export const generateImages = async (prompt: string): Promise<Order> => {
@@ -57,6 +64,11 @@ export const getToken = async (address: string): Promise<Token | null> => {
   return res.json();
 };
 
+/**
+ * Get the ImageModel associated with an address
+ * @param address
+ * @returns
+ */
 export const getImageModel = async (
   address: string
 ): Promise<ImageModel | null> => {
@@ -74,6 +86,7 @@ export const getImageModel = async (
 
 /**
  * Update a token with a given generated image
+ * @param orderId
  * @param imageIndex
  * @returns
  */
@@ -109,6 +122,10 @@ export const deleteToken = async (): Promise<void> => {
   });
 };
 
+/**
+ * Create an ImageModel
+ * @returns
+ */
 export const postImageModel = async (): Promise<ImageModel> => {
   const res = await fetchAndThrow("/api/image-model", {
     method: "POST",
@@ -119,6 +136,11 @@ export const postImageModel = async (): Promise<ImageModel> => {
   return res.json();
 };
 
+/**
+ * Upload images for training an ImageModel
+ * @param formData
+ * @returns
+ */
 export const uploadImages = async (formData: FormData): Promise<void> => {
   const res = await fetchAndThrow("/api/upload-images", {
     method: "POST",
@@ -127,6 +149,11 @@ export const uploadImages = async (formData: FormData): Promise<void> => {
   return res.json();
 };
 
+/**
+ * Train an image model with a descriptor
+ * @param descriptor
+ * @returns
+ */
 export const postTrainModel = async (descriptor: Descriptor): Promise<void> => {
   const res = await fetchAndThrow("/api/train-model", {
     method: "POST",
@@ -140,6 +167,11 @@ export const postTrainModel = async (descriptor: Descriptor): Promise<void> => {
   return res.json();
 };
 
+/**
+ * Get all current orders for an address
+ * @param address
+ * @returns
+ */
 export const getOrders = async (address: string): Promise<Order[]> => {
   const res = await fetchAndThrow(
     `/api/orders?address=${address.toLowerCase()}`,
