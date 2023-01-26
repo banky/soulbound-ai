@@ -8,6 +8,7 @@ describe("SoulboundAI", () => {
     const SoulboundAIFactory = await ethers.getContractFactory("SoulboundAI");
     const soulboundAI = (await upgrades.deployProxy(SoulboundAIFactory, [
       ethers.utils.parseEther("0.01"),
+      30,
     ])) as SoulboundAI;
 
     return { soulboundAI };
