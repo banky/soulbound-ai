@@ -13,14 +13,3 @@ export const addressHasSBT = async (address: string): Promise<boolean> => {
 
   return balance.gt(0);
 };
-
-export const getFee = async (): Promise<string> => {
-  const soulboundAI = new ethers.Contract(
-    process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "",
-    SoulboundAIABI.abi,
-    provider
-  ) as SoulboundAI;
-  const fee = await soulboundAI.getFee();
-
-  return ethers.utils.formatEther(fee);
-};

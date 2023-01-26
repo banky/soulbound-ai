@@ -18,10 +18,15 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
 
     event Referral(address referrer, bool sent);
 
-    function initialize(uint256 _fee) public initializer {
+    function initialize(
+        uint256 _fee,
+        uint256 _referralPercentage
+    ) public initializer {
         __Ownable_init();
         __ERC721_init("SoulboundAI", "SBAI");
+
         fee = _fee;
+        referralPercentage = _referralPercentage;
     }
 
     function safeMint(address to) public payable {
@@ -103,8 +108,8 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         fee = _fee;
     }
 
-    function getFee() external view returns (uint256) {
-        if (whitelist[msg.sender]) {
+    function getFee(address user) external view returns (uint256) {
+        if (whitelist[user]) {
             return 0;
         }
         return fee;

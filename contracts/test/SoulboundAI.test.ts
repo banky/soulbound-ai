@@ -9,15 +9,15 @@ describe("SoulboundAI", () => {
     const soulboundAI = (await upgrades.deployProxy(SoulboundAIFactory, [
       ethers.utils.parseEther("0.01"),
     ])) as SoulboundAI;
-    const fee = await soulboundAI.getFee();
 
-    return { soulboundAI, fee };
+    return { soulboundAI };
   };
 
   it("mints an SBT for a user", async () => {
     const [owner] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI.safeMint(owner.address, { value: fee });
     const balance = await soulboundAI.balanceOf(owner.address);
     expect(balance).to.equal(1);
@@ -25,8 +25,9 @@ describe("SoulboundAI", () => {
 
   it("withdraws fees as the owner", async () => {
     const [owner, otherUser] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI
       .connect(otherUser)
       .safeMint(otherUser.address, { value: fee });
@@ -40,8 +41,9 @@ describe("SoulboundAI", () => {
 
   it("withdraw fails if called by non owner", async () => {
     const [owner, otherUser] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI
       .connect(otherUser)
       .safeMint(otherUser.address, { value: fee });
@@ -53,8 +55,9 @@ describe("SoulboundAI", () => {
 
   it("gets the correct token uri for hardhat network", async () => {
     const [owner] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI.safeMint(owner.address, { value: fee });
     const tokenUri = await soulboundAI.tokenURI(0);
 
@@ -65,8 +68,9 @@ describe("SoulboundAI", () => {
 
   it("does not allow transfer", async () => {
     const [owner, otherUser] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI.safeMint(owner.address, { value: fee });
 
     await expect(
@@ -82,8 +86,9 @@ describe("SoulboundAI", () => {
 
   it("allows the token to be burned", async () => {
     const [owner] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI.safeMint(owner.address, { value: fee });
     await soulboundAI.burn();
     const balance = await soulboundAI.balanceOf(owner.address);
@@ -102,8 +107,9 @@ describe("SoulboundAI", () => {
 
   it("allows only one mint per user", async () => {
     const [owner] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI.safeMint(owner.address, { value: fee });
     await expect(
       soulboundAI.safeMint(owner.address, { value: fee })
@@ -111,13 +117,26 @@ describe("SoulboundAI", () => {
   });
 
   it("allows the owner to update the fee", async () => {
+    const [owner] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
     const updatedFee = ethers.utils.parseEther("0.02");
     await soulboundAI.updateFee(updatedFee);
-    const fee = await soulboundAI.getFee();
+    const fee = await soulboundAI.getFee(owner.address);
 
     expect(updatedFee).to.equal(fee);
+  });
+
+  it("gets the right fee for a whitelisted and non whitelisted user", async () => {
+    const [whitelisted, notWhitelisted] = await ethers.getSigners();
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+
+    await soulboundAI.updateWhitelist(whitelisted.address, true);
+    const whitelistedFee = await soulboundAI.getFee(whitelisted.address);
+    expect(whitelistedFee).to.equal(0);
+
+    const notWhitelistedFee = await soulboundAI.getFee(notWhitelisted.address);
+    expect(notWhitelistedFee).to.equal(ethers.utils.parseEther("0.01"));
   });
 
   it("reverts if a non owner tries to update the fee", async () => {
@@ -132,8 +151,9 @@ describe("SoulboundAI", () => {
 
   it("allows repeated mint and burn", async () => {
     const [owner] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     await soulboundAI.safeMint(owner.address, { value: fee });
     let balance = await soulboundAI.balanceOf(owner.address);
     expect(balance).to.equal(1);
@@ -156,7 +176,7 @@ describe("SoulboundAI", () => {
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
     await soulboundAI.updateWhitelist(whitelistedUser.address, true);
-    const feeForUser = await soulboundAI.connect(whitelistedUser).getFee();
+    const feeForUser = await soulboundAI.getFee(whitelistedUser.address);
 
     expect(feeForUser).to.equal(0);
   });
@@ -196,8 +216,9 @@ describe("SoulboundAI", () => {
 
   it("a referrer receives a cut when a mint is made", async () => {
     const [owner, otherUser] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
+    const fee = await soulboundAI.getFee(owner.address);
     const referralPercentage = 30;
     await soulboundAI.updateReferralPercentage(referralPercentage);
 
@@ -223,11 +244,12 @@ describe("SoulboundAI", () => {
 
   it("referrer must have an SBT minted", async () => {
     const [owner, otherUser] = await ethers.getSigners();
-    const { soulboundAI, fee } = await loadFixture(deployContractFixture);
+    const { soulboundAI } = await loadFixture(deployContractFixture);
 
     const referralPercentage = 30;
     await soulboundAI.updateReferralPercentage(referralPercentage);
 
+    const fee = await soulboundAI.getFee(otherUser.address);
     await expect(
       soulboundAI
         .connect(otherUser)

@@ -1,27 +1,62 @@
-import { useAccount, useContractWrite, usePrepareContractWrite } from "wagmi";
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+} from "wagmi";
 import { SoulboundAIABI } from "contracts";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useState } from "react";
 import { stringifyError } from "helpers/stringify-error";
 import { ActiveButton } from "components/active-button";
 
 type MintProps = {
-  fee: string;
   onMint: () => Promise<void>;
+  referrer?: string;
 };
 
-export const Mint = ({ fee, onMint }: MintProps) => {
+export const Mint = ({ referrer, onMint }: MintProps) => {
   const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS;
   const { address } = useAccount();
+
+  const { data: getFeeResult, isLoading: getFeeIsLoading } = useContractRead({
+    address: contractAddress,
+    abi: SoulboundAIABI.abi,
+    functionName: "getFee",
+    args: [address],
+  });
+
+  const validReferrerAddresss = ethers.utils.isAddress(referrer ?? "");
+  const { data: balanceOfReferrerResult, isLoading: balanceOfIsLoading } =
+    useContractRead({
+      address: contractAddress,
+      abi: SoulboundAIABI.abi,
+      functionName: "balanceOf",
+      args: [referrer],
+      enabled: validReferrerAddresss,
+    });
+
+  const fee = getFeeResult as BigNumber | undefined;
+  const balanceOfReferrer = balanceOfReferrerResult as BigNumber | undefined;
+
+  const validReferral =
+    validReferrerAddresss &&
+    balanceOfReferrer !== undefined &&
+    balanceOfReferrer.gt(0);
+
+  const mintFunctionName = !validReferral ? "safeMint" : "safeMintWithReferral";
+  const mintFunctionArgs = !validReferral ? [address] : [address, referrer];
+  const prepareMintEnabled = !getFeeIsLoading && !balanceOfIsLoading;
 
   const { config: mintConfig } = usePrepareContractWrite({
     address: contractAddress,
     abi: SoulboundAIABI.abi,
-    functionName: "safeMint",
-    args: [address],
+    functionName: mintFunctionName,
+    args: mintFunctionArgs,
     overrides: {
-      value: ethers.utils.parseEther(fee),
+      value: fee,
     },
+    enabled: prepareMintEnabled,
   });
   const { writeAsync: mint } = useContractWrite(mintConfig);
 
@@ -48,11 +83,11 @@ export const Mint = ({ fee, onMint }: MintProps) => {
   return (
     <div>
       <ActiveButton
-        loading={loading}
+        loading={loading || getFeeIsLoading}
         error={error}
         onClick={() => onClickMint()}
       >
-        Mint ({fee} eth)
+        Mint ({ethers.utils.formatEther(fee ?? "0")} eth)
       </ActiveButton>
     </div>
   );

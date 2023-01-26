@@ -1,7 +1,4 @@
-import { useAccount } from "wagmi";
-import { getFee } from "helpers/contract-reads";
 import { SelectImage } from "slots/select-image";
-import { signOut } from "next-auth/react";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
 import { useImageModel } from "hooks/use-image-model";
@@ -13,44 +10,37 @@ import { UploadImages } from "slots/upload-images";
 import { StartTraining } from "slots/start-training";
 import { TrainingInProgress } from "slots/training-in-progress";
 import { useToken } from "hooks/use-token";
-import { useEffect } from "react";
 import { AppState, useAppState } from "hooks/use-app-state";
 import { Description } from "slots/description";
+import { GetServerSideProps } from "next";
+import { ethers } from "ethers";
 
 type HomeProps = {
-  fee: string;
+  referrer?: string;
 };
 
-export const getServerSideProps = async (): Promise<{ props: HomeProps }> => {
-  const fee = await getFee();
+export const getServerSideProps: GetServerSideProps = async (
+  req
+): Promise<{ props: HomeProps }> => {
+  const { referrer } = req.query;
+
+  if (typeof referrer === "string" && ethers.utils.isAddress(referrer)) {
+    return {
+      props: { referrer },
+    };
+  }
 
   return {
-    props: { fee },
+    props: {},
   };
 };
 
-const Home = ({ fee }: HomeProps) => {
+const Home = ({ referrer }: HomeProps) => {
   const appState = useAppState();
 
   const { refetchMintState } = useMintState();
   const { postImageModel } = useImageModel();
   const { deleteToken } = useToken();
-
-  const { isDisconnected } = useAccount();
-
-  // Sign the user out if they disconnect wallet
-  useEffect(() => {
-    const signOutOnDisconnect = async () => {
-      await signOut({
-        redirect: false,
-        callbackUrl: "/",
-      });
-    };
-
-    if (isDisconnected) {
-      signOutOnDisconnect();
-    }
-  }, [isDisconnected]);
 
   const onMint = async () => {
     await postImageModel();
@@ -71,7 +61,7 @@ const Home = ({ fee }: HomeProps) => {
         return <SignIn />;
 
       case AppState.Mint:
-        return <Mint fee={fee} onMint={onMint} />;
+        return <Mint referrer={referrer} onMint={onMint} />;
 
       case AppState.Burn:
         return <Burn onBurn={onBurn} />;
