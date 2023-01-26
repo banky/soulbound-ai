@@ -9,8 +9,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     using Counters for Counters.Counter;
-
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter private tokenIdCounter;
 
     uint256 private fee;
     uint256 private referralPercentage;
@@ -35,8 +34,8 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         require(whitelisted || msg.value >= fee, "Insufficient fee");
         require(balanceOf(to) == 0, "Only one SBT is allowed per user");
 
-        uint256 tokenId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        uint256 tokenId = tokenIdCounter.current();
+        tokenIdCounter.increment();
         _safeMint(to, tokenId);
     }
 
