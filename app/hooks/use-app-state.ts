@@ -1,8 +1,10 @@
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { useEffect, useRef } from "react";
 import { MintState } from "types/mint-state";
 import { useAccount } from "wagmi";
 import { useImageModel } from "./use-image-model";
 import { useMintState } from "./use-mint-state";
+import { usePrevious } from "./use-previous";
 import { useToken } from "./use-token";
 
 export enum AppState {
@@ -18,11 +20,33 @@ export enum AppState {
 }
 
 export const useAppState = (): AppState => {
-  const { isConnected } = useAccount();
+  const { isConnected, isDisconnected, address } = useAccount();
   const { status } = useSession();
   const { mintState } = useMintState();
   const { imageModel } = useImageModel();
   const { token } = useToken();
+  const previousAddress = usePrevious(address);
+
+  const signOutOnDisconnect = async () => {
+    await signOut({
+      redirect: false,
+      callbackUrl: "/",
+    });
+  };
+
+  // Sign the user out if they disconnect wallet
+  useEffect(() => {
+    if (isDisconnected) {
+      signOutOnDisconnect();
+    }
+  }, [isDisconnected]);
+
+  // Sign the user out if they switch connected account
+  useEffect(() => {
+    if (previousAddress !== undefined && previousAddress !== address) {
+      signOutOnDisconnect();
+    }
+  }, [address, previousAddress]);
 
   if (!isConnected) {
     return AppState.Connect;
