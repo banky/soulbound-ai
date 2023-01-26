@@ -4,11 +4,11 @@ import { useAccount, useContractRead } from "wagmi";
 import { SoulboundAIABI } from "contracts";
 import { BigNumber } from "ethers";
 
-export const useMintState = (initialMintState: MintState) => {
+export const useMintState = () => {
   const contractAddress = process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS;
   const { address, isConnected } = useAccount();
 
-  const [mintState, setMintState] = useState<MintState>(initialMintState);
+  const [mintState, setMintState] = useState<MintState>();
 
   const { refetch: refetchMintState } = useContractRead({
     address: contractAddress,
@@ -18,9 +18,9 @@ export const useMintState = (initialMintState: MintState) => {
     enabled: isConnected,
     onSuccess: (numTokens: BigNumber) => {
       if (numTokens.gt(0)) {
-        setMintState(MintState.BURN);
+        setMintState(MintState.Burn);
       } else {
-        setMintState(MintState.MINT);
+        setMintState(MintState.Mint);
       }
     },
   });

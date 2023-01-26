@@ -49,7 +49,7 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   }
 
   const { address } = session;
-  const { imageIndex } = req.body;
+  const { orderId, imageIndex } = req.body;
   const hasSBT = await addressHasSBT(address);
 
   if (!hasSBT) {
@@ -58,20 +58,34 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  const dalleImage = await prisma.dalleImage.findFirst({
+  if (typeof orderId !== "string" || typeof imageIndex !== "number") {
+    return res.status(400).json({
+      message:
+        "Invalid inputs. orderId must be a string and imageIndex must be a number",
+    });
+  }
+
+  const order = await prisma.order.findUnique({
     where: {
-      owner: address,
-      imageIndex: imageIndex,
+      orderId: orderId,
     },
   });
 
-  if (dalleImage === null) {
-    return res.status(400).json({ message: "Image index not found for user" });
+  if (order == null) {
+    return res.status(404).json({
+      message: "Order with orderId not found",
+    });
   }
 
-  const dalleImageUrl = dalleImage.imageUrl;
+  const imageUrl = order.imageUrls[imageIndex];
 
-  const image = await fetch(dalleImageUrl);
+  if (imageUrl == null) {
+    return res.status(404).json({
+      message: "Image not found",
+    });
+  }
+
+  const image = await fetch(imageUrl);
   const blob = await image.blob();
   const imagePath = `${randomUUID()}.png`;
 
@@ -90,11 +104,13 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     return res.status(500).json({ message: "Failed to save image" });
   }
 
-  const currentToken = await prisma.token.update({
-    where: { owner: address },
+  const currentToken = await prisma.token.create({
     data: {
+      owner: address,
       imagePath,
       imageUrl: publicUrl,
+      name: `AI art for ${address.slice(0, 7)}`,
+      description: order.prompt,
     },
   });
 
@@ -108,7 +124,7 @@ const getToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     return res.status(400).json({ message: "Invalid address" });
   }
 
-  const token = await prisma.token.findFirst({ where: { owner: address } });
+  const token = await prisma.token.findUnique({ where: { owner: address } });
 
   return res.status(200).json(token);
 };
@@ -143,13 +159,19 @@ const deleteToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
 
   const imagePath = token?.imagePath;
 
-  await prisma.dalleImage.deleteMany({
+  await prisma.token.delete({
     where: {
       owner: address,
     },
   });
 
-  await prisma.token.delete({
+  await prisma.imageModel.delete({
+    where: {
+      owner: address,
+    },
+  });
+
+  await prisma.order.deleteMany({
     where: {
       owner: address,
     },

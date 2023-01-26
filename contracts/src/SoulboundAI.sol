@@ -2,22 +2,37 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract SoulboundAI is ERC721Enumerable, Ownable {
+contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
 
-    uint256 public fee = 0.01 ether;
+    uint256 private fee;
+    uint256 private referralPercentage;
+    mapping(address => bool) whitelist;
 
-    constructor() ERC721("SoulboundAI", "SBAI") {}
+    event Referral(address referrer, bool sent);
+
+    function initialize(
+        uint256 _fee,
+        uint256 _referralPercentage
+    ) public initializer {
+        __Ownable_init();
+        __ERC721_init("SoulboundAI", "SBAI");
+
+        fee = _fee;
+        referralPercentage = _referralPercentage;
+    }
 
     function safeMint(address to) public payable {
-        require(msg.value >= fee, "Insufficient fee");
+        bool whitelisted = msg.sender == to && whitelist[to];
+
+        require(whitelisted || msg.value >= fee, "Insufficient fee");
         require(balanceOf(to) == 0, "Only one SBT is allowed per user");
 
         uint256 tokenId = _tokenIdCounter.current();
@@ -25,12 +40,19 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
         _safeMint(to, tokenId);
     }
 
+    function safeMintWithReferral(address to, address referrer) public payable {
+        require(balanceOf(referrer) > 0, "Must have an SBT to refer others");
+
+        uint256 referrerCut = (msg.value * referralPercentage) / 100;
+        (bool sent, ) = referrer.call{value: referrerCut}("");
+        emit Referral(referrer, sent);
+
+        safeMint(to);
+    }
+
     function burn() external {
+        require(balanceOf(msg.sender) > 0, "No token to burn");
         uint256 tokenId = tokenOfOwnerByIndex(msg.sender, 0);
-        require(
-            ownerOf(tokenId) == msg.sender,
-            "Only the owner of the token can burn it."
-        );
 
         super._burn(tokenId);
     }
@@ -53,7 +75,7 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
         if (block.chainid == 1) {
             return "https://soulbound-ai.vercel.app/api/token-metadata/";
         }
-        
+
         if (block.chainid == 5) {
             return "https://soulbound-ai-goerli.vercel.app/api/token-metadata/";
         }
@@ -65,13 +87,9 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
         revert("Invalid chain ID");
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
         _requireMinted(tokenId);
 
         string memory baseURI = _baseURI();
@@ -88,5 +106,26 @@ contract SoulboundAI is ERC721Enumerable, Ownable {
 
     function updateFee(uint256 _fee) external onlyOwner {
         fee = _fee;
+    }
+
+    function getFee(address user) external view returns (uint256) {
+        if (whitelist[user]) {
+            return 0;
+        }
+        return fee;
+    }
+
+    function updateReferralPercentage(
+        uint256 _referralPercentage
+    ) external onlyOwner {
+        referralPercentage = _referralPercentage;
+    }
+
+    function getReferralPercentage() external view returns (uint256) {
+        return referralPercentage;
+    }
+
+    function updateWhitelist(address receiver, bool state) external onlyOwner {
+        whitelist[receiver] = state;
     }
 }

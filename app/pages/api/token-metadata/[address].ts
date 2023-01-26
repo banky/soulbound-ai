@@ -34,7 +34,7 @@ const getTokenMetadata = async (
   });
 
   if (token === null) {
-    return res.status(200).json(null);
+    return res.status(404).end();
   }
 
   // Follow Opensea metadata standards: https://docs.opensea.io/docs/metadata-standards

@@ -11,17 +11,37 @@ datasource db {
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 
-model DalleImage {
-  id         Int    @id @default(autoincrement())
-  owner      String
-  imageIndex Int
-  imageUrl   String
-}
-
 model Token {
   owner       String  @id
   name        String
   imagePath   String?
   imageUrl    String?
   description String
+}
+
+model ImageModel {
+  owner     String          @id
+  state     ImageModelState
+  s3Urls    String[]
+  modelId   String?         @unique
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model Order {
+  orderId   String   @id
+  owner     String
+  imageUrls String[]
+  ready     Boolean
+  error     Boolean  @default(false)
+  prompt    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum ImageModelState {
+  NEEDS_IMAGES
+  NEEDS_TRAINING
+  IS_TRAINING
+  READY
 }

@@ -22,15 +22,15 @@ export const useToken = () => {
 
   const deleteTokenMutation = useMutation(deleteToken, {
     onSuccess: () => {
-      queryClient.invalidateQueries("token");
+      // Invalidate all the queries here since everything needs to be reset
+      queryClient.invalidateQueries();
     },
   });
 
   return {
     token: query.data,
-    invalidateToken: () => queryClient.invalidateQueries("token"),
-    updateTokenImage: (imageIndex: number) =>
-      postTokenMutation.mutateAsync(imageIndex),
+    updateTokenImage: (params: { orderId: string; imageIndex: number }) =>
+      postTokenMutation.mutateAsync(params),
     deleteToken: () => deleteTokenMutation.mutateAsync(),
   };
 };

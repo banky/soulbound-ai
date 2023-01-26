@@ -26,18 +26,16 @@ jest.mock("@supabase/supabase-js", () => {
 jest.mock("@prisma/client", () => {
   return {
     PrismaClient: class PrismaClient {
-      dalleImage: any;
       token: any;
 
       constructor() {
-        this.dalleImage = {
-          findFirst: jest.fn(() => ({
-            imageUrl: "mock-image-url",
-          })),
-        };
         this.token = {
           update: jest.fn(),
           findFirst: jest.fn(() => ({
+            imagePath: "mock-image-path",
+            imageUrl: "mock-supabase-image-url",
+          })),
+          findUnique: jest.fn(() => ({
             imagePath: "mock-image-path",
             imageUrl: "mock-supabase-image-url",
           })),
@@ -97,17 +95,6 @@ describe("/api/token", () => {
       expect(res._getJSONData()).toEqual({
         message: "Unauthorized. User does not have a soulbound AI SBT",
       });
-    });
-
-    it("creates a new dalleImage and saves it to the DB", async () => {
-      mockUnstable_getServerSession.mockResolvedValue({
-        address: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-      });
-      mockAddressHasSBT.mockResolvedValue(true);
-
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(200);
     });
   });
 

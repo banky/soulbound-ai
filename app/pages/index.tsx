@@ -1,142 +1,95 @@
-import { useState } from "react";
-import { useAccount } from "wagmi";
-import { MintButton } from "../components/mint-button";
-import { Mnemonic } from "../components/mnemonic";
-import { GetServerSidePropsContext } from "next";
-import { addressHasSBT, getFee } from "helpers/contract-reads";
-import { publicKeyToMnemonic } from "helpers/public-key";
-import { generateImages } from "helpers/api-calls";
-import { SelectImage } from "components/select-image";
-import { MintState } from "types/mint-state";
-import { useSession } from "next-auth/react";
-import { SignInButton } from "components/sign-in-button";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions, Session } from "./api/auth/[...nextauth]";
-import { useToken } from "hooks/use-token";
-import { SelectImageButton } from "components/select-image-button";
-import { useDalleImages } from "hooks/use-dalle-images";
-import { SbtImage } from "components/sbt-image";
+import { SelectImage } from "slots/select-image";
 import { useMintState } from "hooks/use-mint-state";
 import dynamic from "next/dynamic";
+import { useImageModel } from "hooks/use-image-model";
+import { ConnectWallet } from "slots/connect-wallet";
+import { SignIn } from "slots/sign-in";
+import { Mint } from "slots/mint";
+import { Burn } from "slots/burn";
+import { UploadImages } from "slots/upload-images";
+import { StartTraining } from "slots/start-training";
+import { TrainingInProgress } from "slots/training-in-progress";
+import { useToken } from "hooks/use-token";
+import { AppState, useAppState } from "hooks/use-app-state";
+import { Description } from "slots/description";
+import { GetServerSideProps } from "next";
+import { ethers } from "ethers";
 
 type HomeProps = {
-  hasSBT: boolean;
-  fee: string;
+  referrer?: string;
 };
 
-export const getServerSideProps = async ({
-  req,
-  res,
-}: GetServerSidePropsContext): Promise<{ props: HomeProps }> => {
-  const fee = await getFee();
+export const getServerSideProps: GetServerSideProps = async (
+  req
+): Promise<{ props: HomeProps }> => {
+  const { referrer } = req.query;
 
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
-
-  if (session == null) {
+  if (typeof referrer === "string" && ethers.utils.isAddress(referrer)) {
     return {
-      props: { hasSBT: false, fee },
+      props: { referrer },
     };
   }
 
-  const { address } = session;
-  const hasSBT = await addressHasSBT(address);
-
   return {
-    props: { hasSBT, fee },
+    props: {},
   };
 };
 
-const Home = ({ hasSBT, fee }: HomeProps) => {
-  const { address, isConnected } = useAccount();
-  const { status } = useSession();
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+const Home = ({ referrer }: HomeProps) => {
+  const appState = useAppState();
 
-  const initialMintState = hasSBT ? MintState.BURN : MintState.MINT;
-  const { mintState, refetchMintState } = useMintState(initialMintState);
-
-  const mnemonic = address !== undefined ? publicKeyToMnemonic(address) : "";
-  const { token, invalidateToken, updateTokenImage, deleteToken } = useToken();
-  const { dalleImages, invalidateDalleImages } = useDalleImages();
-
-  const needsToSelectImage =
-    token !== undefined &&
-    dalleImages !== undefined &&
-    token.imagePath == null &&
-    mintState === MintState.BURN;
+  const { refetchMintState } = useMintState();
+  const { postImageModel } = useImageModel();
+  const { deleteToken } = useToken();
 
   const onMint = async () => {
-    if (address === undefined) {
-      return;
-    }
-
+    await postImageModel();
     await refetchMintState();
-
-    await generateImages();
-
-    // Invalidate local caches
-    await invalidateDalleImages();
-    await invalidateToken();
   };
 
   const onBurn = async () => {
-    if (address === undefined) {
-      return;
-    }
-
-    await refetchMintState();
-
     await deleteToken();
-
-    await invalidateDalleImages();
+    await refetchMintState();
   };
 
-  const onSelectImage = async () => {
-    await updateTokenImage(selectedImageIndex);
+  const getSlot = () => {
+    switch (appState) {
+      case AppState.Connect:
+        return <ConnectWallet />;
+
+      case AppState.SignIn:
+        return <SignIn />;
+
+      case AppState.Mint:
+        return <Mint referrer={referrer} onMint={onMint} />;
+
+      case AppState.Burn:
+        return <Burn onBurn={onBurn} />;
+
+      case AppState.UploadImages:
+        return <UploadImages />;
+
+      case AppState.StartTraining:
+        return <StartTraining />;
+
+      case AppState.Training:
+        return <TrainingInProgress />;
+
+      case AppState.SelectImage:
+        return <SelectImage />;
+
+      default:
+        return (
+          <div className="text-center">An error occured. Unknown state :(</div>
+        );
+    }
   };
 
-  const loggedIn = isConnected && status === "authenticated";
-
-  const getDisplayImage = () => {
-    if (needsToSelectImage) {
-      return (
-        <SelectImage
-          prompt={token.description}
-          dalleImages={dalleImages}
-          selectedImageIndex={selectedImageIndex}
-          setSelectedImageIndex={setSelectedImageIndex}
-        />
-      );
-    }
-
-    if (mintState === MintState.BURN && token !== undefined) {
-      return <SbtImage token={token} />;
-    }
-
-    return null;
-  };
-
-  const getPrimaryButton = () => {
-    if (!loggedIn) {
-      return <SignInButton />;
-    }
-
-    if (needsToSelectImage) {
-      return <SelectImageButton onSelectImage={onSelectImage} />;
-    }
-
-    return (
-      <MintButton
-        onMint={onMint}
-        onBurn={onBurn}
-        fee={fee}
-        mintState={mintState}
-      />
-    );
-  };
+  const showDescription = [
+    AppState.Connect,
+    AppState.SignIn,
+    AppState.Mint,
+  ].includes(appState);
 
   return (
     <>
@@ -145,16 +98,13 @@ const Home = ({ hasSBT, fee }: HomeProps) => {
       </header>
 
       <main className="mt-24 md:mt-40">
-        <h2 className="text-center text-pink-500 text-7xl mb-8">
+        <h2 className="text-center text-pink-500 text-5xl md:text-7xl mb-32">
           Mint a unique SoulBound NFT using AI
         </h2>
-        <div className="mb-8">
-          <Mnemonic mnemonic={mnemonic} />
-        </div>
 
-        <div className="text-center my-8">{getDisplayImage()}</div>
+        {getSlot()}
 
-        {getPrimaryButton()}
+        {showDescription ? <Description /> : null}
       </main>
     </>
   );
