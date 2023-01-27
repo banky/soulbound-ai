@@ -15,7 +15,7 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     uint256 private referralPercentage;
 
     // To start, only whitelisted users can mint
-    bool private whitelistPeriod;
+    bool public whitelistPeriod;
     mapping(address => bool) whitelist;
 
     event Referral(address referrer, bool sent);
