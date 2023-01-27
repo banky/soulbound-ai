@@ -11,8 +11,11 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
     using Counters for Counters.Counter;
     Counters.Counter private tokenIdCounter;
 
-    uint256 private fee;
+    uint256 public fee;
     uint256 private referralPercentage;
+
+    // To start, only whitelisted users can mint
+    bool public whitelistPeriod;
     mapping(address => bool) whitelist;
 
     event Referral(address referrer, bool sent);
@@ -26,12 +29,12 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
 
         fee = _fee;
         referralPercentage = _referralPercentage;
+        whitelistPeriod = true;
     }
 
     function safeMint(address to) public payable {
-        bool whitelisted = msg.sender == to && whitelist[to];
-
-        require(whitelisted || msg.value >= fee, "Insufficient fee");
+        require(canMint(to), "User not whitelisted");
+        require(msg.value >= fee, "Insufficient fee");
         require(balanceOf(to) == 0, "Only one SBT is allowed per user");
 
         uint256 tokenId = tokenIdCounter.current();
@@ -47,6 +50,13 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         emit Referral(referrer, sent);
 
         safeMint(to);
+    }
+
+    function canMint(address to) public view returns (bool) {
+        if (whitelistPeriod) {
+            return whitelist[to];
+        }
+        return true;
     }
 
     function burn() external {
@@ -107,13 +117,6 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
         fee = _fee;
     }
 
-    function getFee(address user) external view returns (uint256) {
-        if (whitelist[user]) {
-            return 0;
-        }
-        return fee;
-    }
-
     function updateReferralPercentage(
         uint256 _referralPercentage
     ) external onlyOwner {
@@ -126,5 +129,9 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
 
     function updateWhitelist(address receiver, bool state) external onlyOwner {
         whitelist[receiver] = state;
+    }
+
+    function updateWhitelistPeriod(bool state) external onlyOwner {
+        whitelistPeriod = state;
     }
 }

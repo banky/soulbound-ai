@@ -1,15 +1,18 @@
 import { ethers, upgrades } from "hardhat";
+import { SoulboundAI } from "../typechain-types";
 
 async function main() {
+  const [deployoor] = await ethers.getSigners();
   const SoulboundAIFactory = await ethers.getContractFactory("SoulboundAI");
 
   console.log("Deploying SoulboundAI");
-  const soulboundAI = await upgrades.deployProxy(SoulboundAIFactory, [
+  const soulboundAI = (await upgrades.deployProxy(SoulboundAIFactory, [
     ethers.utils.parseEther("0.02"),
     30,
-  ]);
+  ])) as SoulboundAI;
 
   const contract = await soulboundAI.deployed();
+  await contract.updateWhitelist(deployoor.address, true);
 
   console.log(contract.address, " contract(proxy) address");
   console.log(

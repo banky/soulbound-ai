@@ -11,6 +11,8 @@ describe("SoulboundAI", () => {
       30,
     ])) as SoulboundAI;
 
+    await soulboundAI.updateWhitelistPeriod(false);
+
     return { soulboundAI };
   };
 
@@ -18,17 +20,28 @@ describe("SoulboundAI", () => {
     const [owner] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI.safeMint(owner.address, { value: fee });
     const balance = await soulboundAI.balanceOf(owner.address);
     expect(balance).to.equal(1);
+  });
+
+  it("doess not allow minting if user is not whitelisted during whitelist period", async () => {
+    const [owner] = await ethers.getSigners();
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+
+    const fee = await soulboundAI.fee();
+    await soulboundAI.updateWhitelistPeriod(true);
+    await expect(
+      soulboundAI.safeMint(owner.address, { value: fee })
+    ).to.be.revertedWith("User not whitelisted");
   });
 
   it("withdraws fees as the owner", async () => {
     const [owner, otherUser] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI
       .connect(otherUser)
       .safeMint(otherUser.address, { value: fee });
@@ -44,7 +57,7 @@ describe("SoulboundAI", () => {
     const [owner, otherUser] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI
       .connect(otherUser)
       .safeMint(otherUser.address, { value: fee });
@@ -58,7 +71,7 @@ describe("SoulboundAI", () => {
     const [owner] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI.safeMint(owner.address, { value: fee });
     const tokenUri = await soulboundAI.tokenURI(0);
 
@@ -71,7 +84,7 @@ describe("SoulboundAI", () => {
     const [owner, otherUser] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI.safeMint(owner.address, { value: fee });
 
     await expect(
@@ -89,7 +102,7 @@ describe("SoulboundAI", () => {
     const [owner] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI.safeMint(owner.address, { value: fee });
     await soulboundAI.burn();
     const balance = await soulboundAI.balanceOf(owner.address);
@@ -110,7 +123,7 @@ describe("SoulboundAI", () => {
     const [owner] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI.safeMint(owner.address, { value: fee });
     await expect(
       soulboundAI.safeMint(owner.address, { value: fee })
@@ -118,26 +131,13 @@ describe("SoulboundAI", () => {
   });
 
   it("allows the owner to update the fee", async () => {
-    const [owner] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
     const updatedFee = ethers.utils.parseEther("0.02");
     await soulboundAI.updateFee(updatedFee);
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
 
     expect(updatedFee).to.equal(fee);
-  });
-
-  it("gets the right fee for a whitelisted and non whitelisted user", async () => {
-    const [whitelisted, notWhitelisted] = await ethers.getSigners();
-    const { soulboundAI } = await loadFixture(deployContractFixture);
-
-    await soulboundAI.updateWhitelist(whitelisted.address, true);
-    const whitelistedFee = await soulboundAI.getFee(whitelisted.address);
-    expect(whitelistedFee).to.equal(0);
-
-    const notWhitelistedFee = await soulboundAI.getFee(notWhitelisted.address);
-    expect(notWhitelistedFee).to.equal(ethers.utils.parseEther("0.01"));
   });
 
   it("reverts if a non owner tries to update the fee", async () => {
@@ -154,7 +154,7 @@ describe("SoulboundAI", () => {
     const [owner] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     await soulboundAI.safeMint(owner.address, { value: fee });
     let balance = await soulboundAI.balanceOf(owner.address);
     expect(balance).to.equal(1);
@@ -172,54 +172,25 @@ describe("SoulboundAI", () => {
     expect(balance).to.equal(0);
   });
 
-  it("fee for whitelisted user should be 0", async () => {
-    const [_, whitelistedUser] = await ethers.getSigners();
+  it("allows minting to a different address", async () => {
+    const [_, otherUser] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    await soulboundAI.updateWhitelist(whitelistedUser.address, true);
-    const feeForUser = await soulboundAI.getFee(whitelistedUser.address);
-
-    expect(feeForUser).to.equal(0);
-  });
-
-  it("allows whitelisted user to mint for free", async () => {
-    const [_, whitelistedUser] = await ethers.getSigners();
-    const { soulboundAI } = await loadFixture(deployContractFixture);
-
-    await soulboundAI.updateWhitelist(whitelistedUser.address, true);
-
-    await soulboundAI
-      .connect(whitelistedUser)
-      .safeMint(whitelistedUser.address);
-    const balance = await soulboundAI
-      .connect(whitelistedUser)
-      .balanceOf(whitelistedUser.address);
-
-    expect(balance).to.equal(1);
-  });
-
-  it("blocks whitelisted user from minting to a different address", async () => {
-    const [_, whitelistedUser, otherUser] = await ethers.getSigners();
-    const { soulboundAI } = await loadFixture(deployContractFixture);
-
-    await soulboundAI.updateWhitelist(whitelistedUser.address, true);
-
-    await expect(
-      soulboundAI.connect(whitelistedUser).safeMint(otherUser.address)
-    ).to.be.revertedWith("Insufficient fee");
+    const fee = await soulboundAI.fee();
+    await soulboundAI.safeMint(otherUser.address, { value: fee });
 
     const balance = await soulboundAI
       .connect(otherUser)
       .balanceOf(otherUser.address);
 
-    expect(balance).to.equal(0);
+    expect(balance).to.equal(1);
   });
 
   it("a referrer receives a cut when a mint is made", async () => {
     const [owner, otherUser] = await ethers.getSigners();
     const { soulboundAI } = await loadFixture(deployContractFixture);
 
-    const fee = await soulboundAI.getFee(owner.address);
+    const fee = await soulboundAI.fee();
     const referralPercentage = 30;
     await soulboundAI.updateReferralPercentage(referralPercentage);
 
@@ -250,7 +221,7 @@ describe("SoulboundAI", () => {
     const referralPercentage = 30;
     await soulboundAI.updateReferralPercentage(referralPercentage);
 
-    const fee = await soulboundAI.getFee(otherUser.address);
+    const fee = await soulboundAI.fee();
     await expect(
       soulboundAI
         .connect(otherUser)
@@ -268,5 +239,28 @@ describe("SoulboundAI", () => {
         .connect(otherUser)
         .updateReferralPercentage(referralPercentage)
     ).to.be.revertedWith("Ownable: caller is not the owner");
+  });
+
+  it("during whitelist period, canMint is true for whitelisted user", async () => {
+    const [_, otherUser] = await ethers.getSigners();
+
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+    await soulboundAI.updateWhitelistPeriod(true);
+    await soulboundAI.updateWhitelist(otherUser.address, true);
+
+    const canMint = await soulboundAI.canMint(otherUser.address);
+
+    expect(canMint).to.equal(true);
+  });
+
+  it("during whitelist period, canMint is false for non-whitelisted user", async () => {
+    const [_, otherUser] = await ethers.getSigners();
+
+    const { soulboundAI } = await loadFixture(deployContractFixture);
+    await soulboundAI.updateWhitelistPeriod(true);
+
+    const canMint = await soulboundAI.canMint(otherUser.address);
+
+    expect(canMint).to.equal(false);
   });
 });
