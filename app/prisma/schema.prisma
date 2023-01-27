@@ -23,7 +23,6 @@ model ImageModel {
   owner     String          @id
   state     ImageModelState
   s3Urls    String[]
-  batchId   String
   modelId   String?         @unique
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt

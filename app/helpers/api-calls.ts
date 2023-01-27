@@ -1,6 +1,5 @@
 import { Token, ImageModel, Order } from "@prisma/client";
 import { Descriptor } from "types/descriptor";
-import { PresignedUrl, UploadFile } from "types/upload-file";
 
 /**
  * Fetch wrapper that throws if the response is not ok
@@ -146,19 +145,6 @@ export const uploadImages = async (formData: FormData): Promise<void> => {
   const res = await fetchAndThrow("/api/upload-images", {
     method: "POST",
     body: formData,
-  });
-  return res.json();
-};
-
-export const s3Urls = async (files: UploadFile[]): Promise<PresignedUrl[]> => {
-  const res = await fetchAndThrow("/api/s3-urls", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      files,
-    }),
   });
   return res.json();
 };

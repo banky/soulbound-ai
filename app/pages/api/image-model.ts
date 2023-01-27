@@ -4,7 +4,6 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import prisma from "db/prisma-client";
 import { authOptions, Session } from "./auth/[...nextauth]";
-import { randomUUID } from "crypto";
 
 export default async function handler(
   req: NextApiRequest,
@@ -49,14 +48,8 @@ const postImageModel = async (
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  // The batchId can only contain letters and numbers
-  const batchId = randomUUID().replaceAll("-", "");
   const imageModel = await prisma.imageModel.create({
-    data: {
-      owner: address,
-      state: "NEEDS_IMAGES",
-      batchId,
-    },
+    data: { owner: address, state: "NEEDS_IMAGES" },
   });
 
   return res.status(200).json(imageModel);

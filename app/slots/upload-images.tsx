@@ -6,7 +6,6 @@ import {
   MAX_FILE_SIZE,
   MIN_FILES,
 } from "constants/image-upload";
-import { s3Urls } from "helpers/api-calls";
 import { uniqueFile, validFileSize, validFileType } from "helpers/file-list";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
@@ -21,7 +20,6 @@ import {
 import { Arrow } from "svg/arrow";
 import { Delete } from "svg/delete";
 import { Tray } from "svg/tray";
-import { UploadFile } from "types/upload-file";
 
 export const UploadImages = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -104,32 +102,11 @@ export const UploadImages = () => {
 
     e.preventDefault();
 
-    const filesForUpload: UploadFile[] = files.map((file) => ({
-      name: file.name,
-      mimeType: file.type,
-    }));
+    const formData = new FormData();
+    files.forEach((file) => formData.append("media", file));
 
     try {
-      const presignedUrls = await s3Urls(filesForUpload);
-      const uploadUrls = presignedUrls.map(({ url }) => url);
-
-      console.log("uploadUrls", uploadUrls[0]);
-
-      await Promise.all(
-        uploadUrls.map((uploadUrl, index) => {
-          const body = files[index];
-
-          console.log("uploading file");
-
-          return fetch(uploadUrl, {
-            method: "PUT",
-            body,
-          });
-        })
-      );
-
-      console.log("upload success");
-      // await uploadImages(formData);
+      await uploadImages(formData);
     } catch (error) {
       const errorMessage = stringifyError(error);
       setError(errorMessage);
