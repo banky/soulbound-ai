@@ -22,8 +22,7 @@ export const Mint = ({ referrer, onMint }: MintProps) => {
   const { data: getFeeResult, isLoading: getFeeIsLoading } = useContractRead({
     address: contractAddress,
     abi: SoulboundAIABI.abi,
-    functionName: "getFee",
-    args: [address],
+    functionName: "fee",
   });
 
   const validReferrerAddresss = ethers.utils.isAddress(referrer ?? "");
@@ -48,7 +47,7 @@ export const Mint = ({ referrer, onMint }: MintProps) => {
   const mintFunctionArgs = !validReferral ? [address] : [address, referrer];
   const prepareMintEnabled = !getFeeIsLoading && !balanceOfIsLoading;
 
-  const { config: mintConfig } = usePrepareContractWrite({
+  const { config: mintConfig, error: mintError } = usePrepareContractWrite({
     address: contractAddress,
     abi: SoulboundAIABI.abi,
     functionName: mintFunctionName,
@@ -68,6 +67,10 @@ export const Mint = ({ referrer, onMint }: MintProps) => {
     setError("");
 
     try {
+      if (mintError?.message.includes("User not whitelisted")) {
+        throw new Error("User not whitelisted");
+      }
+
       const sendTransactionResult = await mint?.();
       await sendTransactionResult?.wait();
 
@@ -83,7 +86,7 @@ export const Mint = ({ referrer, onMint }: MintProps) => {
   return (
     <div>
       <ActiveButton
-        loading={loading || getFeeIsLoading}
+        loading={loading || !prepareMintEnabled}
         error={error}
         onClick={() => onClickMint()}
       >
