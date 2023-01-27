@@ -10,7 +10,7 @@ export const useMintState = () => {
 
   const [mintState, setMintState] = useState<MintState>();
 
-  const { refetch: refetchMintState } = useContractRead({
+  const { refetch: refetchMintState, isLoading } = useContractRead({
     address: contractAddress,
     abi: SoulboundAIABI.abi,
     functionName: "balanceOf",
@@ -27,6 +27,7 @@ export const useMintState = () => {
 
   return {
     mintState,
+    loading: isLoading,
     refetchMintState,
   };
 };

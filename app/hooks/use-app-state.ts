@@ -23,7 +23,7 @@ export enum AppState {
 export const useAppState = (): AppState => {
   const { isConnected, isDisconnected, address, isConnecting } = useAccount();
   const { status } = useSession();
-  const { mintState } = useMintState();
+  const { mintState, loading: mintStateLoading } = useMintState();
   const { imageModel, loading: imageModelLoading } = useImageModel();
   const { token, loading: tokenLoading } = useToken();
   const previousAddress = usePrevious(address);
@@ -31,7 +31,7 @@ export const useAppState = (): AppState => {
   const loading =
     isConnecting ||
     status === "loading" ||
-    mintState === undefined ||
+    mintStateLoading ||
     imageModelLoading ||
     tokenLoading;
 
