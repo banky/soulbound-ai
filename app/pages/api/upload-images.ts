@@ -63,7 +63,7 @@ const postUploadImages = async (
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  const form = new IncomingForm({ multiples: true });
+  const form = new IncomingForm({ multiples: true, uploadDir: "/tmp" });
   const files = await new Promise<Files>((resolve, reject) => {
     form.parse(req, (err, _, files) => {
       if (err) {

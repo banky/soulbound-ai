@@ -138,16 +138,14 @@ export const UploadImages = () => {
           }`}
         >
           <div className="flex flex-col items-center">
+            <p className="text-center mb-8">
+              Click or drag here to upload 10 or more selfies from different
+              angles and a neutral background. We delete them after 24 hours
+            </p>
+
             {files.length > 0 ? (
               <ImagePreviews files={files} setFiles={setFiles} />
-            ) : (
-              <>
-                <p className="text-center">
-                  Click or drag here to upload 10 or more selfies from different
-                  angles and a neutral background. We delete them after 24 hours
-                </p>
-              </>
-            )}
+            ) : null}
             <div className="mt-8 animate-bounce">
               <Arrow />
             </div>
