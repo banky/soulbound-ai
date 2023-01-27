@@ -1,6 +1,6 @@
-import { Order, PrismaClient } from "@prisma/client";
 import { ORDER_REFETCH_INTERVAL } from "constants/refetch-interval";
 import { NextApiRequest, NextApiResponse } from "next";
+import prisma from "db/prisma-client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -17,7 +17,6 @@ export default async function handler(
 }
 
 const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
-  const prisma = new PrismaClient();
   const { address } = req.query;
 
   if (typeof address !== "string") {

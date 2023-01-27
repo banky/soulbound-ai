@@ -33,7 +33,7 @@ const Introduction = () => {
   }, [showNextImage]);
 
   return (
-    <div className="mt-32">
+    <div className="mt-16 md:mt-32">
       <div className="flex flex-col lg:flex-row mx-auto w-fit gap-16">
         <div className="max-w-xl text-left">
           <h2 className="text-4xl mb-8">

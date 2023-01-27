@@ -14,6 +14,7 @@ import { AppState, useAppState } from "hooks/use-app-state";
 import { Description } from "slots/description";
 import { GetServerSideProps } from "next";
 import { ethers } from "ethers";
+import { Loading } from "slots/loading";
 
 type HomeProps = {
   referrer?: string;
@@ -78,6 +79,9 @@ const Home = ({ referrer }: HomeProps) => {
       case AppState.SelectImage:
         return <SelectImage />;
 
+      case AppState.Loading:
+        return <Loading />;
+
       default:
         return (
           <div className="text-center">An error occured. Unknown state :(</div>
@@ -98,7 +102,7 @@ const Home = ({ referrer }: HomeProps) => {
       </header>
 
       <main className="mt-24 md:mt-40">
-        <h2 className="text-center text-pink-500 text-5xl md:text-7xl mb-32">
+        <h2 className="text-center text-pink-500 text-5xl md:text-7xl mb-16">
           Mint a unique SoulBound NFT using AI
         </h2>
 

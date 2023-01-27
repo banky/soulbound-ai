@@ -62,6 +62,7 @@ export const useImageModel = () => {
 
   return {
     imageModel: query.data,
+    loading: query.isLoading,
     postImageModel: () => postImageModelMutation.mutateAsync(),
     uploadImages: (formData: FormData) =>
       uploadImagesMutation.mutateAsync(formData),

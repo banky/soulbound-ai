@@ -1,11 +1,9 @@
-import { PrismaClient } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
+import prisma from "db/prisma-client";
 import { authOptions, Session } from "./auth/[...nextauth]";
-
-const prisma = new PrismaClient();
 
 export default async function handler(
   req: NextApiRequest,

@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { addressHasSBT } from "helpers/contract-reads";
-import { PrismaClient } from "@prisma/client";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
+import prisma from "db/prisma-client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -58,7 +58,6 @@ const postGenerateImages = async (
     });
   }
 
-  const prisma = new PrismaClient();
   const imageModel = await prisma.imageModel.findUnique({
     where: {
       owner: address,

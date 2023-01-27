@@ -16,16 +16,24 @@ export enum AppState {
   Training = "Training",
   SelectImage = "SelectImage",
   Burn = "Burn",
+  Loading = "Loading",
   Invalid = "Invalid",
 }
 
 export const useAppState = (): AppState => {
-  const { isConnected, isDisconnected, address } = useAccount();
+  const { isConnected, isDisconnected, address, isConnecting } = useAccount();
   const { status } = useSession();
   const { mintState } = useMintState();
-  const { imageModel } = useImageModel();
-  const { token } = useToken();
+  const { imageModel, loading: imageModelLoading } = useImageModel();
+  const { token, loading: tokenLoading } = useToken();
   const previousAddress = usePrevious(address);
+
+  const loading =
+    isConnecting ||
+    status === "loading" ||
+    mintState === undefined ||
+    imageModelLoading ||
+    tokenLoading;
 
   const signOutOnDisconnect = async () => {
     await signOut({
@@ -47,6 +55,10 @@ export const useAppState = (): AppState => {
       signOutOnDisconnect();
     }
   }, [address, previousAddress]);
+
+  if (loading) {
+    return AppState.Loading;
+  }
 
   if (!isConnected) {
     return AppState.Connect;

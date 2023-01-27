@@ -1,17 +1,15 @@
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
-import { PrismaClient } from "@prisma/client";
 import { randomUUID } from "crypto";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
+import prisma from "db/prisma-client";
 
 const supabase = createClient(
   process.env.SUPABASE_URL ?? "",
   process.env.SUPABASE_KEY ?? ""
 );
-
-const prisma = new PrismaClient();
 
 export default async function handler(
   req: NextApiRequest,

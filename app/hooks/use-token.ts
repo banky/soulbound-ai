@@ -29,6 +29,7 @@ export const useToken = () => {
 
   return {
     token: query.data,
+    loading: query.isLoading,
     updateTokenImage: (params: { orderId: string; imageIndex: number }) =>
       postTokenMutation.mutateAsync(params),
     deleteToken: () => deleteTokenMutation.mutateAsync(),

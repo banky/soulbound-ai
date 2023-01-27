@@ -66,14 +66,15 @@ export const Burn = ({ onBurn }: BurnProps) => {
       <img className="rounded-lg" src={token?.imageUrl ?? ""} alt="SBT Image" />
       <p className="max-w-3xl">Prompt: {token?.description}</p>
 
-      <ActiveButton
-        loading={loading}
-        error={error}
-        onClick={() => onClickBurn()}
-        className="mb-16"
-      >
-        Burn
-      </ActiveButton>
+      <div className="mb-16">
+        <ActiveButton
+          loading={loading}
+          error={error}
+          onClick={() => onClickBurn()}
+        >
+          Burn
+        </ActiveButton>
+      </div>
 
       {referralPercentage.gt(0) ? (
         <>
@@ -82,7 +83,7 @@ export const Burn = ({ onBurn }: BurnProps) => {
             Refer friends with your custom referral URL and receive{" "}
             {referralPercentage.toNumber()}% of the mint fees!
           </p>
-          <p>
+          <p className="break-all text-center">
             {location.host}?referrer={address}
           </p>
         </>

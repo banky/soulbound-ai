@@ -4,7 +4,6 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
 import fs from "fs";
-import { PrismaClient } from "@prisma/client";
 import {
   ALLOWED_FILE_EXTENSIONS,
   MAX_FILES,
@@ -17,14 +16,13 @@ import {
   validFormidableFileType,
 } from "helpers/file-list";
 import { randomUUID } from "crypto";
+import prisma from "db/prisma-client";
 
 export const config = {
   api: {
     bodyParser: false,
   },
 };
-
-const prisma = new PrismaClient();
 
 export default async function handler(
   req: NextApiRequest,
