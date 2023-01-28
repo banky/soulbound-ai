@@ -4,18 +4,11 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
 import fs from "fs";
+import { ALLOWED_FILE_EXTENSIONS, MAX_FILE_SIZE } from "constants/image-upload";
 import {
-  ALLOWED_FILE_EXTENSIONS,
-  MAX_FILES,
-  MAX_FILE_SIZE,
-  MIN_FILES,
-} from "constants/image-upload";
-import {
-  uniqueFormidableFile,
   validFormidableFileSize,
   validFormidableFileType,
 } from "helpers/file-list";
-import { randomUUID } from "crypto";
 import prisma from "db/prisma-client";
 
 export const config = {
@@ -80,8 +73,6 @@ const postUploadImage = async (
   }
 
   const file = files.media;
-
-  console.log("filePath", file.filepath);
 
   if (!validFormidableFileSize(file)) {
     return res.status(400).json({
