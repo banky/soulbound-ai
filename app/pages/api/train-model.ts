@@ -2,7 +2,7 @@ import { randomUUID } from "crypto";
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
-import prisma from "db/prisma-client";
+import prisma from "clients/prisma";
 import { authOptions, Session } from "./auth/[...nextauth]";
 
 export default async function handler(

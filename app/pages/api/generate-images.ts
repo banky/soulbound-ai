@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { addressHasSBT } from "helpers/contract-reads";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { unstable_getServerSession } from "next-auth";
-import prisma from "db/prisma-client";
+import prisma from "clients/prisma";
 
 export default async function handler(
   req: NextApiRequest,

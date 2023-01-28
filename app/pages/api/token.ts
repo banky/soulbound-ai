@@ -1,15 +1,10 @@
 import { addressHasSBT, tokenIdForAddress } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
-import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
 import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
-import prisma from "db/prisma-client";
-
-const supabase = createClient(
-  process.env.SUPABASE_URL ?? "",
-  process.env.SUPABASE_KEY ?? ""
-);
+import prisma from "clients/prisma";
+import supabase from "clients/supabase";
 
 export default async function handler(
   req: NextApiRequest,
@@ -151,15 +146,7 @@ const deleteToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
       .json({ message: "Shan't delete token for user that still has SBT" });
   }
 
-  const token = await prisma.token.findUnique({
-    where: {
-      owner: address,
-    },
-  });
-
-  const imagePath = token?.imagePath;
-
-  await prisma.token.delete({
+  const token = await prisma.token.delete({
     where: {
       owner: address,
     },
@@ -177,6 +164,7 @@ const deleteToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     },
   });
 
+  const imagePath = token?.imagePath;
   if (imagePath == null) {
     return res.status(404).json({ message: "Could not find image to delete" });
   }

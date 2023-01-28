@@ -9,7 +9,7 @@ import {
   validFormidableFileSize,
   validFormidableFileType,
 } from "helpers/file-list";
-import prisma from "db/prisma-client";
+import prisma from "clients/prisma";
 
 export const config = {
   api: {
