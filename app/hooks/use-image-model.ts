@@ -1,4 +1,4 @@
-import { IMAGE_MODEL_REFETCH_INTERVAL } from "constants/refetch-interval";
+import { IMAGE_MODEL_REFETCH_INTERVAL } from "constant/refetch-interval";
 import {
   getImageModel,
   postImageModel,

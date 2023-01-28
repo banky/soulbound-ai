@@ -1,11 +1,11 @@
-import { IMAGE_MODEL_REFETCH_INTERVAL } from "constants/refetch-interval";
+import { IMAGE_MODEL_REFETCH_INTERVAL } from "constant/refetch-interval";
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import prisma from "clients/prisma";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { randomUUID } from "crypto";
-import { MIN_FILES } from "constants/image-upload";
+import { MIN_FILES } from "constant/image-upload";
 
 export default async function handler(
   req: NextApiRequest,
