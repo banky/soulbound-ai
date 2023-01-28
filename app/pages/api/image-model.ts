@@ -18,6 +18,7 @@ export default async function handler(
 
     case "PUT":
       await putImageModel(req, res);
+      break;
 
     case "GET":
       await getImageModel(req, res);
