@@ -159,11 +159,11 @@ const uploadFile = async (file: File, batchId: string): Promise<string> => {
 
   const imageUploadResponse = await fetch(url, {
     method: "PUT",
-    // @ts-expect-error
+    // @ts-expect-error: Content length isn't typed to use a string
     headers: {
       "Content-length": fileSizeInBytes,
     },
-    // @ts-expect-error
+    // @ts-expect-error: Body isn't typed to take a Readstream
     body: readStream,
   });
 

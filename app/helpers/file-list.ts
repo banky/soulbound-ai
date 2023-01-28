@@ -14,16 +14,5 @@ export const validFileSize = (file: File) => file.size < MAX_FILE_SIZE;
 export const validFormidableFileType = (file: FormidableFile) =>
   ALLOWED_FILE_TYPES.includes(file.mimetype ?? "");
 
-export const uniqueFormidableFile = (
-  file: FormidableFile,
-  index: number,
-  self: FormidableFile[]
-) => {
-  const existingFileIndex = self.findIndex(
-    ({ originalFilename }) => file.originalFilename === originalFilename
-  );
-  return existingFileIndex === index;
-};
-
 export const validFormidableFileSize = (file: FormidableFile) =>
   file.size < MAX_FILE_SIZE;

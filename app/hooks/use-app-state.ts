@@ -1,5 +1,5 @@
 import { signOut, useSession } from "next-auth/react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { MintState } from "types/mint-state";
 import { useAccount } from "wagmi";
 import { useImageModel } from "./use-image-model";
