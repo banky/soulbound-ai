@@ -13,3 +13,20 @@ export const addressHasSBT = async (address: string): Promise<boolean> => {
 
   return balance.gt(0);
 };
+
+export const tokenIdForAddress = async (
+  address: string
+): Promise<string | undefined> => {
+  const soulboundAI = new ethers.Contract(
+    process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "",
+    SoulboundAIABI.abi,
+    provider
+  ) as SoulboundAI;
+  const hasSBT = await addressHasSBT(address);
+  if (!hasSBT) {
+    return;
+  }
+
+  const tokenId = await soulboundAI.tokenOfOwnerByIndex(address, 0);
+  return tokenId.toString();
+};

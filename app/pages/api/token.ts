@@ -1,4 +1,4 @@
-import { addressHasSBT } from "helpers/contract-reads";
+import { addressHasSBT, tokenIdForAddress } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { createClient } from "@supabase/supabase-js";
 import { randomUUID } from "crypto";
@@ -112,6 +112,8 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
     },
   });
 
+  await forceUpdateOpensea(address);
+
   return res.status(200).json(currentToken);
 };
 
@@ -186,4 +188,15 @@ const deleteToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   }
 
   return res.status(200).end();
+};
+
+const forceUpdateOpensea = async (address: string) => {
+  const tokenId = await tokenIdForAddress(address);
+  if (tokenId === undefined) {
+    return;
+  }
+
+  await fetch(
+    `${process.env.OPENSEA_BASE_URL}/api/v1/asset/${process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS}/${tokenId}/?force_update=true`
+  );
 };
