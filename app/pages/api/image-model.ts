@@ -4,6 +4,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
 import prisma from "db/prisma-client";
 import { authOptions, Session } from "./auth/[...nextauth]";
+import { randomUUID } from "crypto";
+import { MIN_FILES } from "constants/image-upload";
 
 export default async function handler(
   req: NextApiRequest,
@@ -14,6 +16,9 @@ export default async function handler(
       await postImageModel(req, res);
       break;
 
+    case "PUT":
+      await putImageModel(req, res);
+
     case "GET":
       await getImageModel(req, res);
       break;
@@ -23,6 +28,12 @@ export default async function handler(
   }
 }
 
+/**
+ * Create the image model
+ * @param req
+ * @param res
+ * @returns
+ */
 const postImageModel = async (
   req: NextApiRequest,
   res: NextApiResponse<any>
@@ -48,11 +59,65 @@ const postImageModel = async (
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
+  const batchId = randomUUID().replaceAll("-", "");
   const imageModel = await prisma.imageModel.create({
-    data: { owner: address, state: "NEEDS_IMAGES" },
+    data: { owner: address, state: "NEEDS_IMAGES", batchId },
   });
 
   return res.status(200).json(imageModel);
+};
+
+const putImageModel = async (
+  req: NextApiRequest,
+  res: NextApiResponse<any>
+) => {
+  const session = await unstable_getServerSession<any, Session>(
+    req,
+    res,
+    authOptions
+  );
+
+  if (session == null) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized. User is not logged in" });
+  }
+
+  const { address } = session;
+  const hasSBT = await addressHasSBT(address);
+
+  if (!hasSBT) {
+    return res
+      .status(401)
+      .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
+  }
+
+  const imageModel = await prisma.imageModel.findUnique({
+    where: {
+      owner: address,
+    },
+  });
+  if (imageModel == null) {
+    return res.status(404).json({
+      message: "ImageModel not found",
+    });
+  }
+
+  const { s3Urls } = imageModel;
+  if (s3Urls.length < MIN_FILES) {
+    return res.status(400).json({ message: "Not enough files uploaded" });
+  }
+
+  const updatedImageModel = await prisma.imageModel.update({
+    where: {
+      owner: address,
+    },
+    data: {
+      state: "NEEDS_TRAINING",
+    },
+  });
+
+  return res.status(200).json(updatedImageModel);
 };
 
 const getImageModel = async (

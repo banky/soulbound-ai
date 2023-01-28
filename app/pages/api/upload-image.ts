@@ -4,18 +4,11 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
 import fs from "fs";
+import { ALLOWED_FILE_EXTENSIONS, MAX_FILE_SIZE } from "constants/image-upload";
 import {
-  ALLOWED_FILE_EXTENSIONS,
-  MAX_FILES,
-  MAX_FILE_SIZE,
-  MIN_FILES,
-} from "constants/image-upload";
-import {
-  uniqueFormidableFile,
   validFormidableFileSize,
   validFormidableFileType,
 } from "helpers/file-list";
-import { randomUUID } from "crypto";
 import prisma from "db/prisma-client";
 
 export const config = {
@@ -30,7 +23,7 @@ export default async function handler(
 ) {
   switch (req.method) {
     case "POST":
-      await postUploadImages(req, res);
+      await postUploadImage(req, res);
       break;
 
     default:
@@ -38,7 +31,7 @@ export default async function handler(
   }
 }
 
-const postUploadImages = async (
+const postUploadImage = async (
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) => {
@@ -63,7 +56,7 @@ const postUploadImages = async (
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  const form = new IncomingForm({ multiples: true, uploadDir: "/tmp" });
+  const form = new IncomingForm({ uploadDir: "/tmp" });
   const files = await new Promise<Files>((resolve, reject) => {
     form.parse(req, (err, _, files) => {
       if (err) {
@@ -73,21 +66,15 @@ const postUploadImages = async (
     });
   });
 
-  if (!(files.media instanceof Array) || files.media.length < MIN_FILES) {
+  if (files.media instanceof Array) {
     return res
       .status(400)
-      .json({ message: `Expected at least ${MIN_FILES} files` });
+      .json({ message: `Can only upload one file at a time` });
   }
 
-  if (files.media.length > MAX_FILES) {
-    return res
-      .status(400)
-      .json({ message: `Cannot upload more than ${MAX_FILES} files` });
-  }
+  const file = files.media;
 
-  const allFilesValidSize = files.media.every(validFormidableFileSize);
-
-  if (!allFilesValidSize) {
+  if (!validFormidableFileSize(file)) {
     return res.status(400).json({
       message: `Some uploaded files are too large. Max file size is ${
         MAX_FILE_SIZE / 1_000_000
@@ -95,9 +82,7 @@ const postUploadImages = async (
     });
   }
 
-  const allFilesAllowed = files.media.every(validFormidableFileType);
-
-  if (!allFilesAllowed) {
+  if (!validFormidableFileType(file)) {
     return res.status(400).json({
       message: `Some uploaded files are not valid. Valid file types are ${ALLOWED_FILE_EXTENSIONS.join(
         ", "
@@ -105,46 +90,32 @@ const postUploadImages = async (
     });
   }
 
-  const allFilesUnique = files.media.every(uniqueFormidableFile);
-
-  if (!allFilesUnique) {
-    return res.status(400).json({
-      message: `Cannot upload duplicate files`,
+  const imageModel = await prisma.imageModel.findUnique({
+    where: {
+      owner: address,
+    },
+  });
+  if (imageModel == null) {
+    return res.status(404).json({
+      message: "ImageModel not found",
     });
   }
 
-  const s3Urls = await uploadFiles(files.media);
+  const { batchId } = imageModel;
+  const s3Url = await uploadFile(file, batchId);
+  fs.unlinkSync(file.filepath);
 
   await prisma.imageModel.update({
     where: { owner: address },
     data: {
-      s3Urls: s3Urls,
-      state: "NEEDS_TRAINING",
+      s3Urls: {
+        push: s3Url,
+      },
+      state: "NEEDS_IMAGES",
     },
   });
 
   return res.status(200).json({});
-};
-
-/**
- * Upload the list of files to s3 for neural-love
- * @param files
- */
-const uploadFiles = async (files: File[]) => {
-  // No need to upload images if
-  if (process.env.NEURAL_LOVE_IMAGE_MODEL !== undefined) {
-    await new Promise((res) => setTimeout(res, 2000));
-
-    return ["mock-image-url-1", "mock-image-url-2", "mock-image-url-3"];
-  }
-
-  // The batchId can only contain letters and numbers
-  const batchId = randomUUID().replaceAll("-", "");
-  const s3Urls = await Promise.all(
-    files.map((persistentFile) => uploadFile(persistentFile, batchId))
-  );
-
-  return s3Urls;
 };
 
 /**
@@ -153,6 +124,12 @@ const uploadFiles = async (files: File[]) => {
  * @returns
  */
 const uploadFile = async (file: File, batchId: string): Promise<string> => {
+  if (process.env.NEURAL_LOVE_IMAGE_MODEL !== undefined) {
+    await new Promise((res) => setTimeout(res, 1000));
+
+    return `mock-image-url-1-${file.originalFilename}`;
+  }
+
   const extension = file.originalFilename?.split(".").pop() ?? "jpg";
 
   const presignedUrlResponse = await fetch(
@@ -190,7 +167,9 @@ const uploadFile = async (file: File, batchId: string): Promise<string> => {
     body: readStream,
   });
 
-  if (!imageUploadResponse.ok) throw new Error("Error uploading image");
+  if (!imageUploadResponse.ok) {
+    throw new Error(`Error uploading image ${file.originalFilename}`);
+  }
 
   return s3Url;
 };

@@ -6,6 +6,7 @@ import {
   MAX_FILE_SIZE,
   MIN_FILES,
 } from "constants/image-upload";
+import { uploadImage } from "helpers/api-calls";
 import { uniqueFile, validFileSize, validFileType } from "helpers/file-list";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
@@ -27,7 +28,7 @@ export const UploadImages = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const { uploadImages } = useImageModel();
+  const { putImageModel } = useImageModel();
 
   // handle drag events
   const handleDrag = function (e: DragEvent<HTMLFormElement | HTMLDivElement>) {
@@ -102,11 +103,15 @@ export const UploadImages = () => {
 
     e.preventDefault();
 
-    const formData = new FormData();
-    files.forEach((file) => formData.append("media", file));
-
     try {
-      await uploadImages(formData);
+      await Promise.all(
+        files.map(async (file) => {
+          const formData = new FormData();
+          formData.append("media", file);
+          await uploadImage(formData);
+        })
+      );
+      await putImageModel();
     } catch (error) {
       const errorMessage = stringifyError(error);
       setError(errorMessage);

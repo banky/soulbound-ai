@@ -137,12 +137,26 @@ export const postImageModel = async (): Promise<ImageModel> => {
 };
 
 /**
- * Upload images for training an ImageModel
+ * Update the image model after uploading all images
+ * @returns
+ */
+export const putImageModel = async (): Promise<ImageModel> => {
+  const res = await fetchAndThrow("/api/image-model", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return res.json();
+};
+
+/**
+ * Upload image for training an ImageModel
  * @param formData
  * @returns
  */
-export const uploadImages = async (formData: FormData): Promise<void> => {
-  const res = await fetchAndThrow("/api/upload-images", {
+export const uploadImage = async (formData: FormData): Promise<void> => {
+  const res = await fetchAndThrow("/api/upload-image", {
     method: "POST",
     body: formData,
   });

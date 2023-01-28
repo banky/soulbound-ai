@@ -24,6 +24,7 @@ model ImageModel {
   state     ImageModelState
   s3Urls    String[]
   modelId   String?         @unique
+  batchId   String
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
 }

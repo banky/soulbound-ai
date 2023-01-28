@@ -1,5 +1,9 @@
 {
   "extends": "next/core-web-vitals",
+  "rules": {
+    "no-console": "error",
+    "no-unused-vars": "error"
+  },
   "overrides": [
     {
       "files": ["*.tsx"],
