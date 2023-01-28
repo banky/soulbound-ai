@@ -13,7 +13,7 @@ const mockImageUrls = [
   "https://mock.image.com/2.jpg",
 ];
 
-describe("/api/token", () => {
+describe("/api/orders", () => {
   describe("GET", () => {
     let req: MockRequest<NextApiRequest>;
     let res: MockResponse<NextApiResponse<any>>;

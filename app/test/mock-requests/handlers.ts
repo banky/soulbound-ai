@@ -2,9 +2,13 @@ import { rest } from "msw";
 import * as fs from "fs";
 import * as path from "path";
 import orderResponseFixture from "fixtures/order-response.json";
+import orderEstimateFixture from "fixtures/order-estimate.json";
+import orderGenerateFixture from "fixtures/order-generate.json";
+
+const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
 export const handlers = [
-  rest.get("https://mock.image.com/:imageId", (req, res, ctx) => {
+  rest.get("https://mock.image.com/:imageId", (_req, res, ctx) => {
     const imageBuffer = fs.readFileSync(
       path.resolve(__dirname, "../../fixtures/1.jpg")
     );
@@ -18,7 +22,7 @@ export const handlers = [
   rest.get(
     "https://api.neural.love/v1/ai-art/orders/:orderId",
     (req, res, ctx) => {
-      const fixture = orderResponseFixture;
+      const fixture = deepCopy(orderResponseFixture);
       const orderId = req.params.orderId;
 
       if (orderId === "mock-pending-order-id") {
@@ -36,6 +40,46 @@ export const handlers = [
         return res(
           ctx.set("Content-Type", "application/json"),
           ctx.body(JSON.stringify(fixture))
+        );
+      }
+
+      return res(
+        ctx.set("Content-Type", "application/json"),
+        ctx.body(JSON.stringify(fixture))
+      );
+    }
+  ),
+  rest.post(
+    "https://api.neural.love/v1/ai-art/estimate",
+    async (req, res, ctx) => {
+      const { customModelId } = await req.json();
+      const fixture = deepCopy(orderEstimateFixture);
+
+      if (customModelId === "mock-model-id-with-cost") {
+        fixture.price.amount = "10";
+        return res(
+          ctx.set("Content-Type", "application/json"),
+          ctx.body(JSON.stringify(fixture))
+        );
+      }
+
+      return res(
+        ctx.set("Content-Type", "application/json"),
+        ctx.body(JSON.stringify(fixture))
+      );
+    }
+  ),
+  rest.post(
+    "https://api.neural.love/v1/ai-art/generate",
+    async (req, res, ctx) => {
+      const { customModelId } = await req.json();
+      const fixture = deepCopy(orderGenerateFixture);
+
+      if (customModelId === "mock-model-id-that-fails") {
+        return res(
+          ctx.set("Content-Type", "application/json"),
+          ctx.status(500),
+          ctx.body(JSON.stringify({ status: "fail" }))
         );
       }
 

@@ -70,13 +70,28 @@ const postGenerateImages = async (
     });
   }
 
+  if (imageModel.state !== "READY") {
+    return res.status(500).json({
+      message: "Image model is not ready",
+    });
+  }
+
   const { modelId } = imageModel;
-  const { orderId } = await generateImages(prompt, modelId);
+
+  let orderId: string;
+  try {
+    const generated = await generateImages(prompt, modelId);
+    orderId = generated.orderId;
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to generate images",
+    });
+  }
 
   const order = await prisma.order.create({
     data: {
       owner: address,
-      orderId: orderId,
+      orderId,
       imageUrls: [],
       prompt,
       ready: false,
@@ -92,7 +107,12 @@ const postGenerateImages = async (
  * @param modelId
  * @returns
  */
-const generateImages = async (prompt: string, modelId: string) => {
+const generateImages = async (
+  prompt: string,
+  modelId: string
+): Promise<{
+  orderId: string;
+}> => {
   const generateBody = {
     method: "POST",
     headers: {
@@ -115,6 +135,7 @@ const generateImages = async (prompt: string, modelId: string) => {
   );
 
   const { price } = await estimateImageGenerationResponse.json();
+
   if (price.amount !== "0") {
     // Don't want to generate images if it starts costing more money
     throw new Error("Cannot generate image");
