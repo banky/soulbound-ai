@@ -3,7 +3,7 @@ import {
   getImageModel,
   postImageModel,
   postTrainModel,
-  uploadImages,
+  putImageModel,
 } from "helpers/api-calls";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { Descriptor } from "types/descriptor";
@@ -48,7 +48,7 @@ export const useImageModel = () => {
     },
   });
 
-  const uploadImagesMutation = useMutation(uploadImages, {
+  const putImageModelMutation = useMutation(putImageModel, {
     onSuccess: () => {
       queryClient.invalidateQueries("imageModel");
     },
@@ -64,8 +64,7 @@ export const useImageModel = () => {
     imageModel: query.data,
     loading: query.isLoading,
     postImageModel: () => postImageModelMutation.mutateAsync(),
-    uploadImages: (formData: FormData) =>
-      uploadImagesMutation.mutateAsync(formData),
+    putImageModel: () => putImageModelMutation.mutateAsync(),
     trainModel: (descriptor: Descriptor) =>
       trainModelMutation.mutateAsync(descriptor),
   };
