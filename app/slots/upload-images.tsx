@@ -17,6 +17,7 @@ import {
   MouseEvent,
   useRef,
   useState,
+  Dispatch,
 } from "react";
 import { Arrow } from "svg/arrow";
 import { Delete } from "svg/delete";
@@ -185,7 +186,7 @@ export const UploadImages = () => {
 
 type ImagePreviewProps = {
   files: File[];
-  setFiles: (value: SetStateAction<File[]>) => void;
+  setFiles: Dispatch<SetStateAction<File[]>>;
 };
 
 const ImagePreviews = ({ files, setFiles }: ImagePreviewProps) => {

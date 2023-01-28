@@ -1,20 +1,20 @@
 {
   "manifestVersion": "3.2",
   "admin": {
-    "address": "0x5F4B6368Cec7eEE80054C2666eF5660eC2Ca51c7",
-    "txHash": "0xb0a1d506684e5d9b9e36b476b907373785ef9ea22955c2a345c42a0c93edd96e"
+    "address": "0x496Ca8D4A7f74A03696F56A0Bacc1b7c9E2E4BaB",
+    "txHash": "0xf5d91f2f7b5d87e66a17d8b77b6f3a25243cadef2097e88f4336c3476afdd1fc"
   },
   "proxies": [
     {
-      "address": "0x1346E9a12b35c25CD2599661Ed162407Be096Cd4",
-      "txHash": "0x5c1b1d5770f551257dc7e953fdf6aefa9f116d0d7fcaae533821f634acf10ad6",
+      "address": "0xCEA7f4Aea20f18b5381b3ffDa9d49c8f5050E1F0",
+      "txHash": "0xd4d5930b6ea41ca2694b2ad9c64d0bbd98202310c83d6bb4cfc35a73079d5d49",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "c0eae5a51fa1fd1a94eab04d4451262e8b05da6376aa5b992fc198b12a8156bc": {
-      "address": "0x49a16ea55c12ae57B6dAfB572a8a8178F51963e1",
-      "txHash": "0x75a6da6044fc4b0a948dfb845aa943cb66c58e716761548e9591b6770c09cedd",
+    "230ab0446ceafba3e0bc78f8e10533584a50f7320ca548e4d849021346abe620": {
+      "address": "0x57365cAf1529eB6152E33E82a384C3d5f97336de",
+      "txHash": "0xeed9fa4d84cfae2a3563983179ec08df5899945b298cfba9e72de9526bb143bf",
       "layout": {
         "solcVersion": "0.8.17",
         "storage": [
@@ -164,12 +164,12 @@
             "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
           },
           {
-            "label": "_tokenIdCounter",
+            "label": "tokenIdCounter",
             "offset": 0,
             "slot": "251",
             "type": "t_struct(Counter)3264_storage",
             "contract": "SoulboundAI",
-            "src": "src/SoulboundAI.sol:13"
+            "src": "src/SoulboundAI.sol:12"
           },
           {
             "label": "fee",
@@ -177,7 +177,7 @@
             "slot": "252",
             "type": "t_uint256",
             "contract": "SoulboundAI",
-            "src": "src/SoulboundAI.sol:15"
+            "src": "src/SoulboundAI.sol:14"
           },
           {
             "label": "referralPercentage",
@@ -185,15 +185,23 @@
             "slot": "253",
             "type": "t_uint256",
             "contract": "SoulboundAI",
-            "src": "src/SoulboundAI.sol:16"
+            "src": "src/SoulboundAI.sol:15"
+          },
+          {
+            "label": "whitelistPeriod",
+            "offset": 0,
+            "slot": "254",
+            "type": "t_bool",
+            "contract": "SoulboundAI",
+            "src": "src/SoulboundAI.sol:18"
           },
           {
             "label": "whitelist",
             "offset": 0,
-            "slot": "254",
+            "slot": "255",
             "type": "t_mapping(t_address,t_bool)",
             "contract": "SoulboundAI",
-            "src": "src/SoulboundAI.sol:17"
+            "src": "src/SoulboundAI.sol:19"
           }
         ],
         "types": {
