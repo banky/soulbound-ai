@@ -22,7 +22,7 @@ const imageModel: ImageModel = {
   updatedAt: new Date(),
 };
 
-describe("/api/image-model", () => {
+describe("/api/train-model", () => {
   describe("POST", () => {
     let req: MockRequest<NextApiRequest>;
     let res: MockResponse<NextApiResponse<any>>;
