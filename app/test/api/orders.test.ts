@@ -184,7 +184,7 @@ describe("/api/orders", () => {
       });
     });
 
-    it.only("updates the order with the correct data for a failed order", async () => {
+    it("updates the order with the correct data for a failed order", async () => {
       const pastTime = new Date();
       pastTime.setHours(pastTime.getHours() - 1);
 

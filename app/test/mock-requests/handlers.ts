@@ -4,6 +4,7 @@ import * as path from "path";
 import orderResponseFixture from "fixtures/order-response.json";
 import orderEstimateFixture from "fixtures/order-estimate.json";
 import orderGenerateFixture from "fixtures/order-generate.json";
+import trainingStatusFixture from "fixtures/training-status.json";
 
 const deepCopy = (obj: any) => JSON.parse(JSON.stringify(obj));
 
@@ -80,6 +81,26 @@ export const handlers = [
           ctx.set("Content-Type", "application/json"),
           ctx.status(500),
           ctx.body(JSON.stringify({ status: "fail" }))
+        );
+      }
+
+      return res(
+        ctx.set("Content-Type", "application/json"),
+        ctx.body(JSON.stringify(fixture))
+      );
+    }
+  ),
+  rest.get(
+    "https://api.neural.love/v1/ai-art/custom-model/models/:modelId",
+    async (req, res, ctx) => {
+      const modelId = req.params.modelId;
+      const fixture = deepCopy(trainingStatusFixture);
+
+      if (modelId === "mock-model-id-still-training") {
+        fixture.status.code = 50;
+        return res(
+          ctx.set("Content-Type", "application/json"),
+          ctx.body(JSON.stringify(fixture))
         );
       }
 
