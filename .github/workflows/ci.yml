@@ -13,9 +13,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - run: npm ci
-      - run: npm test
+          node-version: 18
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
 
   app:
     runs-on: ubuntu-latest
@@ -27,6 +27,6 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
-      - run: npm ci --force
-      - run: npm test
+          node-version: 18
+      - run: yarn install --frozen-lockfile
+      - run: yarn test

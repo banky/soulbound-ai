@@ -1,4 +1,4 @@
-import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from "constants/image-upload";
+import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from "constant/image-upload";
 import { File as FormidableFile } from "formidable";
 
 export const validFileType = (file: File) =>

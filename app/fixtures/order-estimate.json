@@ -1,0 +1,15 @@
+{
+  "price": {
+    "amount": "0",
+    "currency": "CREDIT"
+  },
+  "details": {
+    "amount": 0,
+    "hd": 0,
+    "image_prompt": 0,
+    "private": 0,
+    "steps": 0,
+    "custom_model": 0,
+    "priority": 0
+  }
+}

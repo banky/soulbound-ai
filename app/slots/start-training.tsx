@@ -2,7 +2,7 @@ import { ActiveButton } from "components/active-button";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
 import { useState } from "react";
-import { Descriptor } from "types/descriptor";
+import { Descriptor, descriptors } from "types/descriptor";
 
 export const StartTraining = () => {
   const [descriptor, setDescriptor] = useState<Descriptor>("woman");
@@ -38,9 +38,11 @@ export const StartTraining = () => {
           value={descriptor}
           onChange={(e) => setDescriptor(e.target.value as Descriptor)}
         >
-          <option value="woman">woman</option>
-          <option value="man">man</option>
-          <option value="other">other</option>
+          {descriptors.map((descriptor) => (
+            <option key={descriptor} value={descriptor}>
+              {descriptor}
+            </option>
+          ))}
         </select>
       </div>
 

@@ -2,8 +2,9 @@ import { randomUUID } from "crypto";
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { unstable_getServerSession } from "next-auth";
-import prisma from "db/prisma-client";
+import prisma from "clients/prisma";
 import { authOptions, Session } from "./auth/[...nextauth]";
+import { Descriptor, descriptors } from "types/descriptor";
 
 export default async function handler(
   req: NextApiRequest,
@@ -46,7 +47,10 @@ const postTrainModel = async (
 
   const { descriptor } = req.body;
 
-  if (typeof descriptor !== "string") {
+  if (
+    typeof descriptor !== "string" ||
+    !descriptors.includes(descriptor as Descriptor)
+  ) {
     return res.status(401).json({
       message:
         "Need to provide a descriptor for the images. Options are man, woman, other",
@@ -69,6 +73,7 @@ const postTrainModel = async (
 
   const { s3Urls } = imageModel;
   const name = randomUUID();
+
   const { orderId } = await trainModel(s3Urls, name, descriptor);
 
   await prisma.imageModel.update({

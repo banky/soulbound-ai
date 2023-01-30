@@ -1,0 +1,100 @@
+{
+  "id": "1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14a",
+  "type": "ai-photostock",
+  "name": "Portrait art of @object, closeup, male | painted by Miles Aldridge",
+  "slug": "portrait-art-of-atobject-closeup-male-painted-by-miles-aldridge",
+  "dateCreated": 1674512488,
+  "sortBy": "2023-01-23T22:22:26Z",
+  "status": {
+    "code": 250,
+    "text": "Ready",
+    "level": "success",
+    "isReady": true
+  },
+  "input": {
+    "prompt": "Portrait art of @object, closeup, male | painted by Miles Aldridge",
+    "style": "anything",
+    "layout": "square",
+    "sampler": "ddim",
+    "cfgScale": 7.5,
+    "modelVersion": "sd-1.5",
+    "amount": 4,
+    "isPublic": false,
+    "isPriority": true,
+    "hasImage": false,
+    "isHd": false,
+    "negativePrompt": "bad art, strange colors, sketch, lacklustre, repetitive, cropped, lowres, old, deformed, childrish, ugly, duplicate, morbid, mutilated, out of frame, extra fingers, mutated hands, poorly drawn hands, poorly drawn face, mutation, deformed, blurry, bad anatomy, bad proportions, extra limbs, cloned face, disfigured, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated hands, long neck, bad composition, compressed, low quality, text, watermark, cropped, worst quality, jpeg artifacts, signature, asymmetrical eyes, split images",
+    "augmentedPrompt": "Portrait art of @object, closeup, male | painted by Miles Aldridge",
+    "steps": 25,
+    "seed": 330911845,
+    "customModelId": "1ed9aa29-9bb8-6620-aae4-69e4ea551a86",
+    "customModelName": "banky-test"
+  },
+  "output": [
+    {
+      "id": "0",
+      "type": 4,
+      "isNsfw": false,
+      "caption": "a close up of a man's face with a beard",
+      "full": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "preview": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "style": ""
+    },
+    {
+      "id": "1",
+      "type": 4,
+      "isNsfw": false,
+      "caption": "a painting of a man in a white shirt",
+      "full": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "preview": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "style": ""
+    },
+    {
+      "id": "2",
+      "type": 4,
+      "isNsfw": false,
+      "caption": "a painting of a man in a polo shirt",
+      "full": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "preview": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "style": ""
+    },
+    {
+      "id": "3",
+      "type": 4,
+      "isNsfw": false,
+      "caption": "a painting of a man with a bald head",
+      "full": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "preview": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "style": ""
+    }
+  ],
+  "rating": {
+    "total": 0
+  },
+  "thumbnails": [
+    {
+      "url": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "outputItemId": "0",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "url": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "outputItemId": "1",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "url": "https://neural.love/cdn/ai-photostock/1ed9b6c4-80e5-6fc6-8514-45dfcdd2f14f/0.jpg",
+      "outputItemId": "2",
+      "width": 512,
+      "height": 512
+    }
+  ],
+  "availabilityStatus": 1,
+  "availableUntil": 4798650088,
+  "access": {
+    "canRemove": true,
+    "canFeedback": true
+  }
+}

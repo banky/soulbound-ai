@@ -1,6 +1,6 @@
-import { ORDER_REFETCH_INTERVAL } from "constants/refetch-interval";
+import { ORDER_REFETCH_INTERVAL } from "constant/refetch-interval";
 import { NextApiRequest, NextApiResponse } from "next";
-import prisma from "db/prisma-client";
+import prisma from "clients/prisma";
 
 export default async function handler(
   req: NextApiRequest,
@@ -20,7 +20,7 @@ const getOrders = async (req: NextApiRequest, res: NextApiResponse<any>) => {
   const { address } = req.query;
 
   if (typeof address !== "string") {
-    return res.status(401).json({
+    return res.status(400).json({
       message: "Invalid address for orders",
     });
   }

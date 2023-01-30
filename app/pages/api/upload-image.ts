@@ -4,12 +4,12 @@ import { unstable_getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
 import fs from "fs";
-import { ALLOWED_FILE_EXTENSIONS, MAX_FILE_SIZE } from "constants/image-upload";
+import { ALLOWED_FILE_EXTENSIONS, MAX_FILE_SIZE } from "constant/image-upload";
 import {
   validFormidableFileSize,
   validFormidableFileType,
 } from "helpers/file-list";
-import prisma from "db/prisma-client";
+import prisma from "clients/prisma";
 
 export const config = {
   api: {

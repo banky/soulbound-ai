@@ -46,3 +46,16 @@ enum ImageModelState {
   IS_TRAINING
   READY
 }
+
+model StockPrompt {
+  id             Int              @id @default(autoincrement())
+  prompt         String
+  negativePrompt String
+  class          StockPromptClass
+}
+
+enum StockPromptClass {
+  MAN
+  WOMAN
+  OTHER
+}

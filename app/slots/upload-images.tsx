@@ -5,7 +5,7 @@ import {
   MAX_FILES,
   MAX_FILE_SIZE,
   MIN_FILES,
-} from "constants/image-upload";
+} from "constant/image-upload";
 import { uploadImage } from "helpers/api-calls";
 import { uniqueFile, validFileSize, validFileType } from "helpers/file-list";
 import { stringifyError } from "helpers/stringify-error";
