@@ -14,8 +14,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm ci
-      - run: npm test
+      - run: yarn install --frozen-lockfile
+      - run: yarn test
 
   app:
     runs-on: ubuntu-latest
@@ -28,5 +28,5 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18
-      - run: npm ci --force
-      - run: npm test
+      - run: yarn install --frozen-lockfile
+      - run: yarn test

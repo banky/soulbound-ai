@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npx hardhat compile",
-    "test": "npx hardhat test"
+    "build": "yarn hardhat compile",
+    "test": "yarn hardhat test"
   },
   "author": "",
   "license": "ISC",

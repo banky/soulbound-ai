@@ -8,10 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "migrate": "npx prisma migrate deploy",
-    "postinstall": "npx prisma generate && npm run generate-contract-artifacts",
-    "vercel-build": "npm run migrate && next build",
-    "generate-contract-artifacts": "cd ../contracts && npm install && npm run build && cd ../app"
+    "migrate": "yarn prisma migrate deploy",
+    "postinstall": "yarn prisma generate && yarn generate-contract-artifacts",
+    "vercel-build": "yarn run migrate && next build",
+    "generate-contract-artifacts": "cd ../contracts && yarn install --frozen-lockfile && yarn build && cd ../app"
   },
   "dependencies": {
     "@next/font": "13.1.0",
