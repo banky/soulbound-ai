@@ -1,7 +1,7 @@
 import { IMAGE_MODEL_REFETCH_INTERVAL } from "constant/refetch-interval";
 import { addressHasSBT } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import prisma from "clients/prisma";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { randomUUID } from "crypto";
@@ -39,11 +39,7 @@ const postImageModel = async (
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) => {
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
+  const session = await getServerSession<any, Session>(req, res, authOptions);
 
   if (session == null) {
     return res
@@ -72,11 +68,7 @@ const putImageModel = async (
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) => {
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
+  const session = await getServerSession<any, Session>(req, res, authOptions);
 
   if (session == null) {
     return res

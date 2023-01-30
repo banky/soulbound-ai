@@ -1,7 +1,7 @@
 import { addressHasSBT, tokenIdForAddress } from "helpers/contract-reads";
 import { NextApiRequest, NextApiResponse } from "next";
 import { randomUUID } from "crypto";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import prisma from "clients/prisma";
 import supabase from "clients/supabase";
@@ -29,11 +29,7 @@ export default async function handler(
 }
 
 const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
+  const session = await getServerSession<any, Session>(req, res, authOptions);
 
   if (session == null) {
     return res
@@ -125,11 +121,7 @@ const getToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
 };
 
 const deleteToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
+  const session = await getServerSession<any, Session>(req, res, authOptions);
 
   if (session == null) {
     return res

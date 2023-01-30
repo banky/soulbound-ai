@@ -33,14 +33,14 @@ describe("/api/generate-images", () => {
       req = _req;
       res = _res;
 
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
     });
 
     it("returns unauthorized if the user is not logged in", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue(null);
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue(null);
 
       await handler(req, res);
 
@@ -51,7 +51,7 @@ describe("/api/generate-images", () => {
     });
 
     it("returns unauthorized if the user doesn't have an SBT minted", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(false);
@@ -65,7 +65,7 @@ describe("/api/generate-images", () => {
     });
 
     it("returns 400 if the prompt isn't a string", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
@@ -81,7 +81,7 @@ describe("/api/generate-images", () => {
     });
 
     it("returns 400 if the prompt isn't a string", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);

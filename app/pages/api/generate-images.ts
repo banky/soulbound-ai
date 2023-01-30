@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { addressHasSBT } from "helpers/contract-reads";
 import { authOptions, Session } from "./auth/[...nextauth]";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import prisma from "clients/prisma";
 
 export default async function handler(
@@ -22,11 +22,7 @@ const postGenerateImages = async (
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) => {
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
+  const session = await getServerSession<any, Session>(req, res, authOptions);
 
   if (session == null) {
     return res

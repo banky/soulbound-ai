@@ -60,7 +60,7 @@ describe("/api/token", () => {
     });
 
     it("returns unauthorized if the user is not logged in", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue(null);
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue(null);
 
       await handler(req, res);
 
@@ -71,7 +71,7 @@ describe("/api/token", () => {
     });
 
     it("returns unauthorized if the user doesn't have an SBT minted", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(false);
@@ -85,7 +85,7 @@ describe("/api/token", () => {
     });
 
     it("returns 400 if the request body is not correct", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
@@ -101,7 +101,7 @@ describe("/api/token", () => {
     });
 
     it("returns 404 if the orderId is not found", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
@@ -117,7 +117,7 @@ describe("/api/token", () => {
     });
 
     it("fetch image from imageUrl, upload to supabase, create token", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
@@ -222,7 +222,7 @@ describe("/api/token", () => {
     });
 
     it("returns unauthorized if the user is not logged in", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue(null);
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue(null);
 
       await handler(req, res);
 
@@ -233,7 +233,7 @@ describe("/api/token", () => {
     });
 
     it("returns unauthorized if the user still has an SBT", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
@@ -247,7 +247,7 @@ describe("/api/token", () => {
     });
 
     it("returns 404 if the imagePath isn't defined", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(false);
@@ -261,7 +261,7 @@ describe("/api/token", () => {
     });
 
     it("deletes the token, imageModel and order", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(false);
@@ -283,7 +283,7 @@ describe("/api/token", () => {
     });
 
     it("returns 500 if there was an error removing image from supabase", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(false);

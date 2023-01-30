@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { IncomingForm, Files, File } from "formidable";
-import { unstable_getServerSession } from "next-auth";
+import { getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
 import fs from "fs";
@@ -35,11 +35,7 @@ const postUploadImage = async (
   req: NextApiRequest,
   res: NextApiResponse<any>
 ) => {
-  const session = await unstable_getServerSession<any, Session>(
-    req,
-    res,
-    authOptions
-  );
+  const session = await getServerSession<any, Session>(req, res, authOptions);
 
   if (session == null) {
     return res

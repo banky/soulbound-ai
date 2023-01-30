@@ -44,14 +44,14 @@ describe("/api/image-model", () => {
       req = _req;
       res = _res;
 
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
     });
 
     it("returns unauthorized if the user is not logged in", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue(null);
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue(null);
 
       await handler(req, res);
 
@@ -62,7 +62,7 @@ describe("/api/image-model", () => {
     });
 
     it("returns unauthorized if the user doesn't have an SBT minted", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(false);
@@ -108,14 +108,14 @@ describe("/api/image-model", () => {
       req = _req;
       res = _res;
 
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
     });
 
     it("returns unauthorized if the user is not logged in", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue(null);
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue(null);
 
       await handler(req, res);
 
@@ -126,7 +126,7 @@ describe("/api/image-model", () => {
     });
 
     it("returns unauthorized if the user doesn't have an SBT minted", async () => {
-      vi.spyOn(NextAuth, "unstable_getServerSession").mockResolvedValue({
+      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
       vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(false);
