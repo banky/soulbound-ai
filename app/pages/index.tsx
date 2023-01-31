@@ -80,12 +80,8 @@ const Home = ({ referrer }: HomeProps) => {
         return <SelectImage />;
 
       case AppState.Loading:
-        return <Loading />;
-
       default:
-        return (
-          <div className="text-center">An error occured. Unknown state :(</div>
-        );
+        return <Loading />;
     }
   };
 

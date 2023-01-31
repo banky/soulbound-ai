@@ -1,12 +1,12 @@
-import { getCsrfToken, signIn, useSession, signOut } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { getCsrfToken, signIn, useSession } from "next-auth/react";
+import { useState } from "react";
 import { SiweMessage } from "siwe";
 import { useAccount, useNetwork, useSignMessage } from "wagmi";
 import { Button } from "components/button";
 
 export const SignIn = () => {
   const { status } = useSession();
-  const { address, isDisconnected } = useAccount();
+  const { address } = useAccount();
   const { chain } = useNetwork();
   const { signMessageAsync } = useSignMessage();
   const [loading, setLoading] = useState(false);
@@ -38,9 +38,9 @@ export const SignIn = () => {
     setLoading(false);
   };
 
-  if (status === "loading" || loading) {
-    return <Button disabled>Loading</Button>;
-  }
-
-  return <Button onClick={onClickSignIn}>Sign in with Ethereum</Button>;
+  return (
+    <Button loading={status === "loading" || loading} onClick={onClickSignIn}>
+      Sign in with Ethereum
+    </Button>
+  );
 };
