@@ -47,6 +47,22 @@ export const generateImages = async (prompt: string): Promise<Order> => {
 };
 
 /**
+ * Generate random images images for a user that has minted a SBT
+ * @param prompt
+ * @returns
+ */
+export const generateRandomImages = async (): Promise<Order> => {
+  const response = await fetchAndThrow("/api/generate-images", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const parsedResponse = await response.json();
+  return parsedResponse;
+};
+
+/**
  * Get a Token belonging to a given address. Returns null if it doesn't exist
  * @param address
  * @returns

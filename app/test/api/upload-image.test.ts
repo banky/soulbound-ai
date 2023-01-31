@@ -11,7 +11,7 @@ vi.mock("helpers/contract-reads");
 
 const mockAddress = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
-describe("/api/train-model", () => {
+describe("/api/upload-image", () => {
   describe("POST", () => {
     let req: MockRequest<NextApiRequest>;
     let res: MockResponse<NextApiResponse<any>>;

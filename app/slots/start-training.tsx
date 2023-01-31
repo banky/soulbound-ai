@@ -1,4 +1,4 @@
-import { ActiveButton } from "components/active-button";
+import { ButtonWithError } from "components/button-with-error";
 import { stringifyError } from "helpers/stringify-error";
 import { useImageModel } from "hooks/use-image-model";
 import { useState } from "react";
@@ -46,9 +46,13 @@ export const StartTraining = () => {
         </select>
       </div>
 
-      <ActiveButton loading={loading} error={error} onClick={() => onSubmit()}>
+      <ButtonWithError
+        loading={loading}
+        error={error}
+        onClick={() => onSubmit()}
+      >
         Train Model
-      </ActiveButton>
+      </ButtonWithError>
     </div>
   );
 };

@@ -1,9 +1,11 @@
 import { Order } from "@prisma/client";
-import { ActiveButton } from "components/active-button";
+import { ButtonWithError } from "components/button-with-error";
+import { Button } from "components/button";
+import { SecondaryButton } from "components/secondary-button";
 import { stringifyError } from "helpers/stringify-error";
 import { useOrders } from "hooks/use-orders";
 import { useToken } from "hooks/use-token";
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Error } from "svg/error";
 
 type SelectedImage = {
@@ -12,29 +14,13 @@ type SelectedImage = {
 };
 
 export const SelectImage = () => {
-  const [generateImageLoading, setGenerateImageLoading] = useState(false);
   const [confirmImageLoading, setConfirmImageLoading] = useState(false);
-  const [generateImageError, setGenerateImageError] = useState("");
   const [confirmImageError, setConfirmImageError] = useState("");
-  const { orders, generateImages } = useOrders();
+
+  const { orders } = useOrders();
   const { updateTokenImage } = useToken();
   const [prompt, setPrompt] = useState("");
   const [selectedImage, setSelectedImage] = useState<SelectedImage>();
-
-  const onClickGenerate = async () => {
-    setGenerateImageLoading(true);
-    setGenerateImageError("");
-
-    try {
-      await generateImages(prompt);
-      setPrompt("");
-    } catch (error) {
-      const errorMessage = stringifyError(error);
-      setGenerateImageError(errorMessage);
-    }
-
-    setGenerateImageLoading(false);
-  };
 
   const onSelectImage = (orderId: string, imageIndex: number) => {
     setSelectedImage({ orderId, imageIndex });
@@ -72,14 +58,7 @@ export const SelectImage = () => {
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Portrait art of @object, closeup, male | painted by Miles Aldridge"
         ></input>
-        <ActiveButton
-          loading={generateImageLoading}
-          error={generateImageError}
-          onClick={() => onClickGenerate()}
-          disabled={prompt.length === 0}
-        >
-          Generate
-        </ActiveButton>
+        <GenerateImageButtons prompt={prompt} setPrompt={setPrompt} />
       </div>
 
       {orders.map((order) => (
@@ -92,14 +71,14 @@ export const SelectImage = () => {
       ))}
 
       {orders.length > 0 ? (
-        <ActiveButton
+        <ButtonWithError
           loading={confirmImageLoading}
           error={confirmImageError}
           onClick={() => onClickConfirm()}
           disabled={selectedImage === undefined}
         >
           Confirm
-        </ActiveButton>
+        </ButtonWithError>
       ) : null}
     </>
   );
@@ -191,5 +170,72 @@ const LoadingImage = () => {
         before:border-t before:border-rose-100/10
         w-64 aspect-square rounded-lg"
     ></div>
+  );
+};
+
+type GenerateImageButtonsProps = {
+  prompt: string;
+  setPrompt: Dispatch<SetStateAction<string>>;
+};
+
+const GenerateImageButtons = ({
+  prompt,
+  setPrompt,
+}: GenerateImageButtonsProps) => {
+  const [generateImageLoading, setGenerateImageLoading] = useState(false);
+  const [generateRandomLoading, setGenerateRandomLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const { generateImages, generateRandomImages } = useOrders();
+
+  const onClickGenerate = async () => {
+    setGenerateImageLoading(true);
+    setError("");
+
+    try {
+      await generateImages(prompt);
+      setPrompt("");
+    } catch (error) {
+      const errorMessage = stringifyError(error);
+      setError(errorMessage);
+    }
+
+    setGenerateImageLoading(false);
+  };
+
+  const onClickGenerateRandom = async () => {
+    setGenerateRandomLoading(true);
+    setError("");
+
+    try {
+      await generateRandomImages();
+    } catch (error) {
+      const errorMessage = stringifyError(error);
+      setError(errorMessage);
+    }
+
+    setGenerateRandomLoading(false);
+  };
+
+  return (
+    <>
+      <div className="flex gap-8 w-fit mx-auto">
+        <Button
+          loading={generateImageLoading}
+          onClick={() => onClickGenerate()}
+        >
+          Generate
+        </Button>
+        <SecondaryButton
+          loading={generateRandomLoading}
+          onClick={() => onClickGenerateRandom()}
+        >
+          Randomize
+        </SecondaryButton>
+      </div>
+      {error !== "" ? (
+        <p className="text-red-500 text-center mt-4">{error}</p>
+      ) : null}
+    </>
   );
 };

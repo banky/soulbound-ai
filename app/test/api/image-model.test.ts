@@ -22,6 +22,7 @@ const imageModel: ImageModel = {
   state: "NEEDS_IMAGES",
   createdAt: new Date(),
   updatedAt: new Date(),
+  descriptor: null,
 };
 
 describe("/api/image-model", () => {

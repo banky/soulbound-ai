@@ -20,13 +20,14 @@ model Token {
 }
 
 model ImageModel {
-  owner     String          @id
-  state     ImageModelState
-  s3Urls    String[]
-  modelId   String?         @unique
-  batchId   String
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
+  owner      String          @id
+  state      ImageModelState
+  s3Urls     String[]
+  modelId    String?         @unique
+  batchId    String
+  descriptor String?
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
 }
 
 model Order {

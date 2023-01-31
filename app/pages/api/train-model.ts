@@ -77,6 +77,7 @@ const postTrainModel = async (
     data: {
       modelId: orderId,
       state: "IS_TRAINING",
+      descriptor,
     },
   });
 

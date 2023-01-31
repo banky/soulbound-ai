@@ -1,5 +1,9 @@
 import { ORDER_REFETCH_INTERVAL } from "constant/refetch-interval";
-import { generateImages, getOrders } from "helpers/api-calls";
+import {
+  generateImages,
+  generateRandomImages,
+  getOrders,
+} from "helpers/api-calls";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useAccount } from "wagmi";
 
@@ -28,9 +32,16 @@ export const useOrders = () => {
     },
   });
 
+  const postGenerateRandomImagesMutation = useMutation(generateRandomImages, {
+    onSuccess: () => {
+      queryClient.invalidateQueries("orders");
+    },
+  });
+
   return {
     orders: query.data ?? [],
     generateImages: (prompt: string) =>
       postGenerateImagesMutation.mutateAsync(prompt),
+    generateRandomImages: () => postGenerateRandomImagesMutation.mutateAsync(),
   };
 };

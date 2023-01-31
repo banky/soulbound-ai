@@ -1,4 +1,4 @@
-import { ActiveButton } from "components/active-button";
+import { ButtonWithError } from "components/button-with-error";
 import { SoulboundAIABI } from "contracts";
 import { BigNumber } from "ethers";
 import { stringifyError } from "helpers/stringify-error";
@@ -67,13 +67,13 @@ export const Burn = ({ onBurn }: BurnProps) => {
       <p className="max-w-3xl">Prompt: {token?.description}</p>
 
       <div className="mb-16">
-        <ActiveButton
+        <ButtonWithError
           loading={loading}
           error={error}
           onClick={() => onClickBurn()}
         >
           Burn
-        </ActiveButton>
+        </ButtonWithError>
       </div>
 
       {referralPercentage.gt(0) ? (

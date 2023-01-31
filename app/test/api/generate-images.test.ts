@@ -5,7 +5,7 @@ import * as NextAuth from "next-auth";
 import * as ContractReads from "helpers/contract-reads";
 import handler from "pages/api/generate-images";
 import prisma from "clients/__mocks__/prisma";
-import { Order } from "@prisma/client";
+import { ImageModel, Order } from "@prisma/client";
 
 vi.mock("clients/prisma");
 vi.mock("next-auth");
@@ -64,23 +64,7 @@ describe("/api/generate-images", () => {
       });
     });
 
-    it("returns 400 if the prompt isn't a string", async () => {
-      vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
-        address: mockAddress,
-      });
-      vi.spyOn(ContractReads, "addressHasSBT").mockResolvedValue(true);
-      req.body = { prompt: 1 };
-
-      await handler(req, res);
-
-      expect(res._getStatusCode()).toBe(400);
-      expect(res._getJSONData()).toEqual({
-        message:
-          "Need to provide a descriptor for the images. Options are man, woman, other",
-      });
-    });
-
-    it("returns 400 if the prompt isn't a string", async () => {
+    it("asks the user for a prompt that includes the @object", async () => {
       vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
@@ -116,6 +100,7 @@ describe("/api/generate-images", () => {
         state: "READY",
         createdAt: new Date(),
         updatedAt: new Date(),
+        descriptor: null,
       });
 
       await handler(req, res);
@@ -135,6 +120,7 @@ describe("/api/generate-images", () => {
         state: "IS_TRAINING",
         createdAt: new Date(),
         updatedAt: new Date(),
+        descriptor: null,
       });
 
       await handler(req, res);
@@ -154,6 +140,7 @@ describe("/api/generate-images", () => {
         state: "READY",
         createdAt: new Date(),
         updatedAt: new Date(),
+        descriptor: null,
       });
 
       await handler(req, res);
@@ -173,6 +160,7 @@ describe("/api/generate-images", () => {
         state: "READY",
         createdAt: new Date(),
         updatedAt: new Date(),
+        descriptor: null,
       });
 
       await handler(req, res);
@@ -192,6 +180,7 @@ describe("/api/generate-images", () => {
         state: "READY",
         createdAt: new Date(),
         updatedAt: new Date(),
+        descriptor: null,
       });
 
       const mockOrder: Order = {
@@ -209,6 +198,58 @@ describe("/api/generate-images", () => {
 
       await handler(req, res);
 
+      expect(res._getStatusCode()).toBe(200);
+      expect(res._getData()).toEqual(JSON.stringify(mockOrder));
+    });
+
+    it("returns an order with a random prompt if no prompt is given", async () => {
+      prisma.imageModel.findUnique.mockResolvedValue({
+        batchId: "mock-batch-id",
+        modelId: "mock-model-id",
+        owner: mockAddress,
+        s3Urls: [],
+        state: "READY",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        descriptor: "man",
+      });
+
+      prisma.stockPrompt.findMany.mockResolvedValue([
+        {
+          class: "MAN",
+          id: 1,
+          negativePrompt: "real life photo, 3D graphic, photo, realism	",
+          prompt:
+            "Painting of @object, from the Legend of Zelda by Leonardo da Vinci, Nintendo, Deviantart, Artstation, Breath of the Wild, blonde hair, blue eyes, Tr",
+        },
+      ]);
+
+      const mockOrder: Order = {
+        ready: false,
+        error: false,
+        imageUrls: [],
+        owner: mockAddress,
+        orderId: "1ed9f57d-2bd1-6ef2-93ae-83bd031b9040",
+        prompt:
+          "Painting of @object, from the Legend of Zelda by Leonardo da Vinci, Nintendo, Deviantart, Artstation, Breath of the Wild, blonde hair, blue eyes, Tr",
+        updatedAt: new Date(),
+        createdAt: new Date(),
+      };
+      prisma.order.create.mockResolvedValue(mockOrder);
+
+      req.body.prompt = undefined;
+      await handler(req, res);
+
+      expect(prisma.order.create).to.toHaveBeenCalledWith({
+        data: {
+          owner: mockAddress,
+          orderId: "1ed9f57d-2bd1-6ef2-93ae-83bd031b9040",
+          imageUrls: [],
+          prompt:
+            "Painting of @object, from the Legend of Zelda by Leonardo da Vinci, Nintendo, Deviantart, Artstation, Breath of the Wild, blonde hair, blue eyes, Tr",
+          ready: false,
+        },
+      });
       expect(res._getStatusCode()).toBe(200);
       expect(res._getData()).toEqual(JSON.stringify(mockOrder));
     });

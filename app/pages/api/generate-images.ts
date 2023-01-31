@@ -3,6 +3,7 @@ import { addressHasSBT } from "helpers/contract-reads";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import prisma from "clients/prisma";
+import { StockPromptClass } from "@prisma/client";
 
 export default async function handler(
   req: NextApiRequest,
@@ -38,14 +39,7 @@ const postGenerateImages = async (
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
-  const { prompt } = req.body;
-
-  if (typeof prompt !== "string") {
-    return res.status(400).json({
-      message:
-        "Need to provide a descriptor for the images. Options are man, woman, other",
-    });
-  }
+  const { prompt, negativePrompt } = await getPrompt(req, address);
 
   if (!prompt.includes("@object")) {
     return res.status(400).json({
@@ -76,7 +70,7 @@ const postGenerateImages = async (
 
   let orderId: string;
   try {
-    const generated = await generateImages(prompt, modelId);
+    const generated = await generateImages(modelId, prompt, negativePrompt);
     orderId = generated.orderId;
   } catch (error) {
     return res.status(500).json({
@@ -104,8 +98,9 @@ const postGenerateImages = async (
  * @returns
  */
 const generateImages = async (
+  modelId: string,
   prompt: string,
-  modelId: string
+  negativePrompt?: string
 ): Promise<{
   orderId: string;
 }> => {
@@ -118,6 +113,7 @@ const generateImages = async (
     },
     body: JSON.stringify({
       prompt,
+      negativePrompt,
       style: "anything",
       layout: "square",
       amount: 4,
@@ -149,4 +145,42 @@ const generateImages = async (
   }
 
   return result;
+};
+
+const getPrompt = async (
+  req: NextApiRequest,
+  owner: string
+): Promise<{
+  prompt: string;
+  negativePrompt?: string;
+}> => {
+  if (typeof req.body.prompt === "string") {
+    return { prompt: req.body.prompt };
+  }
+
+  const imageModel = await prisma.imageModel.findUnique({
+    where: {
+      owner,
+    },
+  });
+
+  if (imageModel == null) {
+    throw new Error("Image model not found");
+  }
+
+  const { descriptor } = imageModel;
+
+  if (descriptor == null) {
+    throw new Error("Image model descriptor not found");
+  }
+
+  const stockPrompts = await prisma.stockPrompt.findMany({
+    where: {
+      class: descriptor.toUpperCase() as StockPromptClass,
+    },
+  });
+
+  const randomIndex = Math.floor(Math.random() * stockPrompts.length);
+
+  return stockPrompts[randomIndex];
 };

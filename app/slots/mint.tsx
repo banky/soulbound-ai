@@ -8,7 +8,7 @@ import { SoulboundAIABI } from "contracts";
 import { BigNumber, ethers } from "ethers";
 import { useState } from "react";
 import { stringifyError } from "helpers/stringify-error";
-import { ActiveButton } from "components/active-button";
+import { ButtonWithError } from "components/button-with-error";
 
 type MintProps = {
   onMint: () => Promise<void>;
@@ -85,13 +85,13 @@ export const Mint = ({ referrer, onMint }: MintProps) => {
 
   return (
     <div>
-      <ActiveButton
+      <ButtonWithError
         loading={loading || !prepareMintEnabled}
         error={error}
         onClick={() => onClickMint()}
       >
         Mint ({ethers.utils.formatEther(fee ?? "0")} eth)
-      </ActiveButton>
+      </ButtonWithError>
     </div>
   );
 };

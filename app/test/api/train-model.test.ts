@@ -20,6 +20,7 @@ const imageModel: ImageModel = {
   state: "NEEDS_TRAINING",
   createdAt: new Date(),
   updatedAt: new Date(),
+  descriptor: null,
 };
 
 describe("/api/train-model", () => {
@@ -130,6 +131,7 @@ describe("/api/train-model", () => {
         data: {
           modelId: "1ed9aa29-9bb8-6620-aae4-69e4ea551a443",
           state: "IS_TRAINING",
+          descriptor: "man",
         },
       });
       expect(res._getStatusCode()).toBe(200);

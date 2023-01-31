@@ -9,19 +9,7 @@ type ActiveButtonProps = {
   HTMLButtonElement
 >;
 
-export const ActiveButton = ({
-  loading,
-  error,
-  ...props
-}: ActiveButtonProps) => {
-  if (loading) {
-    return (
-      <Button {...props} disabled>
-        Loading
-      </Button>
-    );
-  }
-
+export const ButtonWithError = ({ error, ...props }: ActiveButtonProps) => {
   return (
     <>
       <Button {...props}></Button>

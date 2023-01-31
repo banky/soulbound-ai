@@ -1,4 +1,4 @@
-import { ActiveButton } from "components/active-button";
+import { ButtonWithError } from "components/button-with-error";
 import {
   ALLOWED_FILE_EXTENSIONS,
   ALLOWED_FILE_TYPES,
@@ -170,7 +170,7 @@ export const UploadImages = () => {
           ></div>
         )}
       </div>
-      <ActiveButton
+      <ButtonWithError
         loading={loading}
         error={error}
         type="submit"
@@ -179,7 +179,7 @@ export const UploadImages = () => {
         disabled={files.length < MIN_FILES}
       >
         Submit
-      </ActiveButton>
+      </ButtonWithError>
     </form>
   );
 };
