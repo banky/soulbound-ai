@@ -4,6 +4,7 @@ import { authOptions, Session } from "./auth/[...nextauth]";
 import { getServerSession } from "next-auth";
 import prisma from "clients/prisma";
 import { StockPromptClass } from "@prisma/client";
+import { MAX_PENDING_ORDERS } from "constant/orders";
 
 export default async function handler(
   req: NextApiRequest,
@@ -45,6 +46,18 @@ const postGenerateImages = async (
     return res.status(400).json({
       message:
         "Please use @object in prompt to utilise custom model. Example: Renaissance portrait of @object",
+    });
+  }
+
+  const numPendingOrders = await prisma.order.count({
+    where: {
+      ready: false,
+    },
+  });
+
+  if (numPendingOrders === MAX_PENDING_ORDERS) {
+    return res.status(429).json({
+      message: `Cannot create more than ${MAX_PENDING_ORDERS} concurrent orders. Please wait for one to complete`,
     });
   }
 
