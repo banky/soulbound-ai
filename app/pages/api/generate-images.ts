@@ -57,7 +57,7 @@ const postGenerateImages = async (
 
   if (numPendingOrders === MAX_PENDING_ORDERS) {
     return res.status(429).json({
-      message: `Cannot create more than ${MAX_PENDING_ORDERS} concurrent orders. Please wait for one to complete`,
+      message: `Cannot create more than ${MAX_PENDING_ORDERS} concurrent orders. Please wait for some to complete`,
     });
   }
 
