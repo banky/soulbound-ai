@@ -5,6 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import prisma from "clients/prisma";
 import supabase from "clients/supabase";
+import mime from "mime-types";
 
 export default async function handler(
   req: NextApiRequest,
@@ -76,11 +77,19 @@ const postToken = async (req: NextApiRequest, res: NextApiResponse<any>) => {
 
   const image = await fetch(imageUrl);
   const blob = await image.blob();
-  const imagePath = `${randomUUID()}.png`;
+  const extension = mime.extension(blob.type);
 
+  if (extension === false) {
+    return res.status(500).json({
+      message: "Invalid mime type",
+    });
+  }
+
+  const imagePath = `${randomUUID()}.${extension}`;
   const { error } = await supabase.storage
     .from("images")
     .upload(imagePath, blob, {
+      contentType: blob.type,
       cacheControl: "3600",
       upsert: true,
     });
