@@ -87,6 +87,8 @@ const postTrainModel = async (
 /**
  * Train the model with neural love
  * @param sources
+ * @param name
+ * @param descriptor
  * @returns
  */
 const trainModel = async (

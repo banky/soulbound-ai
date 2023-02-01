@@ -221,6 +221,7 @@ const GenerateImageButtons = ({
     <>
       <div className="flex gap-8 w-fit mx-auto">
         <Button
+          disabled={prompt.length === 0}
           loading={generateImageLoading}
           onClick={() => onClickGenerate()}
         >
