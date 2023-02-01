@@ -136,7 +136,7 @@ describe("/api/token", () => {
       expect(prisma.token.create).toHaveBeenCalledWith({
         data: {
           description: "mock-prompt",
-          imagePath: "mock-random-uuid.png",
+          imagePath: "mock-random-uuid.jpeg",
           imageUrl: "mock-supabase-public-url",
           name: "AI art for 0xf39Fd",
           owner: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
