@@ -5,6 +5,12 @@ async function main() {
   const [deployoor] = await ethers.getSigners();
   const SoulboundAIFactory = await ethers.getContractFactory("SoulboundAI");
 
+  const deployerBalance = await deployoor.getBalance();
+  console.log(
+    "deployerBalance (ETH):",
+    ethers.utils.formatEther(deployerBalance)
+  );
+
   console.log("Deploying SoulboundAI");
   const soulboundAI = (await upgrades.deployProxy(SoulboundAIFactory, [
     ethers.utils.parseEther("0.02"),

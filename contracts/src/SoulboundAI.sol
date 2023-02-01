@@ -82,7 +82,7 @@ contract SoulboundAI is ERC721EnumerableUpgradeable, OwnableUpgradeable {
 
     function _baseURI() internal view override returns (string memory) {
         if (block.chainid == 1) {
-            return "https://soulbound-ai.vercel.app/api/token-metadata/";
+            return "https://soulbound-ai.com/api/token-metadata/";
         }
 
         if (block.chainid == 5) {
