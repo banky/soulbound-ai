@@ -219,7 +219,7 @@ const GenerateImageButtons = ({
 
   return (
     <>
-      <div className="flex gap-8 w-fit mx-auto">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-8 w-fit mx-auto">
         <Button
           disabled={prompt.length === 0}
           loading={generateImageLoading}
