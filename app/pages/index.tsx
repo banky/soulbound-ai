@@ -45,11 +45,17 @@ const Home = ({ referrer }: HomeProps) => {
 
   const onMint = async () => {
     await postImageModel();
+
+    // It takes a bit of time for transaction data to propagate
+    await new Promise((res) => setTimeout(res, 2000));
     await refetchMintState();
   };
 
   const onBurn = async () => {
     await deleteToken();
+
+    // It takes a bit of time for transaction data to propagate
+    await new Promise((res) => setTimeout(res, 2000));
     await refetchMintState();
   };
 
