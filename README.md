@@ -1,3 +1,5 @@
+[![ci](https://github.com/banky/soulbound-ai/actions/workflows/ci.yml/badge.svg)](https://github.com/banky/soulbound-ai/actions/workflows/ci.yml)
+
 # Soulbound AI
 
 Mint a unique photorealistic Soulbound NFT using dreambooth. Users can mint an NFT which gives access to training a dreambooth model and then generate any number of images at no extra cost.  This project has been deployed at [soulbound-ai.com](https://soulbound-ai.com) and the main contract is deployed on mainnet at [0x70e1834c72276cd4cc89a88c81efe81a1ca53004](https://etherscan.io/address/0x70e1834c72276cd4cc89a88c81efe81a1ca53004)
