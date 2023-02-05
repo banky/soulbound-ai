@@ -88,7 +88,7 @@ export const useAppState = (): AppState => {
     return AppState.SelectImage;
   }
 
-  if (mintState === MintState.Burn) {
+  if (token != null && mintState === MintState.Burn) {
     return AppState.Burn;
   }
 

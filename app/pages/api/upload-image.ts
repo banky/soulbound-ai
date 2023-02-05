@@ -4,7 +4,11 @@ import { getServerSession } from "next-auth";
 import { authOptions, Session } from "./auth/[...nextauth]";
 import { addressHasSBT } from "helpers/contract-reads";
 import fs from "fs";
-import { ALLOWED_FILE_EXTENSIONS, MAX_FILE_SIZE } from "constant/image-upload";
+import {
+  ALLOWED_FILE_EXTENSIONS,
+  MAX_FILES,
+  MAX_FILE_SIZE,
+} from "constant/image-upload";
 import {
   validFormidableFileSize,
   validFormidableFileType,
@@ -52,6 +56,23 @@ const postUploadImage = async (
       .json({ message: "Unauthorized. User does not have a soulbound AI SBT" });
   }
 
+  const imageModel = await prisma.imageModel.findUnique({
+    where: {
+      owner: address,
+    },
+  });
+  if (imageModel == null) {
+    return res.status(404).json({
+      message: "ImageModel not found",
+    });
+  }
+
+  const { s3Urls } = imageModel;
+  if (s3Urls.length === MAX_FILES) {
+    // We've uploaded enough files
+    return res.status(200).json({});
+  }
+
   const form = new IncomingForm({ uploadDir: "/tmp" });
   const files = await new Promise<Files>((resolve, reject) => {
     form.parse(req, (err, _, files) => {
@@ -83,17 +104,6 @@ const postUploadImage = async (
       message: `Some uploaded files are not valid. Valid file types are ${ALLOWED_FILE_EXTENSIONS.join(
         ", "
       )}`,
-    });
-  }
-
-  const imageModel = await prisma.imageModel.findUnique({
-    where: {
-      owner: address,
-    },
-  });
-  if (imageModel == null) {
-    return res.status(404).json({
-      message: "ImageModel not found",
     });
   }
 
