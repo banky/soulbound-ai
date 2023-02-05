@@ -23,7 +23,7 @@ yarn dev
 # Project overview
 
 ## Smart contracts
-
+The main smart contract is an upgradeable, ownable ERC721 contract based on the OpenZeppelin implementation. There are some extensions for whitelisting users, and allowing users to mint with a referral. Referrals distribute some of the mint fee to the referrer
 
 ## Application
 The app is built using Nextjs, Prisma, Supabase and Rainbowkit. The dreambooth training and image generation is handled by [neural.love](https://neural.love). 
