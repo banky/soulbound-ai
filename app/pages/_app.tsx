@@ -9,6 +9,7 @@ import { Inconsolata } from "@next/font/google";
 import { SessionProvider } from "next-auth/react";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { Head } from "components/head";
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
 
@@ -50,18 +51,21 @@ const wagmiClient = createClient({
 
 const App = ({ Component, pageProps }: AppProps) => {
   return (
-    <WagmiConfig client={wagmiClient}>
-      <SessionProvider session={pageProps.session} refetchInterval={0}>
-        <RainbowKitProvider chains={chains}>
-          <QueryClientProvider client={queryClient}>
-            <Head />
-            <div className={inconsolata.className}>
-              <Component {...pageProps} />
-            </div>
-          </QueryClientProvider>
-        </RainbowKitProvider>
-      </SessionProvider>
-    </WagmiConfig>
+    <>
+      <WagmiConfig client={wagmiClient}>
+        <SessionProvider session={pageProps.session} refetchInterval={0}>
+          <RainbowKitProvider chains={chains}>
+            <QueryClientProvider client={queryClient}>
+              <Head />
+              <div className={inconsolata.className}>
+                <Component {...pageProps} />
+              </div>
+            </QueryClientProvider>
+          </RainbowKitProvider>
+        </SessionProvider>
+      </WagmiConfig>
+      <Analytics />
+    </>
   );
 };
 
