@@ -1,4 +1,4 @@
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import { SoulboundAI, SoulboundAIABI } from "contracts";
 
 const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
