@@ -15,28 +15,37 @@ import { Description } from "slots/description";
 import { GetServerSideProps } from "next";
 import { ethers } from "ethers";
 import { Loading } from "slots/loading";
+import { addressHasSBT, getFee } from "helpers/contract-reads";
 
 type HomeProps = {
+  fee: string;
   referrer?: string;
 };
 
 export const getServerSideProps: GetServerSideProps = async (
   req
 ): Promise<{ props: HomeProps }> => {
+  const fee = await getFee();
   const { referrer } = req.query;
 
-  if (typeof referrer === "string" && ethers.utils.isAddress(referrer)) {
-    return {
-      props: { referrer },
-    };
+  const validReferrer =
+    typeof referrer === "string" &&
+    ethers.utils.isAddress(referrer) &&
+    (await addressHasSBT(referrer));
+
+  if (!validReferrer) {
+    return { props: { fee } };
   }
 
   return {
-    props: {},
+    props: {
+      fee,
+      referrer,
+    },
   };
 };
 
-const Home = ({ referrer }: HomeProps) => {
+const Home = ({ fee, referrer }: HomeProps) => {
   const appState = useAppState();
 
   const { refetchMintState } = useMintState();
@@ -68,7 +77,7 @@ const Home = ({ referrer }: HomeProps) => {
         return <SignIn />;
 
       case AppState.Mint:
-        return <Mint referrer={referrer} onMint={onMint} />;
+        return <Mint fee={fee} referrer={referrer} onMint={onMint} />;
 
       case AppState.Burn:
         return <Burn onBurn={onBurn} />;
