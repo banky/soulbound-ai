@@ -16,6 +16,8 @@ import { GetServerSideProps } from "next";
 import { ethers } from "ethers";
 import { Loading } from "slots/loading";
 import { addressHasSBT, getFee } from "helpers/contract-reads";
+import { Etherscan } from "svg/etherscan";
+import { Github } from "svg/github";
 
 type HomeProps = {
   fee: string;
@@ -110,6 +112,15 @@ const Home = ({ fee, referrer }: HomeProps) => {
     <>
       <header className="flex justify-between items-center">
         <h1 className="text-3xl">soulbound ai</h1>
+
+        <div className="flex gap-4">
+          <a href="https://github.com/banky/soulbound-ai/">
+            <Github />
+          </a>
+          <a href="https://etherscan.io/address/0x70e1834c72276cd4cc89a88c81efe81a1ca53004">
+            <Etherscan />
+          </a>
+        </div>
       </header>
 
       <main className="mt-24 md:mt-40">
