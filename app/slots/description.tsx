@@ -1,11 +1,16 @@
+import { ethers } from "ethers";
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { Arrow } from "svg/arrow";
 
-export const Description = () => {
+type DescriptionProps = {
+  fee: string;
+};
+
+export const Description = ({ fee }: DescriptionProps) => {
   return (
     <div>
-      <Introduction />
+      <Introduction fee={fee} />
       <HowToUse />
       <ImageType />
       <HowItWorks />
@@ -14,7 +19,10 @@ export const Description = () => {
   );
 };
 
-const Introduction = () => {
+type IntroductionProps = {
+  fee: string;
+};
+const Introduction = ({ fee }: IntroductionProps) => {
   const numImages = 10;
   const imageNames = Array.from(Array(numImages).keys()).map(
     (index) => `${index}.jpg`
@@ -40,14 +48,23 @@ const Introduction = () => {
             Create your own unique NFT with photorealistic art
           </h2>
           <p className="mb-4">
-            After minting a token, you will get access to generate as many
-            avatars as you like. The mint fee is used to cover costs of training
-            the AI model since this is quite computationally intensive.
+            Mint a token for just {ethers.utils.formatEther(fee)} eth and get
+            access to create unlimited avatars. The mint fee covers the cost of
+            initial training of the AI model, but all image generations after
+            that are free!
           </p>
           <p>
-            You are in full control of the prompt or you can even let us
-            generate custom images for you based on your photos. You can then
-            use your NFT on any platforms that accept NFT images
+            You can either create completely custom prompts, or you can use one
+            of our random prompts to get some inspiration. The generated NFT
+            will then be available on-chain and by all platforms that accept or
+            display NFTs. View the collection on{" "}
+            <a
+              className="underline"
+              href="https://opensea.io/collection/soulbound-ai"
+            >
+              opensea
+            </a>
+            .
           </p>
         </div>
         <div className="w-fit flex flex-col md:flex-row gap-8 items-center mx-auto">
@@ -108,13 +125,13 @@ const HowToUse = () => {
           <p className="mb-4">
             Simply connect your wallet and mint an NFT. Afterwards, we will ask
             you to upload at least 10 images that will be used to train an AI
-            model. All of your images will be deleted from our servers within 24
-            hours.
+            model. All of your images are only used for trainning and will be
+            deleted from our servers within 24 hours.
           </p>
           <p>
             When the model is trained, you are free to generate as many images
             as you like for free and select your favourite one. This image will
-            then be tied to your wallet and stored forever
+            then be tied to your wallet and stored forever.
           </p>
         </div>
       </div>
@@ -159,11 +176,11 @@ const HowItWorks = () => {
           </a>{" "}
           AI model that gets trained on the images that you uploaded. This model
           will figure out what your general features look like and then generate
-          output images that look similar in various different styles
+          output images that look similar in various different styles.
         </p>
         <p>
           The NFT that gets minted follows standard interfaces so you can use
-          your token wherever you can use an NFT on the web
+          your token wherever you can use an NFT on the web.
         </p>
       </div>
     </div>

@@ -119,7 +119,7 @@ const Home = ({ fee, referrer }: HomeProps) => {
 
         {getSlot()}
 
-        {showDescription ? <Description /> : null}
+        {showDescription ? <Description fee={fee} /> : null}
       </main>
     </>
   );
