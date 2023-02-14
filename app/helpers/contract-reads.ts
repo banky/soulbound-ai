@@ -14,6 +14,17 @@ export const getFee = async (): Promise<string> => {
   return fee.toString();
 };
 
+export const getReferralPercentage = async (): Promise<number> => {
+  const soulboundAI = new ethers.Contract(
+    process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "",
+    SoulboundAIABI.abi,
+    provider
+  ) as SoulboundAI;
+  const referralPercentage = await soulboundAI.getReferralPercentage();
+
+  return referralPercentage.toNumber();
+};
+
 export const addressHasSBT = async (address: string): Promise<boolean> => {
   const soulboundAI = new ethers.Contract(
     process.env.NEXT_PUBLIC_SOULBOUND_AI_ADDRESS ?? "",

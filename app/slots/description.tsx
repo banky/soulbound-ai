@@ -5,12 +5,14 @@ import { Arrow } from "svg/arrow";
 
 type DescriptionProps = {
   fee: string;
+  referralPercentage: number;
 };
 
-export const Description = ({ fee }: DescriptionProps) => {
+export const Description = ({ fee, referralPercentage }: DescriptionProps) => {
   return (
     <div>
       <Introduction fee={fee} />
+      <Referrals referralPercentage={referralPercentage} />
       <HowToUse />
       <ImageType />
       <HowItWorks />
@@ -104,6 +106,27 @@ const Introduction = ({ fee }: IntroductionProps) => {
             })}
           </div>
         </div>
+      </div>
+    </div>
+  );
+};
+
+type ReferralsPromps = {
+  referralPercentage: number;
+};
+
+const Referrals = ({ referralPercentage }: ReferralsPromps) => {
+  return (
+    <div className="mt-32 text-left w-fit mx-auto">
+      <div className="max-w-xl">
+        <h2 className="text-4xl mb-8">Earn ETH</h2>
+        <p className="mb-4">
+          After minting a token, refer friends to receive {referralPercentage}%
+          of the mint fee. The smart contract will make this deposit
+          automatically to your account when users mint using your referral
+          link. There is no limit on how many users can be referred so share
+          away!
+        </p>
       </div>
     </div>
   );

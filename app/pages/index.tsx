@@ -15,12 +15,17 @@ import { Description } from "slots/description";
 import { GetServerSideProps } from "next";
 import { ethers } from "ethers";
 import { Loading } from "slots/loading";
-import { addressHasSBT, getFee } from "helpers/contract-reads";
+import {
+  addressHasSBT,
+  getFee,
+  getReferralPercentage,
+} from "helpers/contract-reads";
 import { Etherscan } from "svg/etherscan";
 import { Github } from "svg/github";
 
 type HomeProps = {
-  fee: string;
+  fee: string; // Using a string because this number is in wei
+  referralPercentage: number;
   referrer?: string;
 };
 
@@ -28,6 +33,7 @@ export const getServerSideProps: GetServerSideProps = async (
   req
 ): Promise<{ props: HomeProps }> => {
   const fee = await getFee();
+  const referralPercentage = await getReferralPercentage();
   const { referrer } = req.query;
 
   const validReferrer =
@@ -36,18 +42,19 @@ export const getServerSideProps: GetServerSideProps = async (
     (await addressHasSBT(referrer));
 
   if (!validReferrer) {
-    return { props: { fee } };
+    return { props: { fee, referralPercentage } };
   }
 
   return {
     props: {
       fee,
+      referralPercentage,
       referrer,
     },
   };
 };
 
-const Home = ({ fee, referrer }: HomeProps) => {
+const Home = ({ fee, referralPercentage, referrer }: HomeProps) => {
   const appState = useAppState();
 
   const { refetchMintState } = useMintState();
@@ -82,7 +89,7 @@ const Home = ({ fee, referrer }: HomeProps) => {
         return <Mint fee={fee} referrer={referrer} onMint={onMint} />;
 
       case AppState.Burn:
-        return <Burn onBurn={onBurn} />;
+        return <Burn referralPercentage={referralPercentage} onBurn={onBurn} />;
 
       case AppState.UploadImages:
         return <UploadImages />;
@@ -130,7 +137,9 @@ const Home = ({ fee, referrer }: HomeProps) => {
 
         {getSlot()}
 
-        {showDescription ? <Description fee={fee} /> : null}
+        {showDescription ? (
+          <Description fee={fee} referralPercentage={referralPercentage} />
+        ) : null}
       </main>
     </>
   );
