@@ -5,7 +5,7 @@ import * as NextAuth from "next-auth";
 import * as ContractReads from "helpers/contract-reads";
 import handler from "pages/api/generate-images";
 import prisma from "clients/__mocks__/prisma";
-import { ImageModel, Order } from "@prisma/client";
+import { Order } from "@prisma/client";
 
 vi.mock("clients/prisma");
 vi.mock("next-auth");
@@ -26,7 +26,7 @@ describe("/api/generate-images", () => {
         method: "POST",
         body: {
           prompt:
-            "Portrait art of @object, closeup, male | painted by Miles Aldridge",
+            "Portrait art of @me, closeup, male | painted by Miles Aldridge",
         },
       });
 
@@ -64,7 +64,7 @@ describe("/api/generate-images", () => {
       });
     });
 
-    it("asks the user for a prompt that includes the @object", async () => {
+    it("asks the user for a prompt that includes the @me", async () => {
       vi.spyOn(NextAuth, "getServerSession").mockResolvedValue({
         address: mockAddress,
       });
@@ -76,7 +76,7 @@ describe("/api/generate-images", () => {
       expect(res._getStatusCode()).toBe(400);
       expect(res._getJSONData()).toEqual({
         message:
-          "Please use @object in prompt to utilise custom model. Example: Renaissance portrait of @object",
+          "Please use @me in prompt to utilise custom model. Example: Renaissance portrait of @me",
       });
     });
 
@@ -190,7 +190,7 @@ describe("/api/generate-images", () => {
         owner: mockAddress,
         orderId: "1ed9f57d-2bd1-6ef2-93ae-83bd031b9040",
         prompt:
-          "Portrait art of @object, closeup, male | painted by Miles Aldridge",
+          "Portrait art of @me, closeup, male | painted by Miles Aldridge",
         updatedAt: new Date(),
         createdAt: new Date(),
       };
@@ -231,7 +231,7 @@ describe("/api/generate-images", () => {
         owner: mockAddress,
         orderId: "1ed9f57d-2bd1-6ef2-93ae-83bd031b9040",
         prompt:
-          "Painting of @object, from the Legend of Zelda by Leonardo da Vinci, Nintendo, Deviantart, Artstation, Breath of the Wild, blonde hair, blue eyes, Tr",
+          "Painting of @me, from the Legend of Zelda by Leonardo da Vinci, Nintendo, Deviantart, Artstation, Breath of the Wild, blonde hair, blue eyes, Tr",
         updatedAt: new Date(),
         createdAt: new Date(),
       };
@@ -246,7 +246,7 @@ describe("/api/generate-images", () => {
           orderId: "1ed9f57d-2bd1-6ef2-93ae-83bd031b9040",
           imageUrls: [],
           prompt:
-            "Painting of @object, from the Legend of Zelda by Leonardo da Vinci, Nintendo, Deviantart, Artstation, Breath of the Wild, blonde hair, blue eyes, Tr",
+            "Painting of @me, from the Legend of Zelda by Leonardo da Vinci, Nintendo, Deviantart, Artstation, Breath of the Wild, blonde hair, blue eyes, Tr",
           ready: false,
         },
       });

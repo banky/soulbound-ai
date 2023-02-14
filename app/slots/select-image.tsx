@@ -56,7 +56,7 @@ export const SelectImage = () => {
           className="w-full max-w-3xl p-4 rounded-md text-blue mb-4 hover:scale-105 transition"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Portrait art of @object, closeup, male | painted by Miles Aldridge"
+          placeholder="Portrait art of @me, closeup, male | painted by Miles Aldridge"
         ></input>
         <GenerateImageButtons prompt={prompt} setPrompt={setPrompt} />
       </div>

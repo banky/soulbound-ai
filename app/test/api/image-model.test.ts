@@ -36,10 +36,6 @@ describe("/api/image-model", () => {
         NextApiResponse<any>
       >({
         method: "POST",
-        body: {
-          prompt:
-            "Portrait art of @object, closeup, male | painted by Miles Aldridge",
-        },
       });
 
       req = _req;

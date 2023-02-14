@@ -42,10 +42,10 @@ const postGenerateImages = async (
 
   const { prompt, negativePrompt } = await getPrompt(req, address);
 
-  if (!prompt.includes("@object")) {
+  if (!prompt.includes("@me")) {
     return res.status(400).json({
       message:
-        "Please use @object in prompt to utilise custom model. Example: Renaissance portrait of @object",
+        "Please use @me in prompt to utilise custom model. Example: Renaissance portrait of @me",
     });
   }
 
@@ -83,7 +83,12 @@ const postGenerateImages = async (
 
   let orderId: string;
   try {
-    const generated = await generateImages(modelId, prompt, negativePrompt);
+    const neuralLovePrompt = prompt.replaceAll("@me", "@object");
+    const generated = await generateImages(
+      modelId,
+      neuralLovePrompt,
+      negativePrompt
+    );
     orderId = generated.orderId;
   } catch (error) {
     return res.status(500).json({
@@ -194,6 +199,8 @@ const getPrompt = async (
   });
 
   const randomIndex = Math.floor(Math.random() * stockPrompts.length);
+  const stockPrompt = stockPrompts[randomIndex];
+  stockPrompt.prompt = stockPrompt.prompt.replaceAll("@object", "@me");
 
-  return stockPrompts[randomIndex];
+  return stockPrompt;
 };
