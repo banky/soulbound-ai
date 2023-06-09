@@ -211,7 +211,7 @@ const mockIsModelReady = async (existingModelId: string) => {
     throw new Error("Image model provided in env file does not exist");
   }
 
-  const mockTrainingTime = 10 * 60 * 1000;
+  const mockTrainingTime = 60 * 1000;
   const isReady =
     Date.now() - imageModel.createdAt.getTime() > mockTrainingTime;
 
